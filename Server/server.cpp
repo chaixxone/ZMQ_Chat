@@ -2,6 +2,40 @@
 #include <iostream>
 #include <sstream>
 
+enum class Action
+{
+    Connect,
+    SendMessage,
+    CreateChat,
+    AcceptCreateChat,
+    Unknown
+};
+
+static Action stringToAction(const std::string& actionStr)
+{
+    const short CREATE_CHAT_PREFX_LENGTH = 12;
+
+    static const std::unordered_map<std::string, Action> actionMap = {
+        {"!connect!", Action::Connect},
+        {"send_message", Action::SendMessage},
+        {"create_chat", Action::CreateChat},
+        {"accept_create_chat", Action::AcceptCreateChat}
+    };
+
+    auto it = actionMap.find(actionStr);
+
+    if (it != actionMap.end())
+    {
+        return it->second;
+    }
+    else if (actionStr.substr(0, CREATE_CHAT_PREFX_LENGTH) == "create_chat:")
+    {
+        return Action::CreateChat;
+    }
+
+    return Action::Unknown;
+}
+
 Server::Server(std::string binding) : _context(1), _socket(_context, zmq::socket_type::router)
 {
     _socket.bind(binding);
@@ -21,22 +55,26 @@ void Server::Run()
         std::string dataStr = data.to_string();
         std::cout << clientId << " " << actionStr << " " << dataStr << std::endl;
 
-        if (actionStr == "!connect!")
+        Action actionEnum = stringToAction(actionStr);
+
+        switch (actionEnum)
         {
+        case Action::Connect:
             _clients.insert(clientId);
             std::cout << "[Server] Client " << clientId << " connected." << std::endl;
-        }
-        else if (actionStr == "send_message")
-        {
+            break;
+        case Action::SendMessage:
             _handleSendMessage(clientId, dataStr);
-        }
-        else if (actionStr.substr(0, 12) == "create_chat:")
-        {
+            break;
+        case Action::CreateChat:
             _prepareNewChatSession(clientId, actionStr, dataStr);
-        }
-        else
-        {
-            _handleResponseForInvite(identity, clientId, dataStr, actionStr == "accept_create_chat");
+            break;
+        case Action::AcceptCreateChat:
+            _handleResponseForInvite(identity, clientId, dataStr, true);
+            break;
+        default:
+            _handleResponseForInvite(identity, clientId, dataStr, false);
+            break;
         }
     }
 }
