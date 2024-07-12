@@ -1,7 +1,6 @@
 #pragma once
 #include "client_interface.hpp"
 #include <thread>
-#include <mutex>
 
 class Client : IClient
 {
@@ -9,10 +8,9 @@ public:
     Client(std::string endpoint, std::string identity);
     ~Client();
     void RequestToCreateChat(std::string& clients, std::string& chatId) override;
-    void SendMessageToChat(const std::string& messageStr, const std::string& actionStr = "send_message") override;
+    void SendMessageToChat(std::string& messageStr, const std::string& actionStr = "send_message") override;
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
-    size_t GetChatId() const;
 
 private:
     void _receiveMessage();
@@ -23,5 +21,4 @@ private:
     size_t _chatId;
     bool _isInChat;
     bool _hasRequestToChat;
-    std::mutex _mutex;
 };
