@@ -21,19 +21,20 @@ Client::~Client()
     }
 }
 
-size_t Client::GetChatId() const
-{
-    return _chatId;
-}
-
 bool Client::HasRequestToChat() const
 {
     return _hasRequestToChat;
 }
 
-void Client::SendMessageToChat(const std::string& messageStr, const std::string& actionStr)
+void Client::SendMessageToChat(std::string& messageStr, const std::string& actionStr)
 {
     zmq::message_t action(actionStr);
+
+    if (actionStr == "send_message")
+    {
+        messageStr = std::to_string(_chatId) + ":" + messageStr;
+    }
+
     zmq::message_t message(messageStr);
     bool result = _socket.send(action, zmq::send_flags::sndmore) && _socket.send(message, zmq::send_flags::none);
 
@@ -50,6 +51,7 @@ void Client::RequestToCreateChat(std::string& clients, std::string& chatId)
     std::string chatInfo = "create_chat:" + chatId;
     SendMessageToChat(clients, chatInfo);
     _chatId = static_cast<size_t>(stoi(chatId));
+    _isInChat = true;
 }
 
 void Client::_receiveMessage()
@@ -62,17 +64,13 @@ void Client::_receiveMessage()
 
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
-        std::cout << actionStr << " " << _isInChat << std::endl;
 
-        std::unique_lock<std::mutex> lock(_mutex);
         if (actionStr.substr(0, 12) == "create_chat:" && !_isInChat)
         {
             _chatId = static_cast<size_t>(stoi(actionStr.substr(12)));
             std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << std::endl;
-            lock.unlock();
             _hasRequestToChat = true;
             std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)" << std::endl;
-            lock.lock();
         }
         else if (actionStr == "new_chat")
         {
