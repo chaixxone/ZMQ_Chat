@@ -28,65 +28,71 @@ void Server::Run()
         }
         else if (actionStr == "send_message")
         {
-            size_t delimiter = dataStr.find_first_of(":");
-            std::stringstream ss;
-            ss << clientId << ": " << dataStr.substr(delimiter + 1);
-            size_t chatId;
-
-            try
-            {
-                chatId = std::stoi(dataStr.substr(0, delimiter));
-            }
-            catch (const std::exception& exc)
-            {
-                std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame" << std::endl;
-                continue;
-            }
-
-            _callback("incoming_message", ss.str(), _activeChats[chatId]);
+            _handleSendMessage(clientId, dataStr);
         }
         else if (actionStr.substr(0, 12) == "create_chat:")
         {
-            auto clients = _parseClients(dataStr);
-            auto chatId = actionStr.substr(12);
-            std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatId << ")with " << dataStr << std::endl;
-            _askClients(std::make_pair(static_cast<size_t>(stoi(chatId)), identity.to_string()), std::vector<std::string>(clients.begin(), clients.end()));
-            _activeChats[static_cast<size_t>(stoi(chatId))].insert(identity.to_string());
+            _prepareNewChatSession(clientId, actionStr, dataStr);
         }
-        else if (actionStr == "accept_create_chat" || actionStr == "decline_create_chat")
+        else
         {
-            std::cout << "Attension!" << std::endl;
-
-            size_t chatId = std::stoi(dataStr);
-
-            if (_pendingChatInvites.find(chatId) != _pendingChatInvites.end())
-            {
-                std::cout << "found someone!" << std::endl;
-
-                if (actionStr == "accept_create_chat")
-                {
-                    _activeChats[chatId].insert(clientId);
-                    std::cout << "[Server] Client " << clientId << " accepted chat invitation." << std::endl;
-
-                    zmq::message_t actionChatFrame(std::string("new_chat"));
-                    zmq::message_t chatIdFrame(std::to_string(chatId));
-
-                    _socket.send(identity, zmq::send_flags::sndmore);
-                    _socket.send(actionChatFrame, zmq::send_flags::sndmore);
-                    _socket.send(chatIdFrame, zmq::send_flags::none);
-                }
-                else if (actionStr == "decline_create_chat")
-                {
-                    _pendingChatInvites[chatId].erase(clientId);
-                    std::cout << "[Server] Client " << clientId << " declined chat invitation." << std::endl;
-                }
-
-                if (_pendingChatInvites[chatId].empty())
-                {
-                    _pendingChatInvites.erase(chatId);
-                }
-            }
+            _handleResponseForInvite(identity, clientId, dataStr, actionStr == "accept_create_chat");
         }
+    }
+}
+
+void Server::_handleSendMessage(const std::string& clientId, const std::string& dataStr)
+{
+    size_t delimiter = dataStr.find_first_of(":");
+    std::stringstream ss;
+    ss << clientId << ": " << dataStr.substr(delimiter + 1);
+    size_t chatId;
+
+    try
+    {
+        chatId = std::stoi(dataStr.substr(0, delimiter));
+    }
+    catch (...)
+    {
+        std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame" << std::endl;
+        return;
+    }
+
+    _callback("incoming_message", ss.str(), _activeChats[chatId]);
+}
+
+void Server::_prepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
+{
+    auto clients = _parseClients(dataStr);
+    auto chatIdStr = actionStr.substr(12);
+    auto chatId = static_cast<size_t>(stoi(chatIdStr));
+    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << std::endl;
+    _askClients(std::make_pair(chatId, clientId), clients);
+    _activeChats[chatId].insert(clientId);
+}
+
+void Server::_handleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
+{
+    auto chatId = static_cast<size_t>(stoi(dataStr));
+
+    if (_pendingChatInvites.find(chatId) != _pendingChatInvites.end())
+    {
+        if (!isAccepted)
+        {
+            _pendingChatInvites[chatId].erase(clientId);
+            std::cout << "[Server] Client " << clientId << " declined chat invitation." << std::endl;
+            return;
+        }
+
+        _activeChats[chatId].insert(clientId);
+        std::cout << "[Server] Client " << clientId << " accepted chat invitation." << std::endl;
+
+        zmq::message_t actionChatFrame(std::string("new_chat"));
+        zmq::message_t chatIdFrame(std::to_string(chatId));
+
+        _socket.send(identity, zmq::send_flags::sndmore);
+        _socket.send(actionChatFrame, zmq::send_flags::sndmore);
+        _socket.send(chatIdFrame, zmq::send_flags::none);
     }
 }
 
@@ -102,39 +108,40 @@ std::unordered_set<std::string> Server::_parseClients(const std::string& clients
     return clientSet;
 }
 
-void Server::_askClients(const std::pair<size_t, std::string>& chatInfo, const std::vector<std::string>& clients)
+void Server::_askClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients)
 {
     auto chatId = chatInfo.first;
     auto& asker = chatInfo.second;
     _pendingChatInvites[chatId].insert(asker);
     auto chatInfoStr = "create_chat:" + std::to_string(chatId);
 
+    _callback(chatInfoStr, asker, clients);
+
     for (const auto& client : clients)
     {
-        zmq::message_t clientFrame(client);
-        zmq::message_t action(chatInfoStr);
-        zmq::message_t data(asker);
-
-        _socket.send(clientFrame, zmq::send_flags::sndmore);
-        _socket.send(action, zmq::send_flags::sndmore);
-        _socket.send(data, zmq::send_flags::none);
-
-        _pendingChatInvites[chatId].insert(client);
+        if (_clients.find(client) != _clients.end())
+        {
+            _pendingChatInvites[chatId].insert(client);
+        }
+        else
+        {
+            std::cerr << "[Server] Client " << client << " doesn't exist" << std::endl;
+        }
     }
 }
 
-void Server::_callback(const std::string& action, const std::string& message, const std::unordered_set<std::string>& clients)
+void Server::_callback(const std::string& actionStr, const std::string& message, const std::unordered_set<std::string>& clients)
 {
     for (const auto& client : clients)
     {
         try
         {
             zmq::message_t clientId(client);
-            zmq::message_t actionStr(action);
+            zmq::message_t action(actionStr);
             zmq::message_t data(message);
 
             _socket.send(clientId, zmq::send_flags::sndmore);
-            _socket.send(actionStr, zmq::send_flags::sndmore);
+            _socket.send(action, zmq::send_flags::sndmore);
             _socket.send(data, zmq::send_flags::none);
         }
         catch (zmq::error_t& e)
