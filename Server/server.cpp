@@ -44,8 +44,6 @@ void Server::Run()
 void Server::_handleSendMessage(const std::string& clientId, const std::string& dataStr)
 {
     size_t delimiter = dataStr.find_first_of(":");
-    std::stringstream ss;
-    ss << clientId << ": " << dataStr.substr(delimiter + 1);
     size_t chatId;
 
     try
@@ -58,7 +56,9 @@ void Server::_handleSendMessage(const std::string& clientId, const std::string& 
         return;
     }
 
-    _callback("incoming_message", ss.str(), _activeChats[chatId]);
+    std::stringstream pureMessage;
+    pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
+    _callback("incoming_message", pureMessage.str(), _activeChats[chatId]);
 }
 
 void Server::_prepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
