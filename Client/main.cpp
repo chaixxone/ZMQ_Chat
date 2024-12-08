@@ -16,10 +16,10 @@ int main(int argc, char** argv)
     host = argv[1];
     self = argv[2];
 
-    Client* client = new Client(host, self);
+    Client client{ host, self };
 #else
     std::cin >> host >> self;
-    Client client(host, self);
+    Client client{ host, self };
 #endif
 
     std::string line;
@@ -38,7 +38,6 @@ int main(int argc, char** argv)
         }
         else
         {
-            delete client;
             break;
         }
     }
