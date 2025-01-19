@@ -2,12 +2,12 @@
 #include <limits>
 #include "client.hpp"
 
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     std::string host, self;
 
 #ifdef NDEBUG
-    if (argc < 3) 
+    if (argc < 3)
     {
         std::cerr << "Usage: client <host> <identity>" << std::endl;
         return 1;
@@ -15,26 +15,32 @@ int main(int argc, char** argv)
 
     host = argv[1];
     self = argv[2];
-
-    Client client{ host, self };
 #else
     std::cin >> host >> self;
-    Client client{ host, self };
 #endif
+    Client client{ host, self };
 
     std::string line;
+    const size_t clientsListStartPos = 9;
 
-    while (true) 
+    while (true)
     {
         std::getline(std::cin, line);
 
-        if (line.substr(0, 10) == "/connect:")
+        if (client.HasRequestToChat())
         {
-            client->RequestToCreateChat(line.substr(10));
+            client.Reply(line);
+        }
+        else if (line.substr(0, clientsListStartPos) == "/connect:")
+        {
+            // example [/connect:cli1 cli2:55]
+            size_t clientListEndsPos = line.rfind(':');
+            std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
+            client.RequestToCreateChat(clientListStr, line.substr(clientListEndsPos + 1));
         }
         else if (line != "/quit")
         {
-            client->SendMessageToChat(line);
+            client.SendMessageToChat(line);
         }
         else
         {
