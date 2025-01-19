@@ -4,7 +4,7 @@
 int main(int argc, char** argv)
 {
 #ifndef NDEBUG
-    argv[1] = "tcp://localhost:5555";
+    std::strcpy(argv[1], "tcp://localhost:5555");
 #else
     if (argc < 2)
     {
