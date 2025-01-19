@@ -44,7 +44,7 @@ void Client::SendMessageToChat(std::string& messageStr, const std::string& actio
     }
 }
 
-void Client::RequestToCreateChat(std::string& clients, std::string& chatId)
+void Client::RequestToCreateChat(std::string& clients, const std::string& chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << std::endl;
@@ -91,14 +91,16 @@ void Client::_receiveMessage()
 
 void Client::Reply(const std::string& reply)
 {
+    std::string chatIDstr = std::to_string(_chatId);
+
     if (reply == "y")
     {
         std::cout << "accepted!" << std::endl;
-        SendMessageToChat(std::to_string(_chatId), "accept_create_chat");
+        SendMessageToChat(chatIDstr, "accept_create_chat");
     }
     else
     {
-        SendMessageToChat(std::to_string(_chatId), "decline_create_chat");
+        SendMessageToChat(chatIDstr, "decline_create_chat");
         _chatId = NULL;
     }
 
