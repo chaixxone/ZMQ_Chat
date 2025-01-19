@@ -1,8 +1,5 @@
-// ----------------------------Don't-touch-this!-----------------------------
-
 #include <iostream>
 #include "server.hpp"
-#include <memory>
 
 int main(int argc, char** argv)
 {
@@ -16,12 +13,8 @@ int main(int argc, char** argv)
     }
 #endif
 
-    Server* server = new Server(argv[1]);
-    server->Run();
-    
-    delete server;
+    Server server{ argv[1] };
+    server.Run();
 
     return 0;
 }
-
-// ---------------------------------------------------------------------------
