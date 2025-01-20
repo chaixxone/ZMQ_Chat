@@ -64,22 +64,22 @@ void Server::Run()
             std::cout << "[Server] Client " << clientId << " connected." << std::endl;
             break;
         case Action::SendMessage:
-            _handleSendMessage(clientId, dataStr);
+            HandleSendMessage(clientId, dataStr);
             break;
         case Action::CreateChat:
-            _prepareNewChatSession(clientId, actionStr, dataStr);
+            PrepareNewChatSession(clientId, actionStr, dataStr);
             break;
         case Action::AcceptCreateChat:
-            _handleResponseForInvite(identity, clientId, dataStr, true);
+            HandleResponseForInvite(identity, clientId, dataStr, true);
             break;
         default:
-            _handleResponseForInvite(identity, clientId, dataStr, false);
+            HandleResponseForInvite(identity, clientId, dataStr, false);
             break;
         }
     }
 }
 
-void Server::_handleSendMessage(const std::string& clientId, const std::string& dataStr)
+void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr)
 {
     size_t delimiter = dataStr.find_first_of(":");
     size_t chatId;
@@ -96,20 +96,20 @@ void Server::_handleSendMessage(const std::string& clientId, const std::string& 
 
     std::stringstream pureMessage;
     pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    _callback("incoming_message", pureMessage.str(), _activeChats[chatId]);
+    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId]);
 }
 
-void Server::_prepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
+void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
 {
-    auto clients = _parseClients(dataStr);
+    auto clients = ParseClients(dataStr);
     auto chatIdStr = actionStr.substr(12);
     auto chatId = static_cast<size_t>(stoi(chatIdStr));
     std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << std::endl;
-    _askClients(std::make_pair(chatId, clientId), clients);
+    AskClients(std::make_pair(chatId, clientId), clients);
     _activeChats[chatId].insert(clientId);
 }
 
-void Server::_handleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
+void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
 {
     auto chatId = static_cast<size_t>(stoi(dataStr));
 
@@ -134,7 +134,7 @@ void Server::_handleResponseForInvite(zmq::message_t& identity, const std::strin
     }
 }
 
-std::unordered_set<std::string> Server::_parseClients(const std::string& clients)
+std::unordered_set<std::string> Server::ParseClients(const std::string& clients)
 {
     std::unordered_set<std::string> clientSet;
     std::stringstream ss(clients);
@@ -146,14 +146,14 @@ std::unordered_set<std::string> Server::_parseClients(const std::string& clients
     return clientSet;
 }
 
-void Server::_askClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients)
+void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients)
 {
     auto chatId = chatInfo.first;
     auto& asker = chatInfo.second;
     _pendingChatInvites[chatId].insert(asker);
     auto chatInfoStr = "create_chat:" + std::to_string(chatId);
 
-    _callback(chatInfoStr, asker, clients);
+    MessageDispatch(chatInfoStr, asker, clients);
 
     for (const auto& client : clients)
     {
@@ -168,7 +168,7 @@ void Server::_askClients(const std::pair<size_t, std::string>& chatInfo, const s
     }
 }
 
-void Server::_callback(const std::string& actionStr, const std::string& message, const std::unordered_set<std::string>& clients)
+void Server::MessageDispatch(const std::string& actionStr, const std::string& message, const std::unordered_set<std::string>& clients)
 {
     for (const auto& client : clients)
     {
