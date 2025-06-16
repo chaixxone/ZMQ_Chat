@@ -11,14 +11,12 @@ Client::Client(std::string endpoint, std::string identity)
     SendMessageToChat(connection, connection);
 
     _receiver = std::thread(&Client::_receiveMessage, this);
+    _receiver.detach();
 }
 
 Client::~Client()
 {
-    if (_receiver.joinable())
-    {
-        _receiver.join();
-    }
+
 }
 
 bool Client::HasRequestToChat() const
