@@ -15,8 +15,15 @@ int main(int argc, char** argv)
     std::string bindEndpoint(argv[1]);
 #endif
 
-    Server server{ bindEndpoint };
-    server.Run();
+    try
+    {
+        Server server{ bindEndpoint };
+        server.Run();
+    }
+    catch (const zmq::error_t& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 
     return 0;
 }
