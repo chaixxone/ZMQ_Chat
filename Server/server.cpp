@@ -15,7 +15,7 @@ namespace
 
     Action stringToAction(const std::string& actionStr)
     {
-        const short CREATE_CHAT_PREFX_LENGTH = 12;
+        const short CREATE_CHAT_PREFIX_LENGTH = 12;
 
         static const std::unordered_map<std::string, Action> actionMap = {
             {"!connect!", Action::Connect},
@@ -30,7 +30,7 @@ namespace
         {
             return it->second;
         }
-        else if (actionStr.substr(0, CREATE_CHAT_PREFX_LENGTH) == "create_chat:")
+        else if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:")
         {
             return Action::CreateChat;
         }
