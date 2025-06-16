@@ -5,6 +5,7 @@ Client::Client(std::string endpoint, std::string identity)
     : _context(1), _socket(_context, zmq::socket_type::dealer), _identity(identity), _isInChat(false), _hasRequestToChat(false)
 {
     _socket.set(zmq::sockopt::routing_id, _identity);
+    _socket.set(zmq::sockopt::linger, 0);
     _socket.connect(endpoint);
 
     std::string connection = "!connect!";
