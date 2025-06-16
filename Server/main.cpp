@@ -4,16 +4,18 @@
 int main(int argc, char** argv)
 {
 #ifdef DEBUG
-    std::strcpy(argv[1], "tcp://localhost:5555");
+    std::string bindEndpoint = "tcp://localhost:5555";
 #else
-    if (argc < 2)
+    if (argc != 2)
     {
         std::cerr << "Usage: " << argv[0] << " <bind-endpoint>" << std::endl;
         return 1;
     }
+
+    std::string bindEndpoint(argv[1]);
 #endif
 
-    Server server{ argv[1] };
+    Server server{ bindEndpoint };
     server.Run();
 
     return 0;
