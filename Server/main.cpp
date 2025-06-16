@@ -1,5 +1,4 @@
 #include <iostream>
-#include <stacktrace>
 #include "server.hpp"
 
 int main(int argc, char** argv)
@@ -23,9 +22,6 @@ int main(int argc, char** argv)
     }
     catch (const zmq::error_t& e)
     {
-#ifdef __GNUC__
-        std::cerr << std::stacktrace::current() << '\n';
-#endif
         std::cerr << e.what() << '\n';
     }
 
