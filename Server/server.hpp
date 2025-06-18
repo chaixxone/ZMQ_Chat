@@ -16,6 +16,7 @@ private:
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr);
     void PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr);
     void HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted);
+    void HandleConnection(zmq::message_t& clientId, const std::string& desiredIdentity);
 
     zmq::context_t _context;
     zmq::socket_t _socket;

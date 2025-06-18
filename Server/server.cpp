@@ -64,13 +64,7 @@ void Server::Run()
         switch (actionEnum)
         {
         case Action::Connect:
-            if (_clients.find(clientId) != _clients.end())
-            {
-                MessageDispatch("bad_name", "", { clientId });
-                break;
-            }
-            _clients.insert(clientId);
-            std::cout << "[Server] Client " << clientId << " connected.\n";
+            HandleConnection(identity, dataStr);
             break;
         case Action::SendMessage:
             HandleSendMessage(clientId, dataStr);
@@ -86,6 +80,26 @@ void Server::Run()
             break;
         }
     }
+}
+
+void Server::HandleConnection(zmq::message_t& clientId, const std::string& desiredIdentity)
+{
+    if (_clients.find(desiredIdentity) != _clients.end())
+    {
+        MessageDispatch("bad_name", desiredIdentity, { clientId.to_string() });
+        return;
+    }
+    static std::string actionNewNameStr = "new_name";
+    static zmq::message_t actionNewName(actionNewNameStr);
+
+    zmq::message_t desiredIdentityMessage(desiredIdentity);
+
+    _socket.send(clientId, zmq::send_flags::sndmore);
+    _socket.send(actionNewName, zmq::send_flags::sndmore);
+    _socket.send(desiredIdentityMessage, zmq::send_flags::none);
+
+    _clients.insert(desiredIdentity);
+    std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
 }
 
 void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr)
