@@ -13,9 +13,10 @@ namespace
         Unknown
     };
 
+    const short CREATE_CHAT_PREFIX_LENGTH = 12;
+
     Action stringToAction(const std::string& actionStr)
     {
-        const short CREATE_CHAT_PREFIX_LENGTH = 12;
 
         static const std::unordered_map<std::string, Action> actionMap = {
             {"!connect!", Action::Connect},
@@ -105,7 +106,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
 {
     auto clients = ParseClients(dataStr, clientId);
-    auto chatIdStr = actionStr.substr(12);
+    auto chatIdStr = actionStr.substr(CREATE_CHAT_PREFIX_LENGTH);
     auto chatId = static_cast<size_t>(stoi(chatIdStr));
     std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << '\n';
     AskClients(std::make_pair(chatId, clientId), clients);

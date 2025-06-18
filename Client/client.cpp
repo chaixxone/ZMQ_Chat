@@ -1,6 +1,8 @@
 #include "client.hpp"
 #include <iostream>
 
+const short CREATE_CHAT_PREFIX_LENGTH = 12;
+
 Client::Client(std::string endpoint, std::string identity)
     : _context(1), _socket(_context, zmq::socket_type::dealer), _identity(identity), _isInChat(false), _hasRequestToChat(false)
 {
@@ -63,9 +65,9 @@ void Client::_receiveMessage()
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
 
-        if (actionStr.substr(0, 12) == "create_chat:" && !_isInChat)
+        if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
         {
-            _chatId = static_cast<size_t>(stoi(actionStr.substr(12)));
+            _chatId = static_cast<size_t>(stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH)));
             std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
             _hasRequestToChat = true;
             std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
