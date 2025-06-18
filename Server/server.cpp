@@ -89,14 +89,9 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
         MessageDispatch("bad_name", desiredIdentity, { clientId.to_string() });
         return;
     }
+
     static std::string actionNewNameStr = "new_name";
-    static zmq::message_t actionNewName(actionNewNameStr);
-
-    zmq::message_t desiredIdentityMessage(desiredIdentity);
-
-    _socket.send(clientId, zmq::send_flags::sndmore);
-    _socket.send(actionNewName, zmq::send_flags::sndmore);
-    _socket.send(desiredIdentityMessage, zmq::send_flags::none);
+    MessageDispatch(actionNewNameStr, desiredIdentity, { clientId.to_string() });
 
     _clients.insert(desiredIdentity);
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
