@@ -111,6 +111,10 @@ void Client::ReceiveMessage()
         {
             std::cout << dataStr << '\n';
         }
+        else if (actionStr == "new_name")
+        {
+            ChangeIdentity(dataStr);
+        }
         else
         {
             std::cout << "Error: unknown action!\n";
