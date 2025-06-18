@@ -50,7 +50,6 @@ void Client::RequestToCreateChat(std::string& clients, const std::string& chatId
     std::string chatInfo = "create_chat:" + chatId;
     SendMessageToChat(clients, chatInfo);
     _chatId = static_cast<size_t>(stoi(chatId));
-    _isInChat = true;
 }
 
 void Client::_receiveMessage()
