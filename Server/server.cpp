@@ -64,6 +64,11 @@ void Server::Run()
         switch (actionEnum)
         {
         case Action::Connect:
+            if (_clients.find(clientId) != _clients.end())
+            {
+                MessageDispatch("bad_name", "", { clientId });
+                break;
+            }
             _clients.insert(clientId);
             std::cout << "[Server] Client " << clientId << " connected.\n";
             break;
