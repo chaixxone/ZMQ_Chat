@@ -21,6 +21,7 @@ int main(int argc, char** argv)
     Client client{ host, self };
 
     std::string line;
+    std::cin.ignore();
     const size_t clientsListStartPos = 9;
 
     while (true)
