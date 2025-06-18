@@ -25,7 +25,9 @@ void Client::RequestChangeIdentity(std::string& desiredIdentity)
 void Client::ChangeIdentity(const std::string& identity)
 {
     _identity = identity;
+    _socket.disconnect(_endpoint);
     _socket.set(zmq::sockopt::routing_id, _identity);
+    _socket.connect(_endpoint);
 }
 
 std::string Client::GenerateTemporaryId()
