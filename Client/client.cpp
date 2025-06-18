@@ -17,6 +17,12 @@ Client::Client(std::string endpoint, std::string identity)
     _receiver.detach();
 }
 
+void Client::ChangeIdentity(const std::string& identity)
+{
+    _identity = identity;
+    _socket.set(zmq::sockopt::routing_id, _identity);
+}
+
 Client::~Client()
 {
 

@@ -11,6 +11,7 @@ public:
     void SendMessageToChat(std::string& messageStr, const std::string& actionStr = "send_message") override;
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
+    void ChangeIdentity(const std::string& identity);
 
 private:
     void _receiveMessage();
