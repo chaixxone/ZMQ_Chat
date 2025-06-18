@@ -13,7 +13,7 @@ Client::Client(std::string endpoint, std::string identity)
     std::string connection = "!connect!";
     SendMessageToChat(connection, connection);
 
-    _receiver = std::thread(&Client::_receiveMessage, this);
+    _receiver = std::thread(&Client::ReceiveMessage, this);
     _receiver.detach();
 }
 
@@ -60,7 +60,7 @@ void Client::RequestToCreateChat(std::string& clients, const std::string& chatId
     _chatId = static_cast<size_t>(stoi(chatId));
 }
 
-void Client::_receiveMessage()
+void Client::ReceiveMessage()
 {
     while (true)
     {
