@@ -23,6 +23,26 @@ void Client::ChangeIdentity(const std::string& identity)
     _socket.set(zmq::sockopt::routing_id, _identity);
 }
 
+std::string Client::GenerateTemporaryId()
+{
+    static std::string alphanum =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    const size_t size = alphanum.size();
+    const size_t length = 36;
+
+    std::string temporaryIdentifier;
+    temporaryIdentifier.reserve(length);
+
+    for (size_t i = 0; i < length; i++) 
+    {
+        temporaryIdentifier += alphanum[rand() % (size - 1)];
+    }
+
+    return temporaryIdentifier;
+}
+
 Client::~Client()
 {
 

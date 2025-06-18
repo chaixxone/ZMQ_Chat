@@ -15,6 +15,7 @@ public:
 
 private:
     void ReceiveMessage();
+    static std::string GenerateTemporaryId();
     zmq::context_t _context;
     zmq::socket_t _socket;
     std::string _identity;
