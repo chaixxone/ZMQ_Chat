@@ -56,7 +56,7 @@ void Server::Run()
         std::string clientId = identity.to_string();
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
-        std::cout << clientId << " " << actionStr << " " << dataStr << std::endl;
+        std::cout << clientId << " " << actionStr << " " << dataStr << '\n';
 
         Action actionEnum = stringToAction(actionStr);
 
@@ -64,7 +64,7 @@ void Server::Run()
         {
         case Action::Connect:
             _clients.insert(clientId);
-            std::cout << "[Server] Client " << clientId << " connected." << std::endl;
+            std::cout << "[Server] Client " << clientId << " connected.\n";
             break;
         case Action::SendMessage:
             HandleSendMessage(clientId, dataStr);
@@ -93,7 +93,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
     }
     catch (...)
     {
-        std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame" << std::endl;
+        std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
         return;
     }
 
@@ -107,7 +107,7 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
     auto clients = ParseClients(dataStr, clientId);
     auto chatIdStr = actionStr.substr(12);
     auto chatId = static_cast<size_t>(stoi(chatIdStr));
-    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << std::endl;
+    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << '\n';
     AskClients(std::make_pair(chatId, clientId), clients);
     _activeChats[chatId].insert(clientId);
     MessageDispatch("new_chat", std::to_string(chatId), { clientId });
@@ -123,12 +123,12 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
 
         if (!isAccepted)
         {
-            std::cout << "[Server] Client " << clientId << " declined chat invitation." << std::endl;
+            std::cout << "[Server] Client " << clientId << " declined chat invitation.\n";
             return;
         }
 
         _activeChats[chatId].insert(clientId);
-        std::cout << "[Server] Client " << clientId << " accepted chat invitation." << std::endl;
+        std::cout << "[Server] Client " << clientId << " accepted chat invitation.\n";
 
         zmq::message_t actionChatFrame(std::string("new_chat"));
         zmq::message_t chatIdFrame(std::to_string(chatId));
@@ -170,7 +170,7 @@ void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const st
         }
         else
         {
-            std::cerr << "[Server] Client " << client << " doesn't exist" << std::endl;
+            std::cerr << "[Server] Client " << client << " doesn't exist\n";
         }
     }
 }

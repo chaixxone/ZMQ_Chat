@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 #ifdef NDEBUG
     if (argc < 3)
     {
-        std::cerr << "Usage: client <host> <identity>" << std::endl;
+        std::cerr << "Usage: client <host> <identity>\n";
         return 1;
     }
 

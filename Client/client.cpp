@@ -39,14 +39,14 @@ void Client::SendMessageToChat(std::string& messageStr, const std::string& actio
 
     if (!result)
     {
-        std::cerr << "Failed to send message to chat." << std::endl;
+        std::cerr << "Failed to send message to chat.\n";
     }
 }
 
 void Client::RequestToCreateChat(std::string& clients, const std::string& chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
-    std::cout << "I am requesting: " << clients << ", to create chat " << chatId << std::endl;
+    std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
     std::string chatInfo = "create_chat:" + chatId;
     SendMessageToChat(clients, chatInfo);
     _chatId = static_cast<size_t>(stoi(chatId));
@@ -66,23 +66,23 @@ void Client::_receiveMessage()
         if (actionStr.substr(0, 12) == "create_chat:" && !_isInChat)
         {
             _chatId = static_cast<size_t>(stoi(actionStr.substr(12)));
-            std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << std::endl;
+            std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
             _hasRequestToChat = true;
-            std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)" << std::endl;
+            std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
         }
         else if (actionStr == "new_chat")
         {
             _chatId = std::stoi(dataStr);
-            std::cout << "[Server] Now you are in chat with id=" << dataStr << std::endl;
+            std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
             _isInChat = true;
         }
         else if (actionStr == "incoming_message")
         {
-            std::cout << dataStr << std::endl;
+            std::cout << dataStr << '\n';
         }
         else
         {
-            std::cout << "Error: unknown action!" << std::endl;
+            std::cout << "Error: unknown action!\n";
         }
     }
 }
@@ -93,7 +93,7 @@ void Client::Reply(const std::string& reply)
 
     if (reply == "y")
     {
-        std::cout << "accepted!" << std::endl;
+        std::cout << "accepted!\n";
         SendMessageToChat(chatIDstr, "accept_create_chat");
     }
     else
