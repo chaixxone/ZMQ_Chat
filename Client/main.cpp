@@ -46,6 +46,7 @@ int main(int argc, char** argv)
     std::string line;
     std::cin.ignore();
     const size_t clientsListStartPos = 9;
+    const size_t clientChangeNamePrefix = 13;
 
     while (true)
     {
@@ -61,6 +62,12 @@ int main(int argc, char** argv)
             size_t clientListEndsPos = line.rfind(':');
             std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
             client.RequestToCreateChat(clientListStr, line.substr(clientListEndsPos + 1));
+        }
+        else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
+        {
+            std::string identifierRawString = line.substr(clientChangeNamePrefix);
+            std::string identifier = trim(identifierRawString);
+            client.RequestChangeIdentity(identifier);
         }
         else if (line != "/quit")
         {
