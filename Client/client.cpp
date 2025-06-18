@@ -17,6 +17,11 @@ Client::Client(std::string endpoint, std::string identity)
     _receiver.detach();
 }
 
+void Client::RequestChangeIdentity(std::string& desiredIdentity)
+{    
+    SendMessageToChat(desiredIdentity, "!connect!");
+}
+
 void Client::ChangeIdentity(const std::string& identity)
 {
     _identity = identity;
