@@ -104,7 +104,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
 {
-    auto clients = ParseClients(dataStr);
+    auto clients = ParseClients(dataStr, clientId);
     auto chatIdStr = actionStr.substr(12);
     auto chatId = static_cast<size_t>(stoi(chatIdStr));
     std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << std::endl;
@@ -119,9 +119,10 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
 
     if (_pendingChatInvites.find(chatId) != _pendingChatInvites.end())
     {
+        _pendingChatInvites[chatId].erase(clientId);
+
         if (!isAccepted)
         {
-            _pendingChatInvites[chatId].erase(clientId);
             std::cout << "[Server] Client " << clientId << " declined chat invitation." << std::endl;
             return;
         }
@@ -138,14 +139,17 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
     }
 }
 
-std::unordered_set<std::string> Server::ParseClients(const std::string& clients)
+std::unordered_set<std::string> Server::ParseClients(const std::string& clients, const std::string& creator)
 {
     std::unordered_set<std::string> clientSet;
     std::stringstream ss(clients);
     std::string client;
     while (std::getline(ss, client, ' '))
     {
-        clientSet.insert(client);
+        if (client != creator)
+        {
+            clientSet.insert(client);
+        }
     }
     return clientSet;
 }
@@ -154,7 +158,6 @@ void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const st
 {
     auto chatId = chatInfo.first;
     auto& asker = chatInfo.second;
-    _pendingChatInvites[chatId].insert(asker);
     auto chatInfoStr = "create_chat:" + std::to_string(chatId);
 
     MessageDispatch(chatInfoStr, asker, clients);
