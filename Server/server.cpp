@@ -70,7 +70,7 @@ void Server::Run()
             HandleSendMessage(clientId, dataStr);
             break;
         case Action::CreateChat:
-            PrepareNewChatSession(clientId, actionStr, dataStr);
+            PrepareNewChatSession(clientId, actionStr, dataStr);            
             break;
         case Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
@@ -110,6 +110,7 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
     std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << std::endl;
     AskClients(std::make_pair(chatId, clientId), clients);
     _activeChats[chatId].insert(clientId);
+    MessageDispatch("new_chat", std::to_string(chatId), { clientId });
 }
 
 void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
