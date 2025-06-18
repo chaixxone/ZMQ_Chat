@@ -11,11 +11,11 @@ public:
     void SendMessageToChat(std::string& messageStr, const std::string& actionStr = "send_message") override;
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
-    void ChangeIdentity(const std::string& identity);
 
 private:
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
+    void ChangeIdentity(const std::string& identity);
     zmq::context_t _context;
     zmq::socket_t _socket;
     std::string _identity;
