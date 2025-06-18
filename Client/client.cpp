@@ -1,5 +1,6 @@
 #include "client.hpp"
 #include <iostream>
+#include <random>
 
 const short CREATE_CHAT_PREFIX_LENGTH = 12;
 
@@ -33,10 +34,13 @@ std::string Client::GenerateTemporaryId()
 
     std::string temporaryIdentifier;
     temporaryIdentifier.reserve(length);
+    std::random_device rd;
+    std::mt19937 mt{ rd() };
+    std::uniform_int_distribution<size_t> dist(0, size - 1);
 
     for (size_t i = 0; i < length; i++) 
     {
-        temporaryIdentifier += alphanum[rand() % (size - 1)];
+        temporaryIdentifier += alphanum[dist(mt)];
     }
 
     return temporaryIdentifier;
