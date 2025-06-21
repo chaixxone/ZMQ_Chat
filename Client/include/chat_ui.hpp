@@ -14,5 +14,7 @@ namespace UI
 
 	private:
 		QStackedWidget* _pages;
+		QWidget* _loginPage;
+		QWidget* _mainPage;
 	};
 }
