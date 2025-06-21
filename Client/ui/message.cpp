@@ -3,7 +3,7 @@
 using namespace UI;
 
 Message::Message(size_t id, QString author, QString text, QWidget* parent) :
-	QWidget(parent), _id(id), _author(author), _content(new QTextEdit(text))
+	QWidget(parent), _id(id), _author(std::move(author)), _content(new QTextEdit(std::move(text)))
 {
 	auto layout = new QVBoxLayout;
 	layout->addWidget(new QLabel(_author));
