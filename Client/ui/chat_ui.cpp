@@ -28,6 +28,7 @@ ChatUI::ChatUI(QWidget* parent) :
 	vSidePanelLayout->addWidget(userComboBox);
 	vSidePanelLayout->addWidget(chatIdComboBox);
 	vSidePanelLayout->addWidget(userChatIdComboBox);
+	vSidePanelLayout->addStretch(0);
 	// main space
 	auto chat = new ChatTextFrame;
 	// TODO: remove dummy message
@@ -37,18 +38,23 @@ ChatUI::ChatUI(QWidget* parent) :
 		"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate"
 		"velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat"
 		"cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	auto message = new Message(564755748ull, "chaixxone", dummyText, chat);	
+	auto message = new Message(564755748ull, "chaixxone", dummyText, chat);
 	chat->AddMessage(message);
 	auto messageTextBar = new ChatTextLine(300, 25);
 
 	auto vMainSpaceLayout = new QVBoxLayout;
-	vMainSpaceLayout->addWidget(chat);
-	vMainSpaceLayout->addWidget(messageTextBar);
+	vMainSpaceLayout->addWidget(chat, 0);
+	vMainSpaceLayout->addWidget(messageTextBar, 0);
+	vMainSpaceLayout->setStretch(0, 5);
+	vMainSpaceLayout->setStretch(1, 1);
 	// -----------------------------------
 
 	auto hLayoutMainPage = new QHBoxLayout;
 	hLayoutMainPage->addLayout(vSidePanelLayout);
 	hLayoutMainPage->addLayout(vMainSpaceLayout);
+	hLayoutMainPage->setStretch(0, 1);
+	hLayoutMainPage->setStretch(1, 4);
+	hLayoutMainPage->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
 	_mainPage->setLayout(hLayoutMainPage);
 
