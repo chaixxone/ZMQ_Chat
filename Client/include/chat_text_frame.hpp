@@ -2,6 +2,8 @@
 
 #include <QtWidgets>
 
+#include <message.hpp>
+
 namespace UI
 {
 	class ChatTextFrame : public QWidget
@@ -13,7 +15,7 @@ namespace UI
 		~ChatTextFrame();
 
 	public slots:
-		void AddMessage(QListWidgetItem* message);		
+		void AddMessage(Message* message);
 
 	private:
 		QListWidget* _messages;
