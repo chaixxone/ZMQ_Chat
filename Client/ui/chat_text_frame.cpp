@@ -8,6 +8,7 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 {
 	auto vMessagesLayout = new QVBoxLayout;
 	vMessagesLayout->addWidget(_messages);
+	vMessagesLayout->setContentsMargins(0, 0, 0, 0);
 	setLayout(vMessagesLayout);
 }
 
