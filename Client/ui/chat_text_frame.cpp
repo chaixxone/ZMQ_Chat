@@ -2,7 +2,7 @@
 
 using namespace UI;
 
-Q_DECLARE_METATYPE(QListWidgetItem*)
+Q_DECLARE_METATYPE(Message*)
 
 ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget)
 {
@@ -11,9 +11,12 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 	setLayout(vMessagesLayout);
 }
 
-void ChatTextFrame::AddMessage(QListWidgetItem* message)
+void ChatTextFrame::AddMessage(Message* message)
 {
-	_messages->addItem(message);
+	auto messageItem = new QListWidgetItem;
+	QVariant messageData = QVariant::fromValue(message);
+	messageItem->setData(Qt::UserRole, messageData);
+	_messages->addItem(messageItem);
 }
 
 ChatTextFrame::~ChatTextFrame() {}
