@@ -11,4 +11,9 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 	setLayout(vMessagesLayout);
 }
 
+void ChatTextFrame::AddMessage(QListWidgetItem* message)
+{
+	_messages->addItem(message);
+}
+
 ChatTextFrame::~ChatTextFrame() {}
