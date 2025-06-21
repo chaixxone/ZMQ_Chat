@@ -1,6 +1,8 @@
 #include <iostream>
 #include <limits>
 #include "client.hpp"
+#include <chat_ui.hpp>
+#define UI_TESTING_NO_CLIENT 1
 
 namespace
 {
@@ -38,16 +40,25 @@ int main(int argc, char** argv)
 
     host = argv[1];
     self = argv[2];
-#else
+#elif !UI_TESTING_NO_CLIENT
     std::cin >> host >> self;
 #endif
+
+#if !UI_TESTING_NO_CLIENT
     Client client{ host, self };
+#endif
 
     std::string line;
     std::cin.ignore();
     const size_t clientsListStartPos = 9;
     const size_t clientChangeNamePrefix = 13;
+    
+    QApplication app{ argc, argv };
+    UI::ChatUI chat;
+    chat.resize(1280, 720);
+    chat.show();
 
+#if !UI_TESTING_NO_CLIENT
     while (true)
     {
         std::getline(std::cin, line);
@@ -78,6 +89,7 @@ int main(int argc, char** argv)
             break;
         }
     }
+#endif
 
-    return 0;
+    return app.exec();
 }
