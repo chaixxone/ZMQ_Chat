@@ -4,7 +4,7 @@
 
 namespace UI
 {
-	class ChatUI : public QWidget
+	class ChatUI : public QMainWindow
 	{
 		Q_OBJECT
 
