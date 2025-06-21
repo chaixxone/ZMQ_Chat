@@ -7,12 +7,12 @@ namespace UI
 	class Message : public QWidget
 	{
 	public:
-		explicit Message(QWidget* parent = nullptr);
+		explicit Message(size_t id, QString _author, QString text, QWidget* parent = nullptr);
+		~Message();
 
-		size_t GetId() const noexcept
-		{
-			return _id;
-		}
+		size_t GetId() const noexcept;
+
+		QString GetContent() const noexcept;
 
 	public slots:
 		void EditText();
@@ -20,6 +20,6 @@ namespace UI
 	private:
 		const size_t _id;
 		QString _author;
-		QTextBlock* _content;
+		QTextEdit* _content;
 	};
 }
