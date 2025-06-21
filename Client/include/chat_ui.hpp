@@ -2,14 +2,17 @@
 
 #include <QtWidgets>
 
-class ChatUI : public QWidget
+namespace UI
 {
-	Q_OBJECT
+	class ChatUI : public QWidget
+	{
+		Q_OBJECT
 
-public:
-	explicit ChatUI(QWidget* parent = nullptr);
-	~ChatUI();
+	public:
+		explicit ChatUI(QWidget* parent = nullptr);
+		~ChatUI();
 
-private:
-	QStackedWidget* _pages;
-};
+	private:
+		QStackedWidget* _pages;
+	};
+}
