@@ -2,6 +2,7 @@
 #include <limits>
 #include "client.hpp"
 #include <chat_ui.hpp>
+#include <vld.h>
 #define UI_TESTING_NO_CLIENT 1
 
 namespace
