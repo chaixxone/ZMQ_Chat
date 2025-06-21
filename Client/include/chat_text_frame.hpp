@@ -13,9 +13,12 @@ namespace UI
 		~ChatTextFrame();
 
 	public slots:
-		void AddMessage(QListWidgetItem* message);
+		void AddMessage(QListWidgetItem* message);		
 
 	private:
 		QListWidget* _messages;
+
+	private slots:
+		void RemoveMessage(int messageId);
 	};
 }
