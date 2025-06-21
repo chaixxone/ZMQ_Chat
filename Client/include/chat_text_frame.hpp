@@ -12,6 +12,9 @@ namespace UI
 		explicit ChatTextFrame(QWidget* parent = nullptr);
 		~ChatTextFrame();
 
+	public slots:
+		void AddMessage(QListWidgetItem* message);
+
 	private:
 		QListWidget* _messages;
 	};
