@@ -94,14 +94,16 @@ void Client::ReceiveMessage()
 {
     while (true)
     {
-        zmq::message_t action, data, messageId;
+        zmq::message_t action;
+        zmq::message_t data;
+        zmq::message_t messageId;
         _socket.recv(action, zmq::recv_flags::none);
         _socket.recv(data, zmq::recv_flags::none);
         _socket.recv(messageId, zmq::recv_flags::none);
 
         std::string actionStr = action.to_string();
-        std::string messageIdStr = messageId.to_string();
         std::string dataStr = data.to_string();
+        std::string messageIdStr = messageId.to_string();
 
         if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
         {
