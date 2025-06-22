@@ -4,11 +4,12 @@
 
 using namespace UI;
 
-ChatUI::ChatUI(QWidget* parent) : 
+ChatUI::ChatUI(std::shared_ptr<Client> client, QWidget* parent) :
 	QMainWindow(parent), 
 	_pages(new QStackedWidget(this)), 
 	_loginPage(new QWidget), 
-	_mainPage(new QWidget)
+	_mainPage(new QWidget),
+	_client(client)
 {
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
@@ -41,7 +42,7 @@ ChatUI::ChatUI(QWidget* parent) :
 	auto message = new Message(564755748ull, "chaixxone", dummyText, chat);
 	chat->AddMessage(message);
 	auto messageTextBar = new ChatTextLine(300, 25);
-
+	
 	auto vMainSpaceLayout = new QVBoxLayout;
 	vMainSpaceLayout->addWidget(chat, 0);
 	vMainSpaceLayout->addWidget(messageTextBar, 0);

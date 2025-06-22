@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets>
+#include <client.hpp>
 
 namespace UI
 {
@@ -9,12 +10,13 @@ namespace UI
 		Q_OBJECT
 
 	public:
-		explicit ChatUI(QWidget* parent = nullptr);
+		explicit ChatUI(std::shared_ptr<Client> client, QWidget* parent = nullptr);
 		~ChatUI();
 
 	private:
 		QStackedWidget* _pages;
 		QWidget* _loginPage;
 		QWidget* _mainPage;
+		std::shared_ptr<Client> _client;
 	};
 }
