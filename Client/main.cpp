@@ -41,13 +41,12 @@ int main(int argc, char** argv)
 
     host = argv[1];
     self = argv[2];
-#elif !UI_TESTING_NO_CLIENT
-    std::cin >> host >> self;
+#else
+    host = "tcp://localhost:5555";
+    self = "debug_client";
 #endif
 
-#if !UI_TESTING_NO_CLIENT
     Client client{ host, self };
-#endif
 
     std::string line;
     std::cin.ignore();
