@@ -94,11 +94,13 @@ void Client::ReceiveMessage()
 {
     while (true)
     {
-        zmq::message_t action, data;
+        zmq::message_t action, data, messageId;
         _socket.recv(action, zmq::recv_flags::none);
         _socket.recv(data, zmq::recv_flags::none);
+        _socket.recv(messageId, zmq::recv_flags::none);
 
         std::string actionStr = action.to_string();
+        std::string messageIdStr = messageId.to_string();
         std::string dataStr = data.to_string();
 
         if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
@@ -116,7 +118,7 @@ void Client::ReceiveMessage()
         }
         else if (actionStr == "incoming_message")
         {
-            std::cout << dataStr << '\n';
+            std::cout << messageIdStr << '\t' << dataStr << '\n';
         }
         else if (actionStr == "new_name")
         {
