@@ -102,6 +102,8 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
     size_t delimiter = dataStr.find_first_of(":");
     size_t chatId;
 
+    static size_t messageId = 0;
+
     try
     {
         chatId = std::stoi(dataStr.substr(0, delimiter));
@@ -114,7 +116,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 
     std::stringstream pureMessage;
     pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId]);
+    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++));
 }
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
@@ -190,7 +192,12 @@ void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const st
     }
 }
 
-void Server::MessageDispatch(const std::string& actionStr, const std::string& message, const std::unordered_set<std::string>& clients)
+void Server::MessageDispatch(
+    const std::string& actionStr, 
+    const std::string& message, 
+    const std::unordered_set<std::string>& clients,
+    const std::string& messageIdStr
+)
 {
     for (const auto& client : clients)
     {
@@ -199,10 +206,12 @@ void Server::MessageDispatch(const std::string& actionStr, const std::string& me
             zmq::message_t clientId(client);
             zmq::message_t action(actionStr);
             zmq::message_t data(message);
+            zmq::message_t messageId(messageIdStr);
 
             _socket.send(clientId, zmq::send_flags::sndmore);
             _socket.send(action, zmq::send_flags::sndmore);
-            _socket.send(data, zmq::send_flags::none);
+            _socket.send(data, zmq::send_flags::sndmore);
+            _socket.send(messageId, zmq::send_flags::none);
         }
         catch (zmq::error_t& e)
         {
