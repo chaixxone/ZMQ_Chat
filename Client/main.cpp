@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     const size_t clientChangeNamePrefix = 13;
     
     QApplication app{ argc, argv };
-    UI::ChatUI chat;
+    UI::ChatUI chat{ std::make_shared<Client>(host, self) };
     chat.resize(1280, 720);
     chat.show();
 
