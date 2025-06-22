@@ -25,4 +25,5 @@ private:
     size_t _chatId;
     bool _isInChat;
     bool _hasRequestToChat;
+    std::atomic_bool _alive = true;
 };

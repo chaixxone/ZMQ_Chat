@@ -14,7 +14,6 @@ Client::Client(std::string endpoint, std::string identity)
     SendMessageToChat(identity, "!connect!");
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
-    _receiver.detach();
 }
 
 void Client::RequestChangeIdentity(std::string& desiredIdentity)
@@ -55,7 +54,11 @@ std::string Client::GenerateTemporaryId()
 
 Client::~Client()
 {
-
+    _alive = false;
+    if (_receiver.joinable())
+    {
+        _receiver.join();
+    }
 }
 
 bool Client::HasRequestToChat() const
@@ -92,44 +95,49 @@ void Client::RequestToCreateChat(std::string& clients, const std::string& chatId
 
 void Client::ReceiveMessage()
 {
-    while (true)
+    while (_alive)
     {
         zmq::message_t action;
         zmq::message_t data;
         zmq::message_t messageId;
-        _socket.recv(action, zmq::recv_flags::none);
-        _socket.recv(data, zmq::recv_flags::none);
-        _socket.recv(messageId, zmq::recv_flags::none);
+        auto actionResult = _socket.recv(action, zmq::recv_flags::dontwait);
+        auto dataResult = _socket.recv(data, zmq::recv_flags::dontwait);
+        auto messageIdResult = _socket.recv(messageId, zmq::recv_flags::dontwait);
 
-        std::string actionStr = action.to_string();
-        std::string dataStr = data.to_string();
-        std::string messageIdStr = messageId.to_string();
+        if (actionResult && dataResult && messageIdResult)
+        {
+            std::string actionStr = action.to_string();
+            std::string dataStr = data.to_string();
+            std::string messageIdStr = messageId.to_string();
 
-        if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
-        {
-            _chatId = static_cast<size_t>(stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH)));
-            std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
-            _hasRequestToChat = true;
-            std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
+            if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
+            {
+                _chatId = static_cast<size_t>(stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH)));
+                std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
+                _hasRequestToChat = true;
+                std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
+            }
+            else if (actionStr == "new_chat")
+            {
+                _chatId = std::stoi(dataStr);
+                std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
+                _isInChat = true;
+            }
+            else if (actionStr == "incoming_message")
+            {
+                std::cout << messageIdStr << '\t' << dataStr << '\n';
+            }
+            else if (actionStr == "new_name")
+            {
+                ChangeIdentity(dataStr);
+            }
+            else
+            {
+                std::cout << "Error: unknown action!\n";
+            }
         }
-        else if (actionStr == "new_chat")
-        {
-            _chatId = std::stoi(dataStr);
-            std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
-            _isInChat = true;
-        }
-        else if (actionStr == "incoming_message")
-        {
-            std::cout << messageIdStr << '\t' << dataStr << '\n';
-        }
-        else if (actionStr == "new_name")
-        {
-            ChangeIdentity(dataStr);
-        }
-        else
-        {
-            std::cout << "Error: unknown action!\n";
-        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
 
