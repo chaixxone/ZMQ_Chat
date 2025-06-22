@@ -147,12 +147,7 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
         _activeChats[chatId].insert(clientId);
         std::cout << "[Server] Client " << clientId << " accepted chat invitation.\n";
 
-        zmq::message_t actionChatFrame(std::string("new_chat"));
-        zmq::message_t chatIdFrame(std::to_string(chatId));
-
-        _socket.send(identity, zmq::send_flags::sndmore);
-        _socket.send(actionChatFrame, zmq::send_flags::sndmore);
-        _socket.send(chatIdFrame, zmq::send_flags::none);
+        MessageDispatch("new_chat", std::to_string(chatId), { clientId });
     }
 }
 
