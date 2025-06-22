@@ -102,6 +102,8 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
     size_t delimiter = dataStr.find_first_of(":");
     size_t chatId;
 
+    static size_t messageId = 0;
+
     try
     {
         chatId = std::stoi(dataStr.substr(0, delimiter));
@@ -114,7 +116,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 
     std::stringstream pureMessage;
     pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId]);
+    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++));
 }
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
@@ -145,12 +147,7 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
         _activeChats[chatId].insert(clientId);
         std::cout << "[Server] Client " << clientId << " accepted chat invitation.\n";
 
-        zmq::message_t actionChatFrame(std::string("new_chat"));
-        zmq::message_t chatIdFrame(std::to_string(chatId));
-
-        _socket.send(identity, zmq::send_flags::sndmore);
-        _socket.send(actionChatFrame, zmq::send_flags::sndmore);
-        _socket.send(chatIdFrame, zmq::send_flags::none);
+        MessageDispatch("new_chat", std::to_string(chatId), { clientId });
     }
 }
 
@@ -190,7 +187,12 @@ void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const st
     }
 }
 
-void Server::MessageDispatch(const std::string& actionStr, const std::string& message, const std::unordered_set<std::string>& clients)
+void Server::MessageDispatch(
+    const std::string& actionStr, 
+    const std::string& message, 
+    const std::unordered_set<std::string>& clients,
+    const std::string& messageIdStr
+)
 {
     for (const auto& client : clients)
     {
@@ -199,10 +201,12 @@ void Server::MessageDispatch(const std::string& actionStr, const std::string& me
             zmq::message_t clientId(client);
             zmq::message_t action(actionStr);
             zmq::message_t data(message);
+            zmq::message_t messageId(messageIdStr);
 
             _socket.send(clientId, zmq::send_flags::sndmore);
             _socket.send(action, zmq::send_flags::sndmore);
-            _socket.send(data, zmq::send_flags::none);
+            _socket.send(data, zmq::send_flags::sndmore);
+            _socket.send(messageId, zmq::send_flags::none);
         }
         catch (zmq::error_t& e)
         {
