@@ -50,9 +50,9 @@ void Server::Run()
     while (true)
     {
         zmq::message_t identity, action, data;
-        _socket.recv(identity, zmq::recv_flags::none);
-        _socket.recv(action, zmq::recv_flags::none);
-        _socket.recv(data, zmq::recv_flags::none);
+        auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
+        auto actionResult = _socket.recv(action, zmq::recv_flags::none);
+        auto dataResult = _socket.recv(data, zmq::recv_flags::none);
 
         std::string clientId = identity.to_string();
         std::string actionStr = action.to_string();
