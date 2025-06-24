@@ -30,15 +30,15 @@ void ChatTextFrame::RemoveMessage(int messageId)
 	while (left <= right)
 	{
 		size_t middle = (left + right) / 2;
-		size_t messageIdAtMiddle = qvariant_cast<Message*>(_messages->item(middle)->data(Qt::UserRole))->GetId();
+		size_t messageIdAtMiddle = qvariant_cast<Message*>(_messages->item(static_cast<int>(middle))->data(Qt::UserRole))->GetId();
 
-		if (messageIdAtMiddle < middle)
+		if (messageId < messageIdAtMiddle)
 		{
-			right = middle;
+			right = middle - 1;
 		}
-		else if (messageId > middle)
+		else if (messageId > messageIdAtMiddle)
 		{
-			left = middle;
+			left = middle + 1;
 		}
 		else
 		{
@@ -47,7 +47,7 @@ void ChatTextFrame::RemoveMessage(int messageId)
 		}
 	}
 
-	_messages->removeItemWidget(_messages->item(index));
+	_messages->removeItemWidget(_messages->item(static_cast<int>(index)));
 }
 
 ChatTextFrame::~ChatTextFrame() {}
