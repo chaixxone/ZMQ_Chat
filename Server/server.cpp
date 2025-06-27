@@ -210,7 +210,9 @@ void Server::MessageDispatch(
             _socket.send(clientId, zmq::send_flags::sndmore);
             _socket.send(action, zmq::send_flags::sndmore);
             _socket.send(data, zmq::send_flags::sndmore);
-            _socket.send(messageId, zmq::send_flags::none);
+            _socket.send(messageId, zmq::send_flags::sndmore);
+            _socket.send(author, zmq::send_flags::sndmore);
+            _socket.send(chatId, zmq::send_flags::none);
         }
         catch (zmq::error_t& e)
         {
