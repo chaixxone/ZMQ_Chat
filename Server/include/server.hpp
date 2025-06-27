@@ -12,10 +12,12 @@ public:
 private:
     void AskClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients);
     void MessageDispatch(
-        const std::string& action, 
-        const std::string& message, 
+        const std::string& action,
+        const std::string& message,
         const std::unordered_set<std::string>& clients,
-        const std::string& messageIdStr = ""
+        const std::string& messageIdStr = "",
+        const std::string& authorStr = "",
+        int chatIdInt = -1
     );
     std::unordered_set<std::string> ParseClients(const std::string& clients, const std::string& creator);
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr);

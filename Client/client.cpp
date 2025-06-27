@@ -100,15 +100,21 @@ void Client::ReceiveMessage()
         zmq::message_t action;
         zmq::message_t data;
         zmq::message_t messageId;
+        zmq::message_t author;
+        zmq::message_t chatId;
         auto actionResult = _socket.recv(action, zmq::recv_flags::dontwait);
         auto dataResult = _socket.recv(data, zmq::recv_flags::dontwait);
         auto messageIdResult = _socket.recv(messageId, zmq::recv_flags::dontwait);
+        auto authorResult = _socket.recv(author, zmq::recv_flags::dontwait);
+        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::dontwait);
 
         if (actionResult && dataResult && messageIdResult)
         {
             std::string actionStr = action.to_string();
             std::string dataStr = data.to_string();
             std::string messageIdStr = messageId.to_string();
+            std::string authorStr = author.to_string();
+            std::string chatIdStr = chatId.to_string();
 
             if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
             {
@@ -125,7 +131,7 @@ void Client::ReceiveMessage()
             }
             else if (actionStr == "incoming_message")
             {
-                std::cout << messageIdStr << '\t' << dataStr << '\n';
+                std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
             }
             else if (actionStr == "new_name")
             {

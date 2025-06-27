@@ -191,7 +191,9 @@ void Server::MessageDispatch(
     const std::string& actionStr, 
     const std::string& message, 
     const std::unordered_set<std::string>& clients,
-    const std::string& messageIdStr
+    const std::string& messageIdStr,
+    const std::string& authorStr,
+    int chatIdInt
 )
 {
     for (const auto& client : clients)
@@ -202,6 +204,8 @@ void Server::MessageDispatch(
             zmq::message_t action(actionStr);
             zmq::message_t data(message);
             zmq::message_t messageId(messageIdStr);
+            zmq::message_t author(authorStr);
+            zmq::message_t chatId(std::to_string(chatIdInt));
 
             _socket.send(clientId, zmq::send_flags::sndmore);
             _socket.send(action, zmq::send_flags::sndmore);
