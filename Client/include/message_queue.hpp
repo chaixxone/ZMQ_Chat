@@ -23,7 +23,9 @@ public:
 			_cv.wait(lock);
 		}
 
+		MessageView message = _enqueuedMessages.front();
 		_enqueuedMessages.pop_front();
+		return message;
 	}
 
 	bool IsEmpty()
