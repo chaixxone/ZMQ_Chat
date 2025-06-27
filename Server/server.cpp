@@ -116,7 +116,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 
     std::stringstream pureMessage;
     pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++));
+    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
@@ -172,7 +172,7 @@ void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const st
     auto& asker = chatInfo.second;
     auto chatInfoStr = "create_chat:" + std::to_string(chatId);
 
-    MessageDispatch(chatInfoStr, asker, clients);
+    MessageDispatch(chatInfoStr, asker, clients, "", asker, chatId);
 
     for (const auto& client : clients)
     {
