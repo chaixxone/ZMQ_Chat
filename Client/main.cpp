@@ -1,4 +1,5 @@
 #include <iostream>
+#include <csignal>
 #include <limits>
 #include "client.hpp"
 
@@ -23,10 +24,34 @@ namespace
 
         return std::string(s.begin() + lindex, s.begin() + rindex);
     }
+
+    bool alive = true;
+    std::mutex mtx;
+
+    void handleSigInt(int)
+    {
+        alive = false;
+    }
+
+    void printMessage(Client& client)
+    {
+        while (alive)
+        {
+            std::optional<MessageView> message = client.TryGetMessage();
+
+            if (message)
+            {                
+                mtx.lock();
+                std::cout << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content << '\n';
+                mtx.unlock();
+            }
+        }
+    }
 }
 
 int main(int argc, char** argv)
 {
+    std::signal(SIGINT, handleSigInt);
     std::string host, self;
 
 #ifdef NDEBUG
@@ -48,6 +73,8 @@ int main(int argc, char** argv)
     std::cin.ignore();
     const size_t clientsListStartPos = 9;
     const size_t clientChangeNamePrefix = 13;
+
+    std::thread messagePrinter(printMessage, std::ref(client));
 
     while (true)
     {
@@ -72,12 +99,18 @@ int main(int argc, char** argv)
         }
         else if (line != "/quit")
         {
-            client.SendMessageToChat(line);
+            client.SendMessageToChat(line);            
         }
         else
         {
+            alive = false;
             break;
         }
+    }
+
+    if (messagePrinter.joinable())
+    {
+        messagePrinter.join();
     }
 
     return 0;
