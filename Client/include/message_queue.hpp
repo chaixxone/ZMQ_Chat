@@ -6,14 +6,15 @@
 #include <mutex>
 #include <condition_variable>
 
-template<class T>
+#include "message_view.hpp"
+
 class MessageQueue
 {
 public:
 	MessageQueue() {}
 	~MessageQueue() {}
 
-	T Pop()
+	MessageView Pop()
 	{
 		std::unique_lock<std::mutex> lock(_mutex);
 		
@@ -33,7 +34,7 @@ public:
 		return isEmpty;
 	}
 
-	void Enqueue(T&& item)
+	void Enqueue(MessageView&& item)
 	{
 		std::unique_lock<std::mutex> lock(_mutex);
 		_enqueuedMessages.push_back(std::move(item));
@@ -44,5 +45,5 @@ public:
 private:
 	std::mutex _mutex;
 	std::condition_variable _cv;
-	std::deque<T> _enqueuedMessages;
+	std::deque<MessageView> _enqueuedMessages;
 };
