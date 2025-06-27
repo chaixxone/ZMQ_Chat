@@ -4,8 +4,14 @@
 
 const short CREATE_CHAT_PREFIX_LENGTH = 12;
 
-Client::Client(std::string endpoint, std::string identity)
-    : _context(1), _socket(_context, zmq::socket_type::dealer), _endpoint(endpoint), _identity(GenerateTemporaryId()), _isInChat(false), _hasRequestToChat(false)
+Client::Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> message_queue) :
+    _context(1), 
+    _socket(_context, zmq::socket_type::dealer), 
+    _endpoint(endpoint), 
+    _identity(GenerateTemporaryId()), 
+    _messageQueue(message_queue),
+    _isInChat(false), 
+    _hasRequestToChat(false)
 {
     _socket.set(zmq::sockopt::routing_id, _identity);
     _socket.set(zmq::sockopt::linger, 0);
