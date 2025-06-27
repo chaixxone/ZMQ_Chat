@@ -99,6 +99,16 @@ void Client::RequestToCreateChat(std::string& clients, const std::string& chatId
     _chatId = static_cast<size_t>(stoi(chatId));
 }
 
+std::optional<MessageView> Client::TryGetMessage()
+{
+    if (_messageQueue->IsEmpty())
+    {
+        return std::nullopt;
+    }
+
+    return _messageQueue->Pop();
+}
+
 void Client::ReceiveMessage()
 {
     while (_alive)
