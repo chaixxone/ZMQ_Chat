@@ -17,11 +17,12 @@ private:
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
     void ChangeIdentity(const std::string& identity);
+
     std::string _endpoint;
-    zmq::context_t _context;
-    zmq::socket_t _socket;
     std::string _identity;
+    zmq::socket_t _socket;
     std::thread _receiver;
+    zmq::context_t _context;
     size_t _chatId;
     bool _isInChat;
     bool _hasRequestToChat;
