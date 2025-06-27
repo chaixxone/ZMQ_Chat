@@ -13,18 +13,19 @@ public:
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
+    std::optional<MessageView> TryGetMessage();
 
 private:
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
     void ChangeIdentity(const std::string& identity);
 
+    zmq::context_t _context;
+    zmq::socket_t _socket;
     std::string _endpoint;
     std::string _identity;
-    zmq::socket_t _socket;
     std::thread _receiver;
     std::shared_ptr<MessageQueue> _messageQueue;
-    zmq::context_t _context;
     size_t _chatId;
     bool _isInChat;
     bool _hasRequestToChat;
