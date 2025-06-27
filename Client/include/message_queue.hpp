@@ -26,7 +26,7 @@ public:
 		_enqueuedMessages.pop_front();
 	}
 
-	bool IsEmpty() const
+	bool IsEmpty()
 	{
 		std::unique_lock<std::mutex> lock(_mutex);
 		bool isEmpty = _enqueuedMessages.empty();
