@@ -41,7 +41,8 @@ int main(int argc, char** argv)
 #else
     std::cin >> host >> self;
 #endif
-    Client client{ host, self };
+    auto messageQueue = std::make_shared<MessageQueue>();
+    Client client{ host, self, messageQueue };
 
     std::string line;
     std::cin.ignore();
