@@ -137,7 +137,8 @@ void Client::ReceiveMessage()
             }
             else if (actionStr == "incoming_message")
             {
-                std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
+                _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoull(chatIdStr) });
+                // std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
             }
             else if (actionStr == "new_name")
             {
