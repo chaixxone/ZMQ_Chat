@@ -1,8 +1,8 @@
 #include "client.hpp"
+#include <utils/client_actions.hpp>
+#include <utils/helpers.hpp>
 #include <iostream>
 #include <random>
-
-const short CREATE_CHAT_PREFIX_LENGTH = 12;
 
 Client::Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> message_queue) :
     _context(1), 
@@ -134,9 +134,9 @@ void Client::ReceiveMessage()
             std::string chatIdStr = chatId.to_string();
             _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
 
-            if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
+            if (actionStr.substr(0, Utils::CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
             {
-                _chatId = stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH));
+                _chatId = stoi(actionStr.substr(Utils::CREATE_CHAT_PREFIX_LENGTH));
                 std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
                 _hasRequestToChat = true;
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
