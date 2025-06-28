@@ -32,7 +32,7 @@ void Server::Run()
             HandleConnection(identity, dataStr);
             break;
         case Utils::Action::SendMessage:
-            HandleSendMessage(clientId, dataStr);
+            HandleSendMessage(clientId, dataStr, std::stoi(chatIdStr));
             break;
         case Utils::Action::CreateChat:
             PrepareNewChatSession(clientId, actionStr, dataStr);            
@@ -62,26 +62,19 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
 }
 
-void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr)
+void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     size_t delimiter = dataStr.find_first_of(":");
-    size_t chatId;
 
     static size_t messageId = 0;
 
-    try
-    {
-        chatId = std::stoi(dataStr.substr(0, delimiter));
-    }
-    catch (...)
+    if (chatId == -1)
     {
         std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
         return;
     }
 
-    std::stringstream pureMessage;
-    pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
+    MessageDispatch("incoming_message", dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
