@@ -76,14 +76,12 @@ bool Client::HasRequestToChat() const
 void Client::SendMessageToChat(std::string& messageStr, const std::string& actionStr)
 {
     zmq::message_t action(actionStr);
-
-    if (actionStr == "send_message")
-    {
-        messageStr = std::to_string(_chatId) + ":" + messageStr;
-    }
-
     zmq::message_t message(messageStr);
-    bool result = _socket.send(action, zmq::send_flags::sndmore) && _socket.send(message, zmq::send_flags::none);
+    zmq::message_t chatId(std::to_string(_chatId));
+
+    bool result = _socket.send(action, zmq::send_flags::sndmore) 
+        && _socket.send(message, zmq::send_flags::sndmore)
+        && _socket.send(chatId, zmq::send_flags::none);
 
     if (!result)
     {
