@@ -24,4 +24,17 @@ namespace Utils
 
         return Action::Unknown;
     }
+
+    std::string actionToString(Action action)
+    {
+        for (auto it = actionMap.begin(); it != actionMap.end(); it++)
+        {
+            if (it->second == action)
+            {
+                return it->first;
+            }
+        }
+
+        return "";
+    }
 }
