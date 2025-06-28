@@ -89,7 +89,7 @@ int main(int argc, char** argv)
             // example [/connect:cli1 cli2:55]
             size_t clientListEndsPos = line.rfind(':');
             std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
-            client.RequestToCreateChat(clientListStr, line.substr(clientListEndsPos + 1));
+            client.RequestToCreateChat(clientListStr, std::stoi(line.substr(clientListEndsPos + 1)));
         }
         else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
         {
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
         }
         else if (line != "/quit")
         {
-            client.SendMessageToChat(line);            
+            client.SendRequest(line, Utils::Action::SendMessage);
         }
         else
         {

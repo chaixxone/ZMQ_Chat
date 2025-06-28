@@ -18,14 +18,14 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _socket.set(zmq::sockopt::linger, 0);
     _socket.connect(endpoint);
 
-    SendMessageToChat(identity, "!connect!");
+    SendMessageToChat(identity, "!connect!", -1);
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
 void Client::RequestChangeIdentity(std::string& desiredIdentity)
 {    
-    SendMessageToChat(desiredIdentity, "!connect!");
+    SendMessageToChat(desiredIdentity, "!connect!", -1);
 }
 
 void Client::ChangeIdentity(const std::string& identity)
@@ -73,11 +73,11 @@ bool Client::HasRequestToChat() const
     return _hasRequestToChat;
 }
 
-void Client::SendMessageToChat(std::string& messageStr, const std::string& actionStr)
+void Client::SendMessageToChat(std::string& messageStr, const std::string& actionStr, int chatIdInt)
 {
     zmq::message_t action(actionStr);
     zmq::message_t message(messageStr);
-    zmq::message_t chatId(std::to_string(_chatId));
+    zmq::message_t chatId(std::to_string(chatIdInt));
 
     bool result = _socket.send(action, zmq::send_flags::sndmore) 
         && _socket.send(message, zmq::send_flags::sndmore)
@@ -89,13 +89,12 @@ void Client::SendMessageToChat(std::string& messageStr, const std::string& actio
     }
 }
 
-void Client::RequestToCreateChat(std::string& clients, const std::string& chatId)
+void Client::RequestToCreateChat(std::string& clients, int chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
-    std::string chatInfo = "create_chat:" + chatId;
-    SendMessageToChat(clients, chatInfo);
-    _chatId = static_cast<size_t>(stoi(chatId));
+    SendMessageToChat(clients, "create_chat", chatId);
+    _chatId = chatId;
 }
 
 std::optional<MessageView> Client::TryGetMessage()
@@ -120,7 +119,7 @@ void Client::SendRequest(std::string& requestData, Utils::Action request)
         // example [/connect:cli1 cli2:55]
         size_t clientListEndsPos = requestData.rfind(':');
         std::string clientListStr = requestData.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
-        RequestToCreateChat(clientListStr, requestData.substr(clientListEndsPos + 1));
+        RequestToCreateChat(clientListStr, std::stoi(requestData.substr(clientListEndsPos + 1)));
         break;
     }
     case Utils::Action::ChangeName:
@@ -131,7 +130,7 @@ void Client::SendRequest(std::string& requestData, Utils::Action request)
         break;
     }
     case Utils::Action::SendMessage:
-        SendMessageToChat(requestData);
+        SendMessageToChat(requestData, "send_message", _chatId);
         break;
     default:
         break;
@@ -200,11 +199,11 @@ void Client::Reply(const std::string& reply)
     if (reply == "y")
     {
         std::cout << "accepted!\n";
-        SendMessageToChat(chatIDstr, "accept_create_chat");
+        SendMessageToChat(chatIDstr, "accept_create_chat", _chatId);
     }
     else
     {
-        SendMessageToChat(chatIDstr, "decline_create_chat");
+        SendMessageToChat(chatIDstr, "decline_create_chat", _chatId);
     }
 
     _hasRequestToChat = false;
