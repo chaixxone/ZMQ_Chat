@@ -95,6 +95,11 @@ void Client::SendRequest(std::string& messageStr, Utils::Action action, int chat
     }
 }
 
+void Client::SendMessageToChat(std::string& messageStr, int chatIdInt)
+{
+    SendRequest(messageStr, Utils::Action::SendMessage, chatIdInt);
+}
+
 void Client::RequestToCreateChat(std::string& clients, int chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
