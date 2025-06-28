@@ -2,13 +2,14 @@
 #include "client_interface.hpp"
 #include "message_queue.hpp"
 #include <thread>
+#include <utils/client_actions.hpp>
 
 class Client : public IClient
 {
 public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
     ~Client();
-    void SendRequest(const std::string request);
+    void SendRequest(std::string& requestData, Utils::Action request);
     void RequestToCreateChat(std::string& clients, const std::string& chatId) override;
     void SendMessageToChat(std::string& messageStr, const std::string& actionStr = "send_message") override;
     bool HasRequestToChat() const;
