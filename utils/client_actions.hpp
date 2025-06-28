@@ -6,6 +6,7 @@ namespace Utils
     enum class Action
     {
         Connect,
+        ChangeName,
         SendMessage,
         CreateChat,
         AcceptCreateChat,
