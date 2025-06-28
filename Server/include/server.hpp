@@ -10,7 +10,7 @@ public:
     void Run();
 
 private:
-    void AskClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients);
+    void AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients);
     void MessageDispatch(
         const std::string& action,
         const std::string& message,

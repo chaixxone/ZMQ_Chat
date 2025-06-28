@@ -84,7 +84,7 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
 
     std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatId << ") with " << dataStr << '\n';
 
-    AskClients(std::make_pair(chatId, clientId), clients);
+    AskClients(chatId, clientId, clients);
     _activeChats[chatId].insert(clientId);
     MessageDispatch("new_chat", std::to_string(chatId), { clientId });
 }
@@ -125,19 +125,15 @@ std::unordered_set<std::string> Server::ParseClients(const std::string& clients,
     return clientSet;
 }
 
-void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients)
+void Server::AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients)
 {
-    auto chatId = chatInfo.first;
-    auto& asker = chatInfo.second;
-    auto chatInfoStr = "create_chat:" + std::to_string(chatId);
-
-    MessageDispatch(chatInfoStr, asker, clients, "", asker, chatId);
+    MessageDispatch("create_chat", creator, clients, "", creator, PendingInvitesChatId);
 
     for (const auto& client : clients)
     {
         if (_clients.find(client) != _clients.end())
         {
-            _pendingChatInvites[chatId].insert(client);
+            _pendingChatInvites[PendingInvitesChatId].insert(client);
         }
         else
         {
