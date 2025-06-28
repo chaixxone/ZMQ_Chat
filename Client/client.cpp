@@ -132,6 +132,7 @@ void Client::ReceiveMessage()
             std::string messageIdStr = messageId.to_string();
             std::string authorStr = author.to_string();
             std::string chatIdStr = chatId.to_string();
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
 
             if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
             {
@@ -148,7 +149,6 @@ void Client::ReceiveMessage()
             }
             else if (actionStr == "incoming_message")
             {
-                _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
                 // std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
             }
             else if (actionStr == "new_name")
