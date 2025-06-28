@@ -18,14 +18,14 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _socket.set(zmq::sockopt::linger, 0);
     _socket.connect(endpoint);
 
-    SendMessageToChat(identity, "!connect!", -1);
+    SendMessageToChat(identity, Utils::Action::Connect, -1);
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
 void Client::RequestChangeIdentity(std::string& desiredIdentity)
 {    
-    SendMessageToChat(desiredIdentity, "!connect!", -1);
+    SendMessageToChat(desiredIdentity, Utils::Action::ChangeName, -1);
 }
 
 void Client::ChangeIdentity(const std::string& identity)
@@ -73,13 +73,14 @@ bool Client::HasRequestToChat() const
     return _hasRequestToChat;
 }
 
-void Client::SendMessageToChat(std::string& messageStr, const std::string& actionStr, int chatIdInt)
+void Client::SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt)
 {
-    zmq::message_t action(actionStr);
+    std::string actionStr = Utils::actionToString(action);
+    zmq::message_t actionFrame(actionStr);
     zmq::message_t message(messageStr);
     zmq::message_t chatId(std::to_string(chatIdInt));
 
-    bool result = _socket.send(action, zmq::send_flags::sndmore) 
+    bool result = _socket.send(actionFrame, zmq::send_flags::sndmore) 
         && _socket.send(message, zmq::send_flags::sndmore)
         && _socket.send(chatId, zmq::send_flags::none);
 
@@ -93,7 +94,7 @@ void Client::RequestToCreateChat(std::string& clients, int chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
-    SendMessageToChat(clients, "create_chat", chatId);
+    SendMessageToChat(clients, Utils::Action::CreateChat, chatId);
     _chatId = chatId;
 }
 
@@ -169,11 +170,11 @@ void Client::Reply(const std::string& reply)
     if (reply == "y")
     {
         std::cout << "accepted!\n";
-        SendMessageToChat(chatIDstr, "accept_create_chat", _chatId);
+        SendMessageToChat(chatIDstr, Utils::Action::AcceptCreateChat, _chatId);
     }
     else
     {
-        SendMessageToChat(chatIDstr, "decline_create_chat", _chatId);
+        SendMessageToChat(chatIDstr, Utils::Action::Unknown, _chatId);
     }
 
     _hasRequestToChat = false;

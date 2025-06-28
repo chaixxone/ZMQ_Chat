@@ -10,7 +10,7 @@ public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
     ~Client();
     void RequestToCreateChat(std::string& clients, int chatId);
-    void SendMessageToChat(std::string& messageStr, const std::string& actionStr, int chatIdInt);
+    void SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt);
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
