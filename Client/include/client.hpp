@@ -26,7 +26,7 @@ private:
     std::string _identity;
     std::thread _receiver;
     std::shared_ptr<MessageQueue> _messageQueue;
-    size_t _chatId;
+    int _chatId;
     bool _isInChat;
     bool _hasRequestToChat;
     std::atomic_bool _alive = true;

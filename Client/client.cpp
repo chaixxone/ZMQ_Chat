@@ -11,6 +11,7 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _identity(GenerateTemporaryId()), 
     _messageQueue(message_queue),
     _isInChat(false), 
+    _chatId(-1),
     _hasRequestToChat(false)
 {
     _socket.set(zmq::sockopt::routing_id, _identity);
@@ -134,7 +135,7 @@ void Client::ReceiveMessage()
 
             if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
             {
-                _chatId = static_cast<size_t>(stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH)));
+                _chatId = stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH));
                 std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
                 _hasRequestToChat = true;
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
@@ -176,7 +177,6 @@ void Client::Reply(const std::string& reply)
     else
     {
         SendMessageToChat(chatIDstr, "decline_create_chat");
-        _chatId = NULL;
     }
 
     _hasRequestToChat = false;
