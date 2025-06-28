@@ -9,7 +9,6 @@ class Client
 public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
     ~Client();
-    void SendRequest(std::string& requestData, Utils::Action request);
     void RequestToCreateChat(std::string& clients, int chatId);
     void SendMessageToChat(std::string& messageStr, const std::string& actionStr, int chatIdInt);
     bool HasRequestToChat() const;
