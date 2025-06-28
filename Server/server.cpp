@@ -12,15 +12,18 @@ void Server::Run()
 {
     while (true)
     {
-        zmq::message_t identity, action, data;
+        zmq::message_t identity, action, data, chatId;
         auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
         auto actionResult = _socket.recv(action, zmq::recv_flags::none);
         auto dataResult = _socket.recv(data, zmq::recv_flags::none);
+        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::none);
 
         std::string clientId = identity.to_string();
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
-        std::cout << clientId << " " << actionStr << " " << dataStr << '\n';
+        std::string chatIdStr = chatId.to_string();
+        int chatIdNumber = std::stoi(chatIdStr);
+        std::cout << clientId << " " << actionStr << " " << dataStr << chatIdNumber << '\n';
 
         Utils::Action actionEnum = Utils::stringToAction(actionStr);
 
@@ -30,10 +33,10 @@ void Server::Run()
             HandleConnection(identity, dataStr);
             break;
         case Utils::Action::SendMessage:
-            HandleSendMessage(clientId, dataStr);
+            HandleSendMessage(clientId, dataStr, chatIdNumber);
             break;
         case Utils::Action::CreateChat:
-            PrepareNewChatSession(clientId, actionStr, dataStr);            
+            PrepareNewChatSession(clientId, dataStr, chatIdNumber);
             break;
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
@@ -60,35 +63,28 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
 }
 
-void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr)
+void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     size_t delimiter = dataStr.find_first_of(":");
-    size_t chatId;
 
     static size_t messageId = 0;
 
-    try
-    {
-        chatId = std::stoi(dataStr.substr(0, delimiter));
-    }
-    catch (...)
+    if (chatId == -1)
     {
         std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
         return;
     }
 
-    std::stringstream pureMessage;
-    pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
+    MessageDispatch("incoming_message", dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
-void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
+void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     auto clients = ParseClients(dataStr, clientId);
-    auto chatIdStr = actionStr.substr(Utils::CREATE_CHAT_PREFIX_LENGTH);
-    auto chatId = static_cast<size_t>(stoi(chatIdStr));
-    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << '\n';
-    AskClients(std::make_pair(chatId, clientId), clients);
+
+    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatId << ") with " << dataStr << '\n';
+
+    AskClients(chatId, clientId, clients);
     _activeChats[chatId].insert(clientId);
     MessageDispatch("new_chat", std::to_string(chatId), { clientId });
 }
@@ -129,19 +125,15 @@ std::unordered_set<std::string> Server::ParseClients(const std::string& clients,
     return clientSet;
 }
 
-void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients)
+void Server::AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients)
 {
-    auto chatId = chatInfo.first;
-    auto& asker = chatInfo.second;
-    auto chatInfoStr = "create_chat:" + std::to_string(chatId);
-
-    MessageDispatch(chatInfoStr, asker, clients, "", asker, chatId);
+    MessageDispatch("create_chat", creator, clients, "", creator, PendingInvitesChatId);
 
     for (const auto& client : clients)
     {
         if (_clients.find(client) != _clients.end())
         {
-            _pendingChatInvites[chatId].insert(client);
+            _pendingChatInvites[PendingInvitesChatId].insert(client);
         }
         else
         {
