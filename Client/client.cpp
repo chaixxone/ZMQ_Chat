@@ -137,11 +137,11 @@ void Client::ReceiveMessage()
             std::string chatIdStr = chatId.to_string();
             _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
 
-            if (actionStr.substr(0, Utils::CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
+            if (actionStr == "create_chat")
             {
-                _chatId = stoi(actionStr.substr(Utils::CREATE_CHAT_PREFIX_LENGTH));
-                std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
+                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdStr << '\n';
                 _hasRequestToChat = true;
+                _pendingChatId = std::stoi(chatIdStr);
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
             }
             else if (actionStr == "new_chat")
@@ -170,16 +170,16 @@ void Client::ReceiveMessage()
 
 void Client::Reply(const std::string& reply)
 {
-    std::string chatIDstr = std::to_string(_chatId);
+    std::string chatIDstr = std::to_string(_pendingChatId);
 
     if (reply == "y")
     {
         std::cout << "accepted!\n";
-        SendMessageToChat(chatIDstr, Utils::Action::AcceptCreateChat, _chatId);
+        SendMessageToChat(chatIDstr, Utils::Action::AcceptCreateChat, _pendingChatId);
     }
     else
     {
-        SendMessageToChat(chatIDstr, Utils::Action::Unknown, _chatId);
+        SendMessageToChat(chatIDstr, Utils::Action::Unknown, _pendingChatId);
     }
 
     _hasRequestToChat = false;
