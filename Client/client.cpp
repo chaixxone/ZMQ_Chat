@@ -110,6 +110,36 @@ std::optional<MessageView> Client::TryGetMessage()
     return _messageQueue->Pop();
 }
 
+void Client::SendRequest(std::string& requestData, Utils::Action request)
+{
+    const size_t clientsListStartPos = 9;
+    const size_t clientChangeNamePrefix = 13;
+
+    switch (request)
+    {
+    case Utils::Action::CreateChat:
+    {
+        // example [/connect:cli1 cli2:55]
+        size_t clientListEndsPos = requestData.rfind(':');
+        std::string clientListStr = requestData.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
+        RequestToCreateChat(clientListStr, requestData.substr(clientListEndsPos + 1));
+        break;
+    }
+    case Utils::Action::ChangeName:
+    {
+        std::string identifierRawString = requestData.substr(clientChangeNamePrefix);
+        std::string identifier = Utils::trim(identifierRawString);
+        RequestChangeIdentity(identifier);
+        break;
+    }
+    case Utils::Action::SendMessage:
+        SendMessageToChat(requestData);
+        break;
+    default:
+        break;
+    }
+}
+
 void Client::ReceiveMessage()
 {
     while (_alive)
