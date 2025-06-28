@@ -15,6 +15,7 @@ public:
     void Reply(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage();
+    int GetChatId() const noexcept;
 
 private:
     void ReceiveMessage();

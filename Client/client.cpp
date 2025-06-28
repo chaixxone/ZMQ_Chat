@@ -73,6 +73,11 @@ bool Client::HasRequestToChat() const
     return _hasRequestToChat;
 }
 
+int Client::GetChatId() const noexcept
+{
+    return _chatId;
+}
+
 void Client::SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
