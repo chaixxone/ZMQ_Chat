@@ -11,7 +11,6 @@ public:
     ~Client();
     void RequestToCreateChat(std::string& clients, int chatId);
     void SendMessageToChat(std::string& messageStr, int chatIdInt);
-    void SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt);
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
@@ -19,6 +18,7 @@ public:
     int GetChatId() const noexcept;
 
 private:
+    void SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt);
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
     void ChangeIdentity(const std::string& identity);
