@@ -99,7 +99,7 @@ int main(int argc, char** argv)
         }
         else if (line != "/quit")
         {
-            client.SendMessageToChat(line, Utils::Action::SendMessage, client.GetChatId());
+            client.SendMessageToChat(line, client.GetChatId());
         }
         else
         {
