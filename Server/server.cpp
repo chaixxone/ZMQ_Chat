@@ -1,44 +1,7 @@
 #include "server.hpp"
 #include <iostream>
 #include <sstream>
-
-namespace 
-{
-    enum class Action
-    {
-        Connect,
-        SendMessage,
-        CreateChat,
-        AcceptCreateChat,
-        Unknown
-    };
-
-    const short CREATE_CHAT_PREFIX_LENGTH = 12;
-
-    Action stringToAction(const std::string& actionStr)
-    {
-
-        static const std::unordered_map<std::string, Action> actionMap = {
-            {"!connect!", Action::Connect},
-            {"send_message", Action::SendMessage},
-            {"create_chat", Action::CreateChat},
-            {"accept_create_chat", Action::AcceptCreateChat}
-        };
-
-        auto it = actionMap.find(actionStr);
-
-        if (it != actionMap.end())
-        {
-            return it->second;
-        }
-        else if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:")
-        {
-            return Action::CreateChat;
-        }
-
-        return Action::Unknown;
-    }
-}
+#include <utils/client_actions.hpp>
 
 Server::Server(std::string binding) : _context(1), _socket(_context, zmq::socket_type::router)
 {
@@ -59,20 +22,20 @@ void Server::Run()
         std::string dataStr = data.to_string();
         std::cout << clientId << " " << actionStr << " " << dataStr << '\n';
 
-        Action actionEnum = stringToAction(actionStr);
+        Utils::Action actionEnum = Utils::stringToAction(actionStr);
 
         switch (actionEnum)
         {
-        case Action::Connect:
+        case Utils::Action::Connect:
             HandleConnection(identity, dataStr);
             break;
-        case Action::SendMessage:
+        case Utils::Action::SendMessage:
             HandleSendMessage(clientId, dataStr);
             break;
-        case Action::CreateChat:
+        case Utils::Action::CreateChat:
             PrepareNewChatSession(clientId, actionStr, dataStr);            
             break;
-        case Action::AcceptCreateChat:
+        case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
             break;
         default:
@@ -122,7 +85,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
 {
     auto clients = ParseClients(dataStr, clientId);
-    auto chatIdStr = actionStr.substr(CREATE_CHAT_PREFIX_LENGTH);
+    auto chatIdStr = actionStr.substr(Utils::CREATE_CHAT_PREFIX_LENGTH);
     auto chatId = static_cast<size_t>(stoi(chatIdStr));
     std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << '\n';
     AskClients(std::make_pair(chatId, clientId), clients);
