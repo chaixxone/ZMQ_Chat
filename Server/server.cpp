@@ -12,15 +12,17 @@ void Server::Run()
 {
     while (true)
     {
-        zmq::message_t identity, action, data;
+        zmq::message_t identity, action, data, chatId;
         auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
         auto actionResult = _socket.recv(action, zmq::recv_flags::none);
         auto dataResult = _socket.recv(data, zmq::recv_flags::none);
+        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::none);
 
         std::string clientId = identity.to_string();
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
-        std::cout << clientId << " " << actionStr << " " << dataStr << '\n';
+        std::string chatIdStr = chatId.to_string();
+        std::cout << clientId << " " << actionStr << " " << dataStr << chatIdStr << '\n';
 
         Utils::Action actionEnum = Utils::stringToAction(actionStr);
 
