@@ -35,7 +35,7 @@ void Server::Run()
             HandleSendMessage(clientId, dataStr, std::stoi(chatIdStr));
             break;
         case Utils::Action::CreateChat:
-            PrepareNewChatSession(clientId, actionStr, dataStr);            
+            PrepareNewChatSession(clientId, dataStr, std::stoi(chatIdStr));
             break;
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
@@ -77,12 +77,12 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
     MessageDispatch("incoming_message", dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
-void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
+void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     auto clients = ParseClients(dataStr, clientId);
-    auto chatIdStr = actionStr.substr(Utils::CREATE_CHAT_PREFIX_LENGTH);
-    auto chatId = static_cast<size_t>(stoi(chatIdStr));
-    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << '\n';
+
+    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatId << ") with " << dataStr << '\n';
+
     AskClients(std::make_pair(chatId, clientId), clients);
     _activeChats[chatId].insert(clientId);
     MessageDispatch("new_chat", std::to_string(chatId), { clientId });
