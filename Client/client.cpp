@@ -18,14 +18,14 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _socket.set(zmq::sockopt::linger, 0);
     _socket.connect(endpoint);
 
-    SendMessageToChat(identity, Utils::Action::Connect, -1);
+    SendRequest(identity, Utils::Action::Connect, -1);
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
 void Client::RequestChangeIdentity(std::string& desiredIdentity)
 {    
-    SendMessageToChat(desiredIdentity, Utils::Action::ChangeName, -1);
+    SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
 }
 
 void Client::ChangeIdentity(const std::string& identity)
@@ -78,7 +78,7 @@ int Client::GetChatId() const noexcept
     return _chatId;
 }
 
-void Client::SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt)
+void Client::SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
     zmq::message_t actionFrame(actionStr);
@@ -99,7 +99,7 @@ void Client::RequestToCreateChat(std::string& clients, int chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
-    SendMessageToChat(clients, Utils::Action::CreateChat, chatId);
+    SendRequest(clients, Utils::Action::CreateChat, chatId);
     _chatId = chatId;
 }
 
@@ -175,11 +175,11 @@ void Client::Reply(const std::string& reply)
     if (reply == "y")
     {
         std::cout << "accepted!\n";
-        SendMessageToChat(chatIDstr, Utils::Action::AcceptCreateChat, _pendingChatId);
+        SendRequest(chatIDstr, Utils::Action::AcceptCreateChat, _pendingChatId);
     }
     else
     {
-        SendMessageToChat(chatIDstr, Utils::Action::Unknown, _pendingChatId);
+        SendRequest(chatIDstr, Utils::Action::Unknown, _pendingChatId);
     }
 
     _hasRequestToChat = false;

@@ -18,7 +18,7 @@ public:
     int GetChatId() const noexcept;
 
 private:
-    void SendMessageToChat(std::string& messageStr, Utils::Action action, int chatIdInt);
+    void SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt);
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
     void ChangeIdentity(const std::string& identity);
