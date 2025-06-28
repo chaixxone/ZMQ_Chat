@@ -22,7 +22,8 @@ void Server::Run()
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
         std::string chatIdStr = chatId.to_string();
-        std::cout << clientId << " " << actionStr << " " << dataStr << chatIdStr << '\n';
+        int chatIdNumber = std::stoi(chatIdStr);
+        std::cout << clientId << " " << actionStr << " " << dataStr << chatIdNumber << '\n';
 
         Utils::Action actionEnum = Utils::stringToAction(actionStr);
 
@@ -32,10 +33,10 @@ void Server::Run()
             HandleConnection(identity, dataStr);
             break;
         case Utils::Action::SendMessage:
-            HandleSendMessage(clientId, dataStr, std::stoi(chatIdStr));
+            HandleSendMessage(clientId, dataStr, chatIdNumber);
             break;
         case Utils::Action::CreateChat:
-            PrepareNewChatSession(clientId, dataStr, std::stoi(chatIdStr));
+            PrepareNewChatSession(clientId, dataStr, chatIdNumber);
             break;
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
