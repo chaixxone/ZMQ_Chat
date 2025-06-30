@@ -23,6 +23,11 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
+void Client::Attach(std::shared_ptr<IMessageObserver> messageObserver)
+{
+    _messageObserver = messageObserver;
+}
+
 void Client::RequestChangeIdentity(std::string& desiredIdentity)
 {    
     SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
