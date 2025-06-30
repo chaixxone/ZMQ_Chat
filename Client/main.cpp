@@ -1,34 +1,18 @@
 #include <iostream>
 #include <csignal>
 #include <limits>
-#include "client.hpp"
-#include <chat_ui.hpp>
+
 #include <vld.h>
+
+#include <chat_ui.hpp>
+#include <client.hpp>
 #include <qt_message_observer.hpp>
+#include <utils/helpers.hpp>
+
 #define UI_TESTING_NO_CLIENT 1
 
 namespace
 {
-    std::string trim(const std::string& s)
-    {
-        size_t lindex = 0;
-        size_t size = s.size();
-
-        while (lindex < size && s[lindex] == ' ')
-        {
-            lindex++;
-        }
-
-        size_t rindex = lindex;
-
-        while (rindex < size && s[rindex] != ' ')
-        {
-            rindex++;
-        }
-
-        return std::string(s.begin() + lindex, s.begin() + rindex);
-    }
-
     bool alive = true;
     std::mutex mtx;
 
@@ -76,7 +60,7 @@ namespace
             else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
             {
                 std::string identifierRawString = line.substr(clientChangeNamePrefix);
-                std::string identifier = trim(identifierRawString);
+                std::string identifier = Utils::trim(identifierRawString);
                 client->RequestChangeIdentity(identifier);
             }
             else if (line != "/quit")
