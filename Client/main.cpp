@@ -28,10 +28,9 @@ namespace
             std::optional<MessageView> message = client.TryGetMessage();
 
             if (message)
-            {                
-                mtx.lock();
+            {              
+                std::lock_guard<std::mutex> lock{ mtx };
                 std::cout << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content << '\n';
-                mtx.unlock();
             }
         }
     }
