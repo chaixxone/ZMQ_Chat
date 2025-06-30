@@ -8,10 +8,12 @@
 class QtMessageObserver : public IMessageObserver, public std::enable_shared_from_this<QtMessageObserver>
 {
 public:
-	QtMessageObserver(std::shared_ptr<Client> client);
+	QtMessageObserver();
 	~QtMessageObserver();
 
 	void Update() override;
+
+	void Subscribe(std::shared_ptr<Client> client);
 
 private:
 	std::weak_ptr<Client> _client;
