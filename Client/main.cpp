@@ -116,9 +116,12 @@ int main(int argc, char** argv)
     const size_t clientsListStartPos = 9;
     const size_t clientChangeNamePrefix = 13;
     
-    QApplication app{ argc, argv };    
+    QApplication app{ argc, argv };
+    
     auto messageQueue = std::make_shared<MessageQueue>();
-    auto client = std::make_shared<Client>(host, self, messageQueue);    
+    auto client = std::make_shared<Client>(host, self, messageQueue);
+    auto messageObserver = std::make_shared<QtMessageObserver>();
+    messageObserver->Subscribe(client);
     UI::ChatUI chat{ client };
     chat.resize(1280, 720);
     chat.show();
