@@ -147,6 +147,11 @@ void Client::ReceiveMessage()
             std::string chatIdStr = chatId.to_string();
             _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
 
+            if (_messageObserver)
+            {
+                _messageObserver->Update();
+            }
+
             if (actionStr == "create_chat")
             {
                 std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdStr << '\n';
