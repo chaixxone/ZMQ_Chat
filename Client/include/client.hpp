@@ -1,5 +1,6 @@
 #pragma once
 #include "client_interface.hpp"
+#include "message_observer_interface.hpp"
 #include "message_queue.hpp"
 #include <thread>
 #include <utils/client_actions.hpp>
@@ -16,6 +17,7 @@ public:
     void RequestChangeIdentity(std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage();
     int GetChatId() const noexcept;
+    void Attach(std::shared_ptr<IMessageObserver> messageObserver);
 
 private:
     void SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt);
@@ -29,6 +31,7 @@ private:
     std::string _identity;
     std::thread _receiver;
     std::shared_ptr<MessageQueue> _messageQueue;
+    std::shared_ptr<IMessageObserver> _messageObserver;
     int _pendingChatId;
     int _chatId;
     bool _isInChat;
