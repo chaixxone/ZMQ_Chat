@@ -36,7 +36,7 @@ namespace
         }
     }
 
-    void threadProcess(std::shared_ptr<Client> client)
+    void processClientConsoleInput(std::shared_ptr<Client> client)
     {
         const size_t clientsListStartPos = 9;
         const size_t clientChangeNamePrefix = 13;
@@ -105,13 +105,13 @@ int main(int argc, char** argv)
     chat.resize(1280, 720);
     chat.show();
 
-    std::thread t(threadProcess, client);
-    QObject::connect(QApplication::instance(), &QApplication::aboutToQuit, [&t, ptr = &alive]() {
-        *ptr = false;
+    std::thread clientConsoleInputThread(processClientConsoleInput, client);
+    QObject::connect(QApplication::instance(), &QApplication::aboutToQuit, [&clientConsoleInputThread, threadAlivePtr = &alive]() {
+        *threadAlivePtr = false;
 
-        if (t.joinable())
+        if (clientConsoleInputThread.joinable())
         {
-            t.join();
+            clientConsoleInputThread.join();
         }
     });
 
