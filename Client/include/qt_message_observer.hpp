@@ -2,17 +2,17 @@
 
 #include <memory>
 
-#include <client_interface.hpp>
+#include <client.hpp>
 #include <message_observer_interface.hpp>
 
 class QtMessageObserver : public IMessageObserver
 {
 public:
-	QtMessageObserver(std::shared_ptr<IClient> client);
+	QtMessageObserver(std::shared_ptr<Client> client);
 	~QtMessageObserver();
 
 	void Update() override;
 
 private:
-	std::weak_ptr<IClient> _client;
+	std::weak_ptr<Client> _client;
 };
