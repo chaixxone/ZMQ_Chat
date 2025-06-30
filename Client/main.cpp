@@ -4,6 +4,7 @@
 #include "client.hpp"
 #include <chat_ui.hpp>
 #include <vld.h>
+#include <qt_message_observer.hpp>
 #define UI_TESTING_NO_CLIENT 1
 
 namespace
@@ -50,6 +51,45 @@ namespace
             }
         }
     }
+
+    void threadProcess(std::shared_ptr<Client> client)
+    {
+        const size_t clientsListStartPos = 9;
+        const size_t clientChangeNamePrefix = 13;
+        std::string line;
+
+        while (alive)
+        {
+            std::getline(std::cin, line);
+
+            if (client->HasRequestToChat())
+            {
+                client->Reply(line);
+            }
+            else if (line.substr(0, clientsListStartPos) == "/connect:")
+            {
+                // example [/connect:cli1 cli2:55]
+                size_t clientListEndsPos = line.rfind(':');
+                std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
+                client->RequestToCreateChat(clientListStr, std::stoi(line.substr(clientListEndsPos + 1)));
+            }
+            else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
+            {
+                std::string identifierRawString = line.substr(clientChangeNamePrefix);
+                std::string identifier = trim(identifierRawString);
+                client->RequestChangeIdentity(identifier);
+            }
+            else if (line != "/quit")
+            {
+                client->SendMessageToChat(line, client->GetChatId());
+            }
+            else
+            {
+                alive = false;
+                break;
+            }
+        }
+    }
 }
 
 int main(int argc, char** argv)
@@ -76,46 +116,22 @@ int main(int argc, char** argv)
     const size_t clientsListStartPos = 9;
     const size_t clientChangeNamePrefix = 13;
     
-    QApplication app{ argc, argv };
+    QApplication app{ argc, argv };    
     auto messageQueue = std::make_shared<MessageQueue>();
-    auto client = std::make_shared<Client>(host, self, messageQueue);
+    auto client = std::make_shared<Client>(host, self, messageQueue);    
     UI::ChatUI chat{ client };
     chat.resize(1280, 720);
     chat.show();
-    
-#if !UI_TESTING_NO_CLIENT
-    while (true)
-    {
-        std::getline(std::cin, line);
 
-        if (client.HasRequestToChat())
+    std::thread t(threadProcess, client);
+    QObject::connect(QApplication::instance(), &QApplication::aboutToQuit, [&t, ptr = &alive]() {
+        *ptr = false;
+
+        if (t.joinable())
         {
-            client.Reply(line);
+            t.join();
         }
-        else if (line.substr(0, clientsListStartPos) == "/connect:")
-        {
-            // example [/connect:cli1 cli2:55]
-            size_t clientListEndsPos = line.rfind(':');
-            std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
-            client.RequestToCreateChat(clientListStr, std::stoi(line.substr(clientListEndsPos + 1)));
-        }
-        else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
-        {
-            std::string identifierRawString = line.substr(clientChangeNamePrefix);
-            std::string identifier = trim(identifierRawString);
-            client.RequestChangeIdentity(identifier);
-        }
-        else if (line != "/quit")
-        {
-            client.SendMessageToChat(line, client.GetChatId());
-        }
-        else
-        {
-            alive = false;
-            break;
-        }
-    }
-#endif
+    });
 
     return app.exec();
 }
