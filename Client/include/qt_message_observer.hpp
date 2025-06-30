@@ -12,4 +12,7 @@ public:
 	~QtMessageObserver();
 
 	void Update() override;
+
+private:
+	std::weak_ptr<IClient> _client;
 };
