@@ -5,6 +5,6 @@
 class IClient
 {
 public:
-	virtual void RequestToCreateChat(std::string& clients, const std::string& chatId) = 0;
-	virtual void SendMessageToChat(std::string& messageStr, const std::string& actionStr) = 0;
+	virtual void RequestToCreateChat(std::string& clients, int chatId) = 0;
+	virtual void SendMessageToChat(std::string& messageStr, int chatIdInt) = 0;
 };

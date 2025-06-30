@@ -5,13 +5,13 @@
 #include <thread>
 #include <utils/client_actions.hpp>
 
-class Client
+class Client : public IClient
 {
 public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
     ~Client();
-    void RequestToCreateChat(std::string& clients, int chatId);
-    void SendMessageToChat(std::string& messageStr, int chatIdInt);
+    void RequestToCreateChat(std::string& clients, int chatId) override;
+    void SendMessageToChat(std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
