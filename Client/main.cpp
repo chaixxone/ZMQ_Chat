@@ -94,11 +94,6 @@ int main(int argc, char** argv)
     host = "tcp://localhost:5555";
     self = "debug_client";
 #endif
-
-    std::string line;
-    std::cin.ignore();
-    const size_t clientsListStartPos = 9;
-    const size_t clientChangeNamePrefix = 13;
     
     QApplication app{ argc, argv };
     
