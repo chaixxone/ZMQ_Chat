@@ -32,6 +32,9 @@ void Server::Run()
         case Utils::Action::Connect:
             HandleConnection(identity, dataStr);
             break;
+        case Utils::Action::ChangeName:
+            HandleConnection(identity, dataStr);
+            break;
         case Utils::Action::SendMessage:
             HandleSendMessage(clientId, dataStr, chatIdNumber);
             break;
