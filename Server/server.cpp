@@ -120,34 +120,34 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
 
 void Server::HandleAllChatsInfoRequest(const std::string& clientId)
 {
-    std::vector<int> allChatsIdVector;
+    std::vector<std::string> allChatsIdVector;
 
     for (const auto& chat : _activeChats)
     {
-        allChatsIdVector.push_back(chat.first);
+        allChatsIdVector.push_back(std::to_string(chat.first));
     }
 
     json allChatsJson;
-    allChatsJson[0] = allChatsIdVector;
+    allChatsJson = allChatsIdVector;
 
     MessageDispatch("all_chats", allChatsJson.dump(), {clientId});
 }
 
 void Server::HandleClientChatsInfoRequest(const std::string& clientId)
 {
-    std::vector<int> clientChatsIdVector;
+    std::vector<std::string> clientChatsIdVector;
 
     // BAD, yet temporary solution!
     for (const auto& chat : _activeChats)
     {
         if (chat.second.find(clientId) != chat.second.end())
         {
-            clientChatsIdVector.push_back(chat.first);
+            clientChatsIdVector.push_back(std::to_string(chat.first));
         }
     }
 
     json clientChatsJson;
-    clientChatsJson[0] = clientChatsIdVector;
+    clientChatsJson = clientChatsIdVector;
 
     MessageDispatch("client_chats", clientChatsJson.dump(), { clientId });
 }
