@@ -2,6 +2,7 @@
 
 #include <QtWidgets>
 #include <client.hpp>
+#include <qt_message_observer.hpp>
 
 namespace UI
 {
@@ -10,7 +11,7 @@ namespace UI
 		Q_OBJECT
 
 	public:
-		explicit ChatUI(std::shared_ptr<Client> client, QWidget* parent = nullptr);
+		explicit ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver> observer, QWidget* parent = nullptr);
 		~ChatUI();
 
 	private:
@@ -18,5 +19,6 @@ namespace UI
 		QWidget* _loginPage;
 		QWidget* _mainPage;
 		std::shared_ptr<Client> _client;
+		std::shared_ptr<QtMessageObserver> _messageObserver;
 	};
 }
