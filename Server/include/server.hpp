@@ -32,6 +32,6 @@ private:
     zmq::context_t _context;
     zmq::socket_t _socket;
     std::unordered_set<std::string> _clients;
-    std::unordered_map<size_t, std::unordered_set<std::string>> _activeChats;
-    std::unordered_map<size_t, std::unordered_set<std::string>> _pendingChatInvites;
+    std::unordered_map<int, std::unordered_set<std::string>> _activeChats;
+    std::unordered_map<int, std::unordered_set<std::string>> _pendingChatInvites;
 };

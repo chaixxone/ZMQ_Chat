@@ -103,7 +103,7 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
 
 void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
 {
-    auto chatId = static_cast<size_t>(stoi(dataStr));
+    int chatId = std::stoi(dataStr);
 
     if (_pendingChatInvites.find(chatId) != _pendingChatInvites.end())
     {
