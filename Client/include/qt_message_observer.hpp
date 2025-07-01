@@ -30,4 +30,6 @@ signals:
 
 private:
 	std::weak_ptr<Client> _client;
+
+	void ProcessMessageActions(const MessageView& message);
 };
