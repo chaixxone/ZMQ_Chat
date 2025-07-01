@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     auto client = std::make_shared<Client>(host, self, messageQueue);
     auto messageObserver = std::make_shared<QtMessageObserver>();
     messageObserver->Subscribe(client);
-    UI::ChatUI chat{ client };
+    UI::ChatUI chat{ client, messageObserver };
     chat.resize(1280, 720);
     chat.show();
 
