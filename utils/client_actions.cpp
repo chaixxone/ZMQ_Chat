@@ -13,7 +13,9 @@ namespace Utils
         {"incoming_message", Action::IncomingMessage},
         {"create_chat", Action::CreateChat},
         {"accept_create_chat", Action::AcceptCreateChat},
-        {"new_chat", Action::NewChat}
+        {"new_chat", Action::NewChat},
+        {"all_chats", Action::AllChats},
+        {"client_chats", Action::ClientChats},
     };
 
     Action stringToAction(const std::string& actionStr)
