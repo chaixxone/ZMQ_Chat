@@ -33,15 +33,6 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vSidePanelLayout->addStretch(0);
 	// main space
 	auto chat = new ChatTextFrame;
-	// TODO: remove dummy message
-	QString dummyText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
-		"sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim"
-		"ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip"
-		"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate"
-		"velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat"
-		"cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	auto message = new Message(564755748ull, "chaixxone", dummyText, chat);
-	chat->AddMessage(message);
 	auto messageTextBar = new ChatTextLine(300, 25);
 	
 	auto vMainSpaceLayout = new QVBoxLayout;
