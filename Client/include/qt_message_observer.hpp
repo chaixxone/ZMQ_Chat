@@ -19,6 +19,15 @@ public:
 
 	void Subscribe(std::shared_ptr<Client> client);
 
+signals:
+	void IncomingMessage(const MessageView& message);
+
+	void CreateChat(const MessageView& message);
+
+	void NewClientName(const MessageView& message);
+
+	void NewClientChat(const MessageView& message);
+
 private:
 	std::weak_ptr<Client> _client;
 };
