@@ -144,8 +144,8 @@ void Client::ReceiveMessage()
             std::string dataStr = data.to_string();
             std::string messageIdStr = messageId.to_string();
             std::string authorStr = author.to_string();
-            std::string chatIdStr = chatId.to_string();
-            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
+            int chatIdInt = std::stoi(chatId.to_string());
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, chatIdInt });
 
             if (_messageObserver)
             {
@@ -154,9 +154,9 @@ void Client::ReceiveMessage()
 
             if (actionStr == "create_chat")
             {
-                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdStr << '\n';
+                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdInt << '\n';
                 _hasRequestToChat = true;
-                _pendingChatId = std::stoi(chatIdStr);
+                _pendingChatId = chatIdInt;
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
             }
             else if (actionStr == "new_chat")
