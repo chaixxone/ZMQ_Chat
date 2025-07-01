@@ -25,6 +25,7 @@ private:
     void HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted);
     void HandleConnection(zmq::message_t& clientId, const std::string& desiredIdentity);
     void HandleAllChatsInfoRequest(const std::string& clientId);
+    void HandleClientChatsInfoRequest(const std::string& clientId);
 
     zmq::context_t _context;
     zmq::socket_t _socket;
