@@ -7,7 +7,7 @@
 #include <client.hpp>
 #include <message_observer_interface.hpp>
 
-class QtMessageObserver : public IMessageObserver, public std::enable_shared_from_this<QtMessageObserver>, public QObject
+class QtMessageObserver : public QObject, public IMessageObserver, public std::enable_shared_from_this<QtMessageObserver>
 {
 	Q_OBJECT
 
