@@ -29,6 +29,8 @@ signals:
 
 	void NewClientChat(const MessageView& message);
 
+	void ClientChats(const MessageView& message);
+
 private:
 	std::weak_ptr<IClientMessageSubject> _client;
 

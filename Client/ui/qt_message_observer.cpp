@@ -39,6 +39,9 @@ void QtMessageObserver::Update()
 		case Utils::Action::NewChat:
 			emit NewClientChat(messageData);
 			break;
+		case Utils::Action::ClientChats:
+			emit ClientChats(messageData);
+			break;
 		case Utils::Action::NewClientName:
 			emit NewClientName(QString::fromStdString(messageData.Content));
 			break;
