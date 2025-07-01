@@ -7,9 +7,12 @@ namespace Utils
     {
         Connect,
         ChangeName,
+        NewClientName,
         SendMessage,
+        IncomingMessage,
         CreateChat,
         AcceptCreateChat,
+        NewChat,
         Unknown
     };
 
