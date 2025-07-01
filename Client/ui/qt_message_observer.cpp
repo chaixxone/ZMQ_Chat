@@ -25,5 +25,25 @@ void QtMessageObserver::Update()
 		std::shared_ptr<Client> client = _client.lock();
 		std::optional<MessageView> message = client->TryGetMessage();
 		qDebug() << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content;
+
+		MessageView& messageData = message.value();
+
+		switch (messageData.Action)
+		{
+		case Utils::Action::IncomingMessage:
+			emit IncomingMessage(messageData);
+			break;
+		case Utils::Action::CreateChat:
+			emit CreateChat(messageData);
+			break;
+		case Utils::Action::NewChat:
+			emit NewClientChat(messageData);
+			break;
+		case Utils::Action::NewClientName:
+			emit NewClientName(messageData);
+			break;
+		default:
+			break;
+		}
 	}
 }
