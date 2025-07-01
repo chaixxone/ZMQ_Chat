@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utils/client_actions.hpp>
 
 struct MessageView
 {
@@ -8,4 +9,5 @@ struct MessageView
 	std::string Content;
 	std::string ID;
 	int ChatID;
+	Utils::Action Action;
 };
