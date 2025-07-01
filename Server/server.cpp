@@ -1,7 +1,9 @@
 #include "server.hpp"
 #include <iostream>
-#include <sstream>
 #include <utils/client_actions.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 Server::Server(std::string binding) : _context(1), _socket(_context, zmq::socket_type::router)
 {
@@ -118,14 +120,17 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
 
 void Server::HandleAllChatsInfoRequest(const std::string& clientId)
 {
-    std::stringstream allChatsIdStringStream;
+    std::vector<int> allChatsIdVector;
 
     for (const auto& chat : _activeChats)
     {
-        allChatsIdStringStream << chat.first;
+        allChatsIdVector.push_back(chat.first);
     }
 
-    MessageDispatch("all_chats", allChatsIdStringStream.str(), { clientId });
+    json allChatsJson;
+    allChatsJson[0] = allChatsIdVector;
+
+    MessageDispatch("all_chats", allChatsJson.dump(), {clientId});
 }
 
 std::unordered_set<std::string> Server::ParseClients(const std::string& clients, const std::string& creator)
