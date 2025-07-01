@@ -7,7 +7,7 @@ QtMessageObserver::QtMessageObserver()
 	
 }
 
-void QtMessageObserver::Subscribe(std::shared_ptr<Client> client)
+void QtMessageObserver::Subscribe(std::shared_ptr<IClientMessageSubject> client)
 {
 	_client = client;
 	client->Attach(shared_from_this());
@@ -22,7 +22,7 @@ void QtMessageObserver::Update()
 {
 	if (!_client.expired())
 	{
-		std::shared_ptr<Client> client = _client.lock();
+		std::shared_ptr<IClientMessageSubject> client = _client.lock();
 		std::optional<MessageView> message = client->TryGetMessage();
 		qDebug() << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content;
 
