@@ -132,13 +132,13 @@ void Client::ReceiveMessage()
         zmq::message_t messageId;
         zmq::message_t author;
         zmq::message_t chatId;
-        auto actionResult = _socket.recv(action, zmq::recv_flags::dontwait);
-        auto dataResult = _socket.recv(data, zmq::recv_flags::dontwait);
-        auto messageIdResult = _socket.recv(messageId, zmq::recv_flags::dontwait);
-        auto authorResult = _socket.recv(author, zmq::recv_flags::dontwait);
-        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::dontwait);
+        bool messageReceivedResult = _socket.recv(action, zmq::recv_flags::dontwait)
+            && _socket.recv(data, zmq::recv_flags::dontwait)
+            && _socket.recv(messageId, zmq::recv_flags::dontwait)
+            && _socket.recv(author, zmq::recv_flags::dontwait)
+            && _socket.recv(chatId, zmq::recv_flags::dontwait);
 
-        if (actionResult && dataResult && messageIdResult)
+        if (messageReceivedResult)
         {
             std::string actionStr = action.to_string();
             std::string dataStr = data.to_string();
