@@ -133,6 +133,25 @@ void Server::HandleAllChatsInfoRequest(const std::string& clientId)
     MessageDispatch("all_chats", allChatsJson.dump(), {clientId});
 }
 
+void Server::HandleClientChatsInfoRequest(const std::string& clientId)
+{
+    std::vector<int> clientChatsIdVector;
+
+    // BAD, yet temporary solution!
+    for (const auto& chat : _activeChats)
+    {
+        if (chat.second.find(clientId) != chat.second.end())
+        {
+            clientChatsIdVector.push_back(chat.first);
+        }
+    }
+
+    json clientChatsJson;
+    clientChatsJson[0] = clientChatsIdVector;
+
+    MessageDispatch("client_chats", clientChatsJson.dump(), { clientId });
+}
+
 std::unordered_set<std::string> Server::ParseClients(const std::string& clients, const std::string& creator)
 {
     std::unordered_set<std::string> clientSet;
