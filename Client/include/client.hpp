@@ -1,11 +1,11 @@
 #pragma once
-#include "client_interface.hpp"
+#include "client_message_subject_interface.hpp"
 #include "message_observer_interface.hpp"
 #include "message_queue.hpp"
 #include <thread>
 #include <utils/client_actions.hpp>
 
-class Client : public IClient
+class Client : public IClientMessageSubject
 {
 public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
@@ -15,9 +15,9 @@ public:
     bool HasRequestToChat() const;
     void Reply(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
-    std::optional<MessageView> TryGetMessage();
+    std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;
-    void Attach(std::shared_ptr<IMessageObserver> messageObserver);
+    void Attach(std::shared_ptr<IMessageObserver> messageObserver) override;
 
 private:
     void SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt);
