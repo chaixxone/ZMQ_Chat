@@ -132,50 +132,49 @@ void Client::ReceiveMessage()
         zmq::message_t messageId;
         zmq::message_t author;
         zmq::message_t chatId;
-        auto actionResult = _socket.recv(action, zmq::recv_flags::dontwait);
-        auto dataResult = _socket.recv(data, zmq::recv_flags::dontwait);
-        auto messageIdResult = _socket.recv(messageId, zmq::recv_flags::dontwait);
-        auto authorResult = _socket.recv(author, zmq::recv_flags::dontwait);
-        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::dontwait);
+        bool messageReceivedResult = _socket.recv(action, zmq::recv_flags::dontwait)
+            && _socket.recv(data, zmq::recv_flags::dontwait)
+            && _socket.recv(messageId, zmq::recv_flags::dontwait)
+            && _socket.recv(author, zmq::recv_flags::dontwait)
+            && _socket.recv(chatId, zmq::recv_flags::dontwait);
 
-        if (actionResult && dataResult && messageIdResult)
+        if (messageReceivedResult)
         {
             std::string actionStr = action.to_string();
             std::string dataStr = data.to_string();
             std::string messageIdStr = messageId.to_string();
             std::string authorStr = author.to_string();
-            std::string chatIdStr = chatId.to_string();
-            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
+
+            Utils::Action actionEnum = Utils::stringToAction(actionStr);
+            int chatIdInt = std::stoi(chatId.to_string());
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, chatIdInt, actionEnum });
 
             if (_messageObserver)
             {
                 _messageObserver->Update();
             }
 
-            if (actionStr == "create_chat")
+            switch (actionEnum)
             {
-                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdStr << '\n';
+            case Utils::Action::CreateChat:
+                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdInt << '\n';
                 _hasRequestToChat = true;
-                _pendingChatId = std::stoi(chatIdStr);
+                _pendingChatId = chatIdInt;
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
-            }
-            else if (actionStr == "new_chat")
-            {
+                break;
+            case Utils::Action::NewChat:
                 _chatId = std::stoi(dataStr);
                 std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
                 _isInChat = true;
-            }
-            else if (actionStr == "incoming_message")
-            {
-                // std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
-            }
-            else if (actionStr == "new_name")
-            {
+                break;
+            case Utils::Action::IncomingMessage:
+                break;
+            case Utils::Action::NewClientName:
                 ChangeIdentity(dataStr);
-            }
-            else
-            {
+                break;
+            default:
                 std::cout << "Error: unknown action!\n";
+                break;
             }
         }
 
