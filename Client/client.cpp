@@ -154,30 +154,27 @@ void Client::ReceiveMessage()
                 _messageObserver->Update();
             }
 
-            if (actionStr == "create_chat")
+            switch (actionEnum)
             {
+            case Utils::Action::CreateChat:
                 std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdInt << '\n';
                 _hasRequestToChat = true;
                 _pendingChatId = chatIdInt;
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
-            }
-            else if (actionStr == "new_chat")
-            {
+                break;
+            case Utils::Action::NewChat:
                 _chatId = std::stoi(dataStr);
                 std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
                 _isInChat = true;
-            }
-            else if (actionStr == "incoming_message")
-            {
-                // std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
-            }
-            else if (actionStr == "new_name")
-            {
+                break;
+            case Utils::Action::IncomingMessage:
+                break;
+            case Utils::Action::NewClientName:
                 ChangeIdentity(dataStr);
-            }
-            else
-            {
+                break;
+            default:
                 std::cout << "Error: unknown action!\n";
+                break;
             }
         }
 
