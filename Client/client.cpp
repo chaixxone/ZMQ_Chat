@@ -10,7 +10,6 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _endpoint(endpoint), 
     _identity(GenerateTemporaryId()), 
     _messageQueue(message_queue),
-    _isInChat(false), 
     _chatId(-1),
     _hasRequestToChat(false)
 {
@@ -165,7 +164,6 @@ void Client::ReceiveMessage()
             case Utils::Action::NewChat:
                 _chatId = std::stoi(dataStr);
                 std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
-                _isInChat = true;
                 break;
             case Utils::Action::IncomingMessage:
                 break;
