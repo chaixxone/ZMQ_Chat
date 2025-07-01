@@ -24,7 +24,7 @@ signals:
 
 	void CreateChat(const MessageView& message);
 
-	void NewClientName(const MessageView& message);
+	void NewClientName(const QString& newClientName);
 
 	void NewClientChat(const MessageView& message);
 
