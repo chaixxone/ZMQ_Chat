@@ -71,6 +71,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		std::string desiredIdentity = nameLineEdit->text().toStdString();
 		_client->RequestChangeIdentity(desiredIdentity);
 	});
+	connect(chatIdComboBox, &PopUpSingalEmittingQComboBox::PoppedUp, [client = _client]() {
+		client->GetClientChatIdsStr();
+	});
 	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userComboBox, [userComboBox](const MessageView& messageData) {
 		QStringList chatIds;
 
