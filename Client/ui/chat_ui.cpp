@@ -61,6 +61,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		);
 		chat->AddMessage(message);
 	});
+
+	connect(_messageObserver.get(), &QtMessageObserver::NewClientName, nameLineEdit, &QLineEdit::setText);	
 }
 
 ChatUI::~ChatUI() {}
