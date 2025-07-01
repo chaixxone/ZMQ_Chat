@@ -43,6 +43,9 @@ void Server::Run()
             break;
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
+            break;        
+        case Utils::Action::AllChats:
+            HandleAllChatsInfoRequest(clientId);
             break;
         default:
             HandleResponseForInvite(identity, clientId, dataStr, false);
@@ -111,6 +114,18 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
 
         MessageDispatch("new_chat", std::to_string(chatId), { clientId });
     }
+}
+
+void Server::HandleAllChatsInfoRequest(const std::string& clientId)
+{
+    std::stringstream allChatsIdStringStream;
+
+    for (const auto& chat : _activeChats)
+    {
+        allChatsIdStringStream << chat.first;
+    }
+
+    MessageDispatch("all_chats", allChatsIdStringStream.str(), { clientId });
 }
 
 std::unordered_set<std::string> Server::ParseClients(const std::string& clients, const std::string& creator)

@@ -13,6 +13,8 @@ namespace Utils
         CreateChat,
         AcceptCreateChat,
         NewChat,
+        AllChats,
+        ClientChats,
         Unknown
     };
 
