@@ -1,6 +1,7 @@
 #include <chat_ui.hpp>
 #include <chat_text_frame.hpp>
 #include <chat_text_line.hpp>
+#include <popup_signal_emitting_q_combo_box.hpp>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -25,7 +26,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	// left side panel widgets
 	auto nameLineEdit = new QLineEdit;
 	auto userComboBox = new QComboBox;
-	auto chatIdComboBox = new QComboBox;
+	auto chatIdComboBox = new PopUpSingalEmittingQComboBox; // TODO change type in the future (if needed)
 	auto userChatIdComboBox = new QComboBox;
 
 	auto vSidePanelLayout = new QVBoxLayout;
