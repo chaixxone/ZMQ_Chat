@@ -4,12 +4,13 @@
 
 using namespace UI;
 
-ChatUI::ChatUI(std::shared_ptr<Client> client, QWidget* parent) :
+ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver> observer, QWidget* parent) :
 	QMainWindow(parent), 
 	_pages(new QStackedWidget(this)), 
 	_loginPage(new QWidget), 
 	_mainPage(new QWidget),
-	_client(client)
+	_client(client),
+	_messageObserver(observer)
 {
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
