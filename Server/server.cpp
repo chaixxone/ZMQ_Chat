@@ -44,6 +44,9 @@ void Server::Run()
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
             break;        
+        case Utils::Action::AllChats:
+            HandleAllChatsInfoRequest(clientId);
+            break;
         default:
             HandleResponseForInvite(identity, clientId, dataStr, false);
             break;
