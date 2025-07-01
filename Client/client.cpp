@@ -196,3 +196,8 @@ void Client::Reply(const std::string& reply)
 
     _hasRequestToChat = false;
 }
+
+std::string Client::GetClientChatIdsStr()
+{
+    SendRequest(_identity, Utils::Action::ClientChats, -1);
+}
