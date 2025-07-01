@@ -1,6 +1,9 @@
 #include <chat_ui.hpp>
 #include <chat_text_frame.hpp>
 #include <chat_text_line.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 using namespace UI;
 
@@ -66,6 +69,27 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(nameLineEdit, &QLineEdit::returnPressed, [this, nameLineEdit]() {
 		std::string desiredIdentity = nameLineEdit->text().toStdString();
 		_client->RequestChangeIdentity(desiredIdentity);
+	});
+	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userComboBox, [userComboBox](const MessageView& messageData) {
+		QStringList chatIds;
+
+		try
+		{
+			json jsonMessageData = json::parse(messageData.Content);
+			json& chatIdsJsonArray = jsonMessageData[0];
+
+			for (const auto& chatIdJsonValue : chatIdsJsonArray)
+			{
+				chatIds.push_back(QString::fromStdString(chatIdJsonValue.get<std::string>()));
+			}
+		}
+		catch (const json::exception& e)
+		{
+			qWarning() << e.what();
+			return;
+		}
+
+		userComboBox->addItems(chatIds);
 	});
 }
 
