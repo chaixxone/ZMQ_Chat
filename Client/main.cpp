@@ -1,4 +1,5 @@
 #include <iostream>
+#include <csignal>
 #include <limits>
 #include "client.hpp"
 
@@ -23,10 +24,34 @@ namespace
 
         return std::string(s.begin() + lindex, s.begin() + rindex);
     }
+
+    bool alive = true;
+    std::mutex mtx;
+
+    void handleSigInt(int)
+    {
+        alive = false;
+    }
+
+    void printMessage(Client& client)
+    {
+        while (alive)
+        {
+            std::optional<MessageView> message = client.TryGetMessage();
+
+            if (message)
+            {                
+                mtx.lock();
+                std::cout << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content << '\n';
+                mtx.unlock();
+            }
+        }
+    }
 }
 
 int main(int argc, char** argv)
 {
+    std::signal(SIGINT, handleSigInt);
     std::string host, self;
 
 #ifdef NDEBUG
@@ -41,12 +66,15 @@ int main(int argc, char** argv)
 #else
     std::cin >> host >> self;
 #endif
-    Client client{ host, self };
+    auto messageQueue = std::make_shared<MessageQueue>();
+    Client client{ host, self, messageQueue };
 
     std::string line;
     std::cin.ignore();
     const size_t clientsListStartPos = 9;
     const size_t clientChangeNamePrefix = 13;
+
+    std::thread messagePrinter(printMessage, std::ref(client));
 
     while (true)
     {
@@ -61,7 +89,7 @@ int main(int argc, char** argv)
             // example [/connect:cli1 cli2:55]
             size_t clientListEndsPos = line.rfind(':');
             std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
-            client.RequestToCreateChat(clientListStr, line.substr(clientListEndsPos + 1));
+            client.RequestToCreateChat(clientListStr, std::stoi(line.substr(clientListEndsPos + 1)));
         }
         else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
         {
@@ -71,12 +99,18 @@ int main(int argc, char** argv)
         }
         else if (line != "/quit")
         {
-            client.SendMessageToChat(line);
+            client.SendMessageToChat(line, client.GetChatId());
         }
         else
         {
+            alive = false;
             break;
         }
+    }
+
+    if (messagePrinter.joinable())
+    {
+        messagePrinter.join();
     }
 
     return 0;

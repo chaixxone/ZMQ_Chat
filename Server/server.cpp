@@ -1,44 +1,7 @@
 #include "server.hpp"
 #include <iostream>
 #include <sstream>
-
-namespace 
-{
-    enum class Action
-    {
-        Connect,
-        SendMessage,
-        CreateChat,
-        AcceptCreateChat,
-        Unknown
-    };
-
-    const short CREATE_CHAT_PREFIX_LENGTH = 12;
-
-    Action stringToAction(const std::string& actionStr)
-    {
-
-        static const std::unordered_map<std::string, Action> actionMap = {
-            {"!connect!", Action::Connect},
-            {"send_message", Action::SendMessage},
-            {"create_chat", Action::CreateChat},
-            {"accept_create_chat", Action::AcceptCreateChat}
-        };
-
-        auto it = actionMap.find(actionStr);
-
-        if (it != actionMap.end())
-        {
-            return it->second;
-        }
-        else if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:")
-        {
-            return Action::CreateChat;
-        }
-
-        return Action::Unknown;
-    }
-}
+#include <utils/client_actions.hpp>
 
 Server::Server(std::string binding) : _context(1), _socket(_context, zmq::socket_type::router)
 {
@@ -49,30 +12,33 @@ void Server::Run()
 {
     while (true)
     {
-        zmq::message_t identity, action, data;
-        _socket.recv(identity, zmq::recv_flags::none);
-        _socket.recv(action, zmq::recv_flags::none);
-        _socket.recv(data, zmq::recv_flags::none);
+        zmq::message_t identity, action, data, chatId;
+        auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
+        auto actionResult = _socket.recv(action, zmq::recv_flags::none);
+        auto dataResult = _socket.recv(data, zmq::recv_flags::none);
+        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::none);
 
         std::string clientId = identity.to_string();
         std::string actionStr = action.to_string();
         std::string dataStr = data.to_string();
-        std::cout << clientId << " " << actionStr << " " << dataStr << '\n';
+        std::string chatIdStr = chatId.to_string();
+        int chatIdNumber = std::stoi(chatIdStr);
+        std::cout << clientId << " " << actionStr << " " << dataStr << chatIdNumber << '\n';
 
-        Action actionEnum = stringToAction(actionStr);
+        Utils::Action actionEnum = Utils::stringToAction(actionStr);
 
         switch (actionEnum)
         {
-        case Action::Connect:
+        case Utils::Action::Connect:
             HandleConnection(identity, dataStr);
             break;
-        case Action::SendMessage:
-            HandleSendMessage(clientId, dataStr);
+        case Utils::Action::SendMessage:
+            HandleSendMessage(clientId, dataStr, chatIdNumber);
             break;
-        case Action::CreateChat:
-            PrepareNewChatSession(clientId, actionStr, dataStr);            
+        case Utils::Action::CreateChat:
+            PrepareNewChatSession(clientId, dataStr, chatIdNumber);
             break;
-        case Action::AcceptCreateChat:
+        case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
             break;
         default:
@@ -97,35 +63,28 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
 }
 
-void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr)
+void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     size_t delimiter = dataStr.find_first_of(":");
-    size_t chatId;
 
     static size_t messageId = 0;
 
-    try
-    {
-        chatId = std::stoi(dataStr.substr(0, delimiter));
-    }
-    catch (...)
+    if (chatId == -1)
     {
         std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
         return;
     }
 
-    std::stringstream pureMessage;
-    pureMessage << clientId << ": " << dataStr.substr(delimiter + 1);
-    MessageDispatch("incoming_message", pureMessage.str(), _activeChats[chatId], std::to_string(messageId++));
+    MessageDispatch("incoming_message", dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
-void Server::PrepareNewChatSession(const std::string& clientId, const std::string& actionStr, const std::string& dataStr)
+void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     auto clients = ParseClients(dataStr, clientId);
-    auto chatIdStr = actionStr.substr(CREATE_CHAT_PREFIX_LENGTH);
-    auto chatId = static_cast<size_t>(stoi(chatIdStr));
-    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatIdStr << ") with " << dataStr << '\n';
-    AskClients(std::make_pair(chatId, clientId), clients);
+
+    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatId << ") with " << dataStr << '\n';
+
+    AskClients(chatId, clientId, clients);
     _activeChats[chatId].insert(clientId);
     MessageDispatch("new_chat", std::to_string(chatId), { clientId });
 }
@@ -166,19 +125,15 @@ std::unordered_set<std::string> Server::ParseClients(const std::string& clients,
     return clientSet;
 }
 
-void Server::AskClients(const std::pair<size_t, std::string>& chatInfo, const std::unordered_set<std::string>& clients)
+void Server::AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients)
 {
-    auto chatId = chatInfo.first;
-    auto& asker = chatInfo.second;
-    auto chatInfoStr = "create_chat:" + std::to_string(chatId);
-
-    MessageDispatch(chatInfoStr, asker, clients);
+    MessageDispatch("create_chat", creator, clients, "", creator, PendingInvitesChatId);
 
     for (const auto& client : clients)
     {
         if (_clients.find(client) != _clients.end())
         {
-            _pendingChatInvites[chatId].insert(client);
+            _pendingChatInvites[PendingInvitesChatId].insert(client);
         }
         else
         {
@@ -191,7 +146,9 @@ void Server::MessageDispatch(
     const std::string& actionStr, 
     const std::string& message, 
     const std::unordered_set<std::string>& clients,
-    const std::string& messageIdStr
+    const std::string& messageIdStr,
+    const std::string& authorStr,
+    int chatIdInt
 )
 {
     for (const auto& client : clients)
@@ -202,11 +159,15 @@ void Server::MessageDispatch(
             zmq::message_t action(actionStr);
             zmq::message_t data(message);
             zmq::message_t messageId(messageIdStr);
+            zmq::message_t author(authorStr);
+            zmq::message_t chatId(std::to_string(chatIdInt));
 
             _socket.send(clientId, zmq::send_flags::sndmore);
             _socket.send(action, zmq::send_flags::sndmore);
             _socket.send(data, zmq::send_flags::sndmore);
-            _socket.send(messageId, zmq::send_flags::none);
+            _socket.send(messageId, zmq::send_flags::sndmore);
+            _socket.send(author, zmq::send_flags::sndmore);
+            _socket.send(chatId, zmq::send_flags::none);
         }
         catch (zmq::error_t& e)
         {

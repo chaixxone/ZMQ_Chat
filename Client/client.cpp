@@ -1,24 +1,31 @@
 #include "client.hpp"
+#include <utils/client_actions.hpp>
+#include <utils/helpers.hpp>
 #include <iostream>
 #include <random>
 
-const short CREATE_CHAT_PREFIX_LENGTH = 12;
-
-Client::Client(std::string endpoint, std::string identity)
-    : _context(1), _socket(_context, zmq::socket_type::dealer), _endpoint(endpoint), _identity(GenerateTemporaryId()), _isInChat(false), _hasRequestToChat(false)
+Client::Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> message_queue) :
+    _context(1), 
+    _socket(_context, zmq::socket_type::dealer), 
+    _endpoint(endpoint), 
+    _identity(GenerateTemporaryId()), 
+    _messageQueue(message_queue),
+    _isInChat(false), 
+    _chatId(-1),
+    _hasRequestToChat(false)
 {
     _socket.set(zmq::sockopt::routing_id, _identity);
     _socket.set(zmq::sockopt::linger, 0);
     _socket.connect(endpoint);
 
-    SendMessageToChat(identity, "!connect!");
+    SendRequest(identity, Utils::Action::Connect, -1);
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
 void Client::RequestChangeIdentity(std::string& desiredIdentity)
 {    
-    SendMessageToChat(desiredIdentity, "!connect!");
+    SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
 }
 
 void Client::ChangeIdentity(const std::string& identity)
@@ -66,17 +73,21 @@ bool Client::HasRequestToChat() const
     return _hasRequestToChat;
 }
 
-void Client::SendMessageToChat(std::string& messageStr, const std::string& actionStr)
+int Client::GetChatId() const noexcept
 {
-    zmq::message_t action(actionStr);
+    return _chatId;
+}
 
-    if (actionStr == "send_message")
-    {
-        messageStr = std::to_string(_chatId) + ":" + messageStr;
-    }
-
+void Client::SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt)
+{
+    std::string actionStr = Utils::actionToString(action);
+    zmq::message_t actionFrame(actionStr);
     zmq::message_t message(messageStr);
-    bool result = _socket.send(action, zmq::send_flags::sndmore) && _socket.send(message, zmq::send_flags::none);
+    zmq::message_t chatId(std::to_string(chatIdInt));
+
+    bool result = _socket.send(actionFrame, zmq::send_flags::sndmore) 
+        && _socket.send(message, zmq::send_flags::sndmore)
+        && _socket.send(chatId, zmq::send_flags::none);
 
     if (!result)
     {
@@ -84,13 +95,27 @@ void Client::SendMessageToChat(std::string& messageStr, const std::string& actio
     }
 }
 
-void Client::RequestToCreateChat(std::string& clients, const std::string& chatId)
+void Client::SendMessageToChat(std::string& messageStr, int chatIdInt)
+{
+    SendRequest(messageStr, Utils::Action::SendMessage, chatIdInt);
+}
+
+void Client::RequestToCreateChat(std::string& clients, int chatId)
 {
     if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
-    std::string chatInfo = "create_chat:" + chatId;
-    SendMessageToChat(clients, chatInfo);
-    _chatId = static_cast<size_t>(stoi(chatId));
+    SendRequest(clients, Utils::Action::CreateChat, chatId);
+    _chatId = chatId;
+}
+
+std::optional<MessageView> Client::TryGetMessage()
+{
+    if (_messageQueue->IsEmpty())
+    {
+        return std::nullopt;
+    }
+
+    return _messageQueue->Pop();
 }
 
 void Client::ReceiveMessage()
@@ -100,21 +125,28 @@ void Client::ReceiveMessage()
         zmq::message_t action;
         zmq::message_t data;
         zmq::message_t messageId;
+        zmq::message_t author;
+        zmq::message_t chatId;
         auto actionResult = _socket.recv(action, zmq::recv_flags::dontwait);
         auto dataResult = _socket.recv(data, zmq::recv_flags::dontwait);
         auto messageIdResult = _socket.recv(messageId, zmq::recv_flags::dontwait);
+        auto authorResult = _socket.recv(author, zmq::recv_flags::dontwait);
+        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::dontwait);
 
         if (actionResult && dataResult && messageIdResult)
         {
             std::string actionStr = action.to_string();
             std::string dataStr = data.to_string();
             std::string messageIdStr = messageId.to_string();
+            std::string authorStr = author.to_string();
+            std::string chatIdStr = chatId.to_string();
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageIdStr, std::stoi(chatIdStr) });
 
-            if (actionStr.substr(0, CREATE_CHAT_PREFIX_LENGTH) == "create_chat:" && !_isInChat)
+            if (actionStr == "create_chat")
             {
-                _chatId = static_cast<size_t>(stoi(actionStr.substr(CREATE_CHAT_PREFIX_LENGTH)));
-                std::cout << "[" << _identity << "]" << " I am invited to chat " << _chatId << '\n';
+                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdStr << '\n';
                 _hasRequestToChat = true;
+                _pendingChatId = std::stoi(chatIdStr);
                 std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
             }
             else if (actionStr == "new_chat")
@@ -125,7 +157,7 @@ void Client::ReceiveMessage()
             }
             else if (actionStr == "incoming_message")
             {
-                std::cout << messageIdStr << '\t' << dataStr << '\n';
+                // std::cout << messageIdStr << '\t' << dataStr << '\t' << authorStr << '\t' << chatIdStr << '\n';
             }
             else if (actionStr == "new_name")
             {
@@ -143,17 +175,16 @@ void Client::ReceiveMessage()
 
 void Client::Reply(const std::string& reply)
 {
-    std::string chatIDstr = std::to_string(_chatId);
+    std::string chatIDstr = std::to_string(_pendingChatId);
 
     if (reply == "y")
     {
         std::cout << "accepted!\n";
-        SendMessageToChat(chatIDstr, "accept_create_chat");
+        SendRequest(chatIDstr, Utils::Action::AcceptCreateChat, _pendingChatId);
     }
     else
     {
-        SendMessageToChat(chatIDstr, "decline_create_chat");
-        _chatId = NULL;
+        SendRequest(chatIDstr, Utils::Action::Unknown, _pendingChatId);
     }
 
     _hasRequestToChat = false;
