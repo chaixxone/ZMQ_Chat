@@ -7,10 +7,15 @@ namespace Utils
 
     const std::unordered_map<std::string, Action> actionMap = {
         {"!connect!", Action::Connect},
-        {"send_message", Action::SendMessage},
         {"change_name", Action::ChangeName},
+        {"new_name", Action::NewClientName},
+        {"send_message", Action::SendMessage},
+        {"incoming_message", Action::IncomingMessage},
         {"create_chat", Action::CreateChat},
-        {"accept_create_chat", Action::AcceptCreateChat}
+        {"accept_create_chat", Action::AcceptCreateChat},
+        {"new_chat", Action::NewChat},
+        {"all_chats", Action::AllChats},
+        {"client_chats", Action::ClientChats},
     };
 
     Action stringToAction(const std::string& actionStr)
