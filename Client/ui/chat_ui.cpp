@@ -118,9 +118,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 			return;
 		}
 	});
-	connect(messageTextBar, &ChatTextLine::SendedText, [this](const QString& text) {
+	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
 		std::string stdText = text.toStdString();
-		_client->SendMessageToChat(stdText, _client->GetChatId());
+		_client->SendMessageToChat(stdText, chat->GetCurrentChat());
 	});
 }
 
