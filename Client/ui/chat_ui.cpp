@@ -74,6 +74,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(chatIdComboBox, &PopUpSingalEmittingQComboBox::PoppedUp, [client = _client]() {
 		client->GetClientChatIdsStr();
 	});
+	connect(chatIdComboBox, &QComboBox::currentTextChanged, chat, &ChatTextFrame::SetCurrentChat);
 	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userComboBox, [userComboBox](const MessageView& messageData) {
 		QStringList chatIds;
 
