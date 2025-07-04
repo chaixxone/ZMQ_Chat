@@ -41,9 +41,9 @@ namespace
 
             if (message)
             {                
-                mtx.lock();
-                std::cout << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content << '\n';
-                mtx.unlock();
+                std::lock_guard<std::mutex> lock{ mtx };
+                std::string messageIdStr = message.has_value() ? std::to_string(message->ID.value()) : "";
+                std::cout << message->ChatID << '\t' << messageIdStr << '\t' << message->Author << '\t' << message->Content << '\n';
             }
         }
     }
