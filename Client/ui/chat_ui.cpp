@@ -60,7 +60,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		if (chat->GetCurrentChat() == messageView.ChatID)
 		{
 			auto message = new Message(
-				messageView.ID,
+				messageView.ID.value(),
 				QString::fromStdString(messageView.Author),
 				QString::fromStdString(messageView.Content),
 				chat
