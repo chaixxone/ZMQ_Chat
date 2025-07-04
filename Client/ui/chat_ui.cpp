@@ -39,6 +39,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	// main space
 	auto chat = new ChatTextFrame;
 	auto messageTextBar = new ChatTextLine(300, 25);
+	chat->hide();
+	messageTextBar->hide();
 	
 	auto vMainSpaceLayout = new QVBoxLayout;
 	vMainSpaceLayout->addWidget(chat, 0);
@@ -80,7 +82,20 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(userChatIdComboBox, &PopUpSingalEmittingQComboBox::PoppedUp, [this]() {
 		_client->GetClientChatIdsStr();
 	});
-	connect(userChatIdComboBox, &QComboBox::currentTextChanged, chat, &ChatTextFrame::SetCurrentChat);
+	connect(userChatIdComboBox, &QComboBox::currentTextChanged, chat, [userChatIdComboBox, messageTextBar, chat](const QString& text) {
+		if (userChatIdComboBox->findText(text) == 0)
+		{ 
+			chat->hide();
+			messageTextBar->hide();
+		}
+		else
+		{
+			chat->show();
+			messageTextBar->show();
+			chat->SetCurrentChat(text);
+			// TODO: clear messages and ask for other messages in next chat ID
+		}
+	});
 	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userChatIdComboBox, [userChatIdComboBox](const MessageView& messageData) {
 		try
 		{
