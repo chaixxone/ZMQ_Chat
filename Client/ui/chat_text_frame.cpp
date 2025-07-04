@@ -4,7 +4,7 @@ using namespace UI;
 
 Q_DECLARE_METATYPE(Message*)
 
-ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget)
+ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget), _currentChat(-1)
 {
 	auto vMessagesLayout = new QVBoxLayout;
 	vMessagesLayout->addWidget(_messages);
