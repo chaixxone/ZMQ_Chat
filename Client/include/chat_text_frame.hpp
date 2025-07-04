@@ -14,6 +14,7 @@ namespace UI
 		explicit ChatTextFrame(QWidget* parent = nullptr);
 		~ChatTextFrame();
 		int GetCurrentChat() const noexcept;
+		void RemoveMessages();
 
 	signals:
 		void CurrentChatChanged(int currentChat);

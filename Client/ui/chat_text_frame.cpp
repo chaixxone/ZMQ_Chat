@@ -61,3 +61,8 @@ int ChatTextFrame::GetCurrentChat() const noexcept
 {
 	return _currentChat;
 }
+
+void ChatTextFrame::RemoveMessages()
+{
+	_messages->clear();
+}
