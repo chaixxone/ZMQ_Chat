@@ -26,8 +26,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	// left side panel widgets
 	auto nameLineEdit = new QLineEdit;
 	auto userComboBox = new QComboBox;
-	auto chatIdComboBox = new PopUpSingalEmittingQComboBox; // TODO change type in the future (if needed)
-	auto userChatIdComboBox = new QComboBox;
+	auto chatIdComboBox = new QComboBox;
+	auto userChatIdComboBox = new PopUpSingalEmittingQComboBox; // TODO change type in the future (if needed)
 
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
@@ -74,10 +74,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		std::string desiredIdentity = nameLineEdit->text().toStdString();
 		_client->RequestChangeIdentity(desiredIdentity);
 	});
-	connect(chatIdComboBox, &PopUpSingalEmittingQComboBox::PoppedUp, [client = _client]() {
-		client->GetClientChatIdsStr();
+	connect(userChatIdComboBox, &PopUpSingalEmittingQComboBox::PoppedUp, [this]() {
+		_client->GetClientChatIdsStr();
 	});
-	connect(chatIdComboBox, &QComboBox::currentTextChanged, chat, &ChatTextFrame::SetCurrentChat);
+	connect(userChatIdComboBox, &QComboBox::currentTextChanged, chat, &ChatTextFrame::SetCurrentChat);
 	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userChatIdComboBox, [userChatIdComboBox](const MessageView& messageData) {
 		try
 		{
