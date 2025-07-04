@@ -146,7 +146,8 @@ void Client::ReceiveMessage()
 
             Utils::Action actionEnum = Utils::stringToAction(actionStr);
             int chatIdInt = std::stoi(chatId.to_string());
-            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, std::stoull(messageIdStr), chatIdInt, actionEnum });
+            std::optional<size_t> messageId = messageIdStr.empty() ? std::nullopt : std::optional(std::stoull(messageIdStr));
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageId, chatIdInt, actionEnum });
 
             if (_messageObserver)
             {
