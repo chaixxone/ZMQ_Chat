@@ -4,12 +4,12 @@
 
 namespace UI
 {
-	class PopUpSingalEmittingQComboBox : public QComboBox
+	class PopUpSignalEmittingQComboBox : public QComboBox
 	{
 		Q_OBJECT
 
 	public:
-		explicit PopUpSingalEmittingQComboBox(QWidget* parent = nullptr);
+		explicit PopUpSignalEmittingQComboBox(QWidget* parent = nullptr);
 
 		void showPopup();
 
