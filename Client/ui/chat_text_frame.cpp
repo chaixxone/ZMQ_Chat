@@ -52,7 +52,7 @@ void ChatTextFrame::RemoveMessage(int messageId)
 
 ChatTextFrame::~ChatTextFrame() {}
 
-void ChatTextFrame::SetCurrentChat(const QString& chatIdStr)
+void ChatTextFrame::SetCurrentChat(const QString& chatIdStr) noexcept
 {
 	_currentChat = chatIdStr.toInt();
 }
