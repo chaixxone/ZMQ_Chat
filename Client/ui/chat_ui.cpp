@@ -57,13 +57,16 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 	// TODO: connect widgets
 	connect(_messageObserver.get(), &QtMessageObserver::IncomingMessage, chat, [this, chat](const MessageView& messageView) {
-		auto message = new Message(
-			messageView.ID,
-			QString::fromStdString(messageView.Author),
-			QString::fromStdString(messageView.Content),
-			chat
-		);
-		chat->AddMessage(message);
+		if (chat->GetCurrentChat() == messageView.ChatID)
+		{
+			auto message = new Message(
+				messageView.ID,
+				QString::fromStdString(messageView.Author),
+				QString::fromStdString(messageView.Content),
+				chat
+			);
+			chat->AddMessage(message);
+		}
 	});
 
 	connect(_messageObserver.get(), &QtMessageObserver::NewClientName, nameLineEdit, &QLineEdit::setText);
