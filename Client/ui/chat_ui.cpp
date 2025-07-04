@@ -28,6 +28,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	auto userComboBox = new QComboBox;
 	auto chatIdComboBox = new QComboBox;
 	auto userChatIdComboBox = new PopUpSingalEmittingQComboBox; // TODO change type in the future (if needed)
+	userChatIdComboBox->addItem("No chat");
 
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
