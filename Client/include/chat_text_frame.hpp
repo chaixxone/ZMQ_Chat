@@ -16,9 +16,11 @@ namespace UI
 
 	public slots:
 		void AddMessage(Message* message);
+		void SetCurrentChat(int chatId) noexcept;
 
 	private:
 		QListWidget* _messages;
+		int _currentChat;
 
 	private slots:
 		void RemoveMessage(int messageId);

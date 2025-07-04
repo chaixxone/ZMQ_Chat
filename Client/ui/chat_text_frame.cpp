@@ -51,3 +51,8 @@ void ChatTextFrame::RemoveMessage(int messageId)
 }
 
 ChatTextFrame::~ChatTextFrame() {}
+
+void ChatTextFrame::SetCurrentChat(int chatId)
+{
+	_currentChat = chatId;
+}
