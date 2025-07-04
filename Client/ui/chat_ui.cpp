@@ -100,9 +100,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		try
 		{
 			json jsonMessageData = json::parse(messageData.Content);
-			json& chatIdsJsonArray = jsonMessageData[0];
 
-			for (const auto& chatIdJsonValue : chatIdsJsonArray)
+			for (const auto& chatIdJsonValue : jsonMessageData)
 			{
 				QString chatIdStr = QString::fromStdString(chatIdJsonValue.get<std::string>());
 
