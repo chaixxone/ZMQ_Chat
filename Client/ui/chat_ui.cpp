@@ -93,7 +93,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 			chat->show();
 			messageTextBar->show();
 			chat->SetCurrentChat(text);
-			// TODO: clear messages and ask for other messages in next chat ID
+			chat->RemoveMessages();
+			// TODO: cache chats messages and update cache on signal, ask for messages in next chat ID if no cache
 		}
 	});
 	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userChatIdComboBox, [userChatIdComboBox](const MessageView& messageData) {
