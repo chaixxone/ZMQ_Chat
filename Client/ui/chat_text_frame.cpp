@@ -56,3 +56,8 @@ void ChatTextFrame::SetCurrentChat(const QString& chatIdStr)
 {
 	_currentChat = chatIdStr.toInt();
 }
+
+int ChatTextFrame::GetCurrentChat() const noexcept
+{
+	return _currentChat;
+}

@@ -13,6 +13,7 @@ namespace UI
 	public:
 		explicit ChatTextFrame(QWidget* parent = nullptr);
 		~ChatTextFrame();
+		int GetCurrentChat() const noexcept;
 
 	signals:
 		void CurrentChatChanged(int currentChat);
