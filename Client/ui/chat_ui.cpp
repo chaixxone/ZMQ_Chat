@@ -45,11 +45,13 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vMainSpaceLayout->addWidget(messageTextBar, 0);
 	vMainSpaceLayout->setStretch(0, 5);
 	vMainSpaceLayout->setStretch(1, 1);
+	auto mainSpaceChatWidget = new QWidget;
+	mainSpaceChatWidget->setLayout(vMainSpaceLayout);
 	// -----------------------------------
 
 	auto hLayoutMainPage = new QHBoxLayout;
 	hLayoutMainPage->addLayout(vSidePanelLayout);
-	hLayoutMainPage->addLayout(vMainSpaceLayout);
+	hLayoutMainPage->addWidget(mainSpaceChatWidget);
 	hLayoutMainPage->setStretch(0, 1);
 	hLayoutMainPage->setStretch(1, 4);
 	hLayoutMainPage->setAlignment(Qt::AlignTop | Qt::AlignLeft);
