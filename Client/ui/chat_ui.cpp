@@ -78,9 +78,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		client->GetClientChatIdsStr();
 	});
 	connect(chatIdComboBox, &QComboBox::currentTextChanged, chat, &ChatTextFrame::SetCurrentChat);
-	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userComboBox, [userComboBox](const MessageView& messageData) {
-		QStringList chatIds;
-
+	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userChatIdComboBox, [userChatIdComboBox](const MessageView& messageData) {
 		try
 		{
 			json jsonMessageData = json::parse(messageData.Content);
@@ -88,7 +86,12 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 			for (const auto& chatIdJsonValue : chatIdsJsonArray)
 			{
-				chatIds.push_back(QString::fromStdString(chatIdJsonValue.get<std::string>()));
+				QString chatIdStr = QString::fromStdString(chatIdJsonValue.get<std::string>());
+
+				if (userChatIdComboBox->findText(chatIdStr) == -1)
+				{
+					userChatIdComboBox->addItem(chatIdStr);
+				}
 			}
 		}
 		catch (const json::exception& e)
@@ -96,8 +99,6 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 			qWarning() << e.what();
 			return;
 		}
-
-		userComboBox->addItems(chatIds);
 	});
 	connect(messageTextBar, &ChatTextLine::SendedText, [this](const QString& text) {
 		std::string stdText = text.toStdString();
