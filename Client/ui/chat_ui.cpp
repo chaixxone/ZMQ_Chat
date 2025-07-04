@@ -95,6 +95,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 		userComboBox->addItems(chatIds);
 	});
+	connect(messageTextBar, &ChatTextLine::SendedText, [this](const QString& text) {
+		std::string stdText = text.toStdString();
+		_client->SendMessageToChat(stdText, _client->GetChatId());
+	});
 }
 
 ChatUI::~ChatUI() {}
