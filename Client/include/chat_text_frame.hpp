@@ -14,6 +14,9 @@ namespace UI
 		explicit ChatTextFrame(QWidget* parent = nullptr);
 		~ChatTextFrame();
 
+	signals:
+		void CurrentChatChanged(int currentChat);
+
 	public slots:
 		void AddMessage(Message* message);
 		void SetCurrentChat(int chatId) noexcept;
