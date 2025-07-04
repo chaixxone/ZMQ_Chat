@@ -19,7 +19,7 @@ namespace UI
 
 	public slots:
 		void AddMessage(Message* message);
-		void SetCurrentChat(int chatId) noexcept;
+		void SetCurrentChat(const QString& chatIdStr) noexcept;
 
 	private:
 		QListWidget* _messages;
