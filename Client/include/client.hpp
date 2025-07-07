@@ -18,7 +18,7 @@ public:
     std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;
     void Attach(std::shared_ptr<IMessageObserver> messageObserver) override;
-    void GetClientsByName(const std::string& name);
+    void GetClientsByName(std::string& name);
 
 private:
     void SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt);

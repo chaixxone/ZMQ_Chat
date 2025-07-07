@@ -198,7 +198,7 @@ void Client::Reply(const std::string& reply)
     _hasRequestToChat = false;
 }
 
-void Client::GetClientsByName(const std::string& name)
+void Client::GetClientsByName(std::string& name)
 {
     SendRequest(name, Utils::Action::ClientsByName, -1);
 }
