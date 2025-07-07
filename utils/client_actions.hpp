@@ -15,6 +15,7 @@ namespace Utils
         NewChat,
         AllChats,
         ClientChats,
+        ClientsByName,
         Unknown
     };
 

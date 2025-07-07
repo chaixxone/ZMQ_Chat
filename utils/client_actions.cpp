@@ -16,6 +16,7 @@ namespace Utils
         {"new_chat", Action::NewChat},
         {"all_chats", Action::AllChats},
         {"client_chats", Action::ClientChats},
+        {"clients_by_name", Action::ClientsByName},
     };
 
     Action stringToAction(const std::string& actionStr)
