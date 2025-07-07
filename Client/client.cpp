@@ -197,3 +197,8 @@ void Client::Reply(const std::string& reply)
 
     _hasRequestToChat = false;
 }
+
+void Client::GetClientsByName(const std::string& name)
+{
+
+}
