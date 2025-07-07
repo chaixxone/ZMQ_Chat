@@ -221,3 +221,19 @@ void Server::MessageDispatch(
         }
     }
 }
+
+void Server::HandleGetClientsByName(const std::string& clientId, const std::string& name)
+{
+    std::vector<std::string> suggestedClientNames;
+
+    for (const auto& identifier : _clients)
+    {
+        if (identifier.contains(name))
+        {
+            suggestedClientNames.push_back(identifier);
+        }
+    }
+
+    json clientNamesData = suggestedClientNames;
+    MessageDispatch("clients_by_name", clientNamesData.dump(), { clientId });
+}
