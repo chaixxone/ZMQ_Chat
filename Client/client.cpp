@@ -200,5 +200,5 @@ void Client::Reply(const std::string& reply)
 
 void Client::GetClientsByName(const std::string& name)
 {
-
+    SendRequest(name, Utils::Action::ClientsByName, -1);
 }
