@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <zmq.hpp>
+#include <utils/client_actions.hpp>
 
 class Server
 {

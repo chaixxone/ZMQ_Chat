@@ -1,6 +1,5 @@
 #include "server.hpp"
 #include <iostream>
-#include <utils/client_actions.hpp>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
