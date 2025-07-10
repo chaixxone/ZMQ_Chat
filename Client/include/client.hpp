@@ -21,7 +21,7 @@ public:
     void GetClientsByName(std::string& name);
 
 private:
-    void SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt);
+    void SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt);
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
     void ChangeIdentity(const std::string& identity);

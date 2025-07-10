@@ -82,7 +82,7 @@ int Client::GetChatId() const noexcept
     return _chatId;
 }
 
-void Client::SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt)
+void Client::SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
     zmq::message_t actionFrame(actionStr);
