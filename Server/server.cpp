@@ -210,7 +210,7 @@ void Server::MessageDispatch(
             zmq::message_t chatId(std::to_string(chatIdInt));
 
             _socket.send(clientId, zmq::send_flags::sndmore);
-            _socket.send(action, zmq::send_flags::sndmore);
+            _socket.send(actionFrame, zmq::send_flags::sndmore);
             _socket.send(data, zmq::send_flags::sndmore);
             _socket.send(messageId, zmq::send_flags::sndmore);
             _socket.send(author, zmq::send_flags::sndmore);
