@@ -191,7 +191,7 @@ void Server::AskClients(int PendingInvitesChatId, const std::string& creator, co
 }
 
 void Server::MessageDispatch(
-    const std::string& actionStr, 
+    Utils::Action action,
     const std::string& message, 
     const std::unordered_set<std::string>& clients,
     const std::string& messageIdStr,
@@ -204,7 +204,7 @@ void Server::MessageDispatch(
         try
         {
             zmq::message_t clientId(client);
-            zmq::message_t action(actionStr);
+            zmq::message_t actionFrame(Utils::actionToString(action));
             zmq::message_t data(message);
             zmq::message_t messageId(messageIdStr);
             zmq::message_t author(authorStr);

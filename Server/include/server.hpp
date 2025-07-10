@@ -12,7 +12,7 @@ public:
 private:
     void AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients);
     void MessageDispatch(
-        const std::string& action,
+        Utils::Action action,
         const std::string& message,
         const std::unordered_set<std::string>& clients,
         const std::string& messageIdStr = "",
