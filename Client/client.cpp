@@ -99,7 +99,7 @@ void Client::SendRequest(const std::string& messageStr, Utils::Action action, in
     }
 }
 
-void Client::SendMessageToChat(std::string& messageStr, int chatIdInt)
+void Client::SendMessageToChat(const std::string& messageStr, int chatIdInt)
 {
     SendRequest(messageStr, Utils::Action::SendMessage, chatIdInt);
 }
@@ -197,7 +197,7 @@ void Client::ReplyChatInvite(const std::string& reply)
     _hasRequestToChat = false;
 }
 
-void Client::GetClientsByName(std::string& name)
+void Client::GetClientsByName(const std::string& name)
 {
     SendRequest(name, Utils::Action::ClientsByName, -1);
 }
