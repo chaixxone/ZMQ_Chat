@@ -13,7 +13,7 @@ public:
     void RequestToCreateChat(std::string& clients, int chatId) override;
     void SendMessageToChat(std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
-    void Reply(const std::string& reply);
+    void ReplyChatInvite(const std::string& reply);
     void RequestChangeIdentity(std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;

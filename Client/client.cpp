@@ -181,7 +181,7 @@ void Client::ReceiveMessage()
     }
 }
 
-void Client::Reply(const std::string& reply)
+void Client::ReplyChatInvite(const std::string& reply)
 {
     std::string chatIDstr = std::to_string(_pendingChatId);
 
