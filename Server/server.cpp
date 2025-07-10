@@ -219,30 +219,19 @@ void Server::MessageDispatch(
 {
     for (const auto& client : clients)
     {
-        try
-        {
-            zmq::message_t clientId(client);
-            zmq::message_t actionFrame(Utils::actionToString(action));
-            zmq::message_t data(message);
-            zmq::message_t messageId(messageIdStr);
-            zmq::message_t author(authorStr);
-            zmq::message_t chatId(std::to_string(chatIdInt));
+        zmq::message_t clientId(client);
+        zmq::message_t actionFrame(Utils::actionToString(action));
+        zmq::message_t data(message);
+        zmq::message_t messageId(messageIdStr);
+        zmq::message_t author(authorStr);
+        zmq::message_t chatId(std::to_string(chatIdInt));
 
-            _socket.send(clientId, zmq::send_flags::sndmore);
-            _socket.send(actionFrame, zmq::send_flags::sndmore);
-            _socket.send(data, zmq::send_flags::sndmore);
-            _socket.send(messageId, zmq::send_flags::sndmore);
-            _socket.send(author, zmq::send_flags::sndmore);
-            _socket.send(chatId, zmq::send_flags::none);
-        }
-        catch (zmq::error_t& e)
-        {
-            std::cerr << e.what() << std::endl;
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << e.what() << std::endl;
-        }
+        _socket.send(clientId, zmq::send_flags::sndmore);
+        _socket.send(actionFrame, zmq::send_flags::sndmore);
+        _socket.send(data, zmq::send_flags::sndmore);
+        _socket.send(messageId, zmq::send_flags::sndmore);
+        _socket.send(author, zmq::send_flags::sndmore);
+        _socket.send(chatId, zmq::send_flags::none);
     }
 }
 
