@@ -12,6 +12,7 @@ namespace Utils
         IncomingMessage,
         CreateChat,
         AcceptCreateChat,
+        DeclineCreateChat,
         NewChat,
         AllChats,
         ClientChats,
