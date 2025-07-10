@@ -106,7 +106,6 @@ void Client::SendMessageToChat(std::string& messageStr, int chatIdInt)
 
 void Client::RequestToCreateChat(std::string& clients, int chatId)
 {
-    if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
     SendRequest(clients, Utils::Action::CreateChat, chatId);
     _chatId = chatId;
