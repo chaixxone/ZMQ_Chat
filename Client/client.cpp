@@ -27,7 +27,7 @@ void Client::AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObse
     _messageObserver = messageObserver;
 }
 
-void Client::RequestChangeIdentity(std::string& desiredIdentity)
+void Client::RequestChangeIdentity(const std::string& desiredIdentity)
 {    
     SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
 }

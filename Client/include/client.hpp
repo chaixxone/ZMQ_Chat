@@ -14,11 +14,11 @@ public:
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
     void ReplyChatInvite(const std::string& reply);
-    void RequestChangeIdentity(std::string& desiredIdentity);
+    void RequestChangeIdentity(const std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;
     void AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver) override;
-    void GetClientsByName(std::string& name);
+    void GetClientsByName(const std::string& name);
 
 private:
     void SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt);
