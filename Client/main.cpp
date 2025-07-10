@@ -42,7 +42,7 @@ namespace
             if (message)
             {              
                 std::lock_guard<std::mutex> lock{ mtx };
-                std::string messageIdStr = message.has_value() ? std::to_string(message->ID.value()) : "";
+                std::string messageIdStr = message->ID.has_value() ? std::to_string(message->ID.value()) : "";
                 std::cout << message->ChatID << '\t' << messageIdStr << '\t' << message->Author << '\t' << message->Content << '\n';
             }
         }
