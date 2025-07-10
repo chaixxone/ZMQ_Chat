@@ -65,11 +65,11 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
 {
     if (_clients.find(desiredIdentity) != _clients.end())
     {
-        MessageDispatch(Utils::Action::Unknown, desiredIdentity, { clientId.to_string() });
+        MessageDispatch(Utils::Action::Unknown, desiredIdentity, clientId.to_string());
         return;
     }
 
-    MessageDispatch(Utils::Action::NewClientName, desiredIdentity, { clientId.to_string() });
+    MessageDispatch(Utils::Action::NewClientName, desiredIdentity, clientId.to_string());
 
     _clients.insert(desiredIdentity);
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
@@ -98,7 +98,7 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
 
     AskClients(chatId, clientId, clients);
     _activeChats[chatId].insert(clientId);
-    MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), { clientId });
+    MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
 }
 
 void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
@@ -118,7 +118,7 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
         _activeChats[chatId].insert(clientId);
         std::cout << "[Server] Client " << clientId << " accepted chat invitation.\n";
 
-        MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), { clientId });
+        MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
     }
 }
 
@@ -134,7 +134,7 @@ void Server::HandleAllChatsInfoRequest(const std::string& clientId)
     json allChatsJson;
     allChatsJson = allChatsIdVector;
 
-    MessageDispatch(Utils::Action::AllChats, allChatsJson.dump(), {clientId});
+    MessageDispatch(Utils::Action::AllChats, allChatsJson.dump(), clientId);
 }
 
 void Server::HandleClientChatsInfoRequest(const std::string& clientId)
@@ -153,7 +153,7 @@ void Server::HandleClientChatsInfoRequest(const std::string& clientId)
     json clientChatsJson;
     clientChatsJson = clientChatsIdVector;
 
-    MessageDispatch(Utils::Action::ClientChats, clientChatsJson.dump(), { clientId });
+    MessageDispatch(Utils::Action::ClientChats, clientChatsJson.dump(), clientId);
 }
 
 std::unordered_set<std::string> Server::ParseClients(const std::string& clients, const std::string& creator)
@@ -257,5 +257,5 @@ void Server::HandleGetClientsByName(const std::string& clientId, const std::stri
     }
 
     json clientNamesData = suggestedClientNames;
-    MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), { clientId });
+    MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), clientId);
 }
