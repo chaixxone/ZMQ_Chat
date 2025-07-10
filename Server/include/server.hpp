@@ -20,6 +20,7 @@ private:
         const std::string& authorStr = "",
         int chatIdInt = -1
     );
+    void MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId);
     std::unordered_set<std::string> ParseClients(const std::string& clients, const std::string& creator);
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId);
     void PrepareNewChatSession(const std::string& clientId, const std::string& dataStr, int chatId);

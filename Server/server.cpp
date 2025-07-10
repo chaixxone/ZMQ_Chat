@@ -188,6 +188,24 @@ void Server::AskClients(int PendingInvitesChatId, const std::string& creator, co
     }
 }
 
+void Server::MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId)
+{
+    zmq::message_t clientIdFrame(clientId);
+    zmq::message_t actionFrame(Utils::actionToString(action));
+    zmq::message_t data(message);
+    // create empty frames
+    zmq::message_t messageId(0);
+    zmq::message_t author(0);
+    zmq::message_t chatId(0);
+
+    _socket.send(clientIdFrame, zmq::send_flags::sndmore);
+    _socket.send(actionFrame, zmq::send_flags::sndmore);
+    _socket.send(data, zmq::send_flags::sndmore);
+    _socket.send(messageId, zmq::send_flags::sndmore);
+    _socket.send(author, zmq::send_flags::sndmore);
+    _socket.send(chatId, zmq::send_flags::none);
+}
+
 void Server::MessageDispatch(
     Utils::Action action,
     const std::string& message, 
