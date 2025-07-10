@@ -36,5 +36,5 @@ private:
     int _pendingChatId;
     int _chatId;
     bool _hasRequestToChat;
-    std::atomic_bool _alive = true;
+    bool _alive = true;
 };
