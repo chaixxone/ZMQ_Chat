@@ -52,8 +52,11 @@ void Server::Run()
         case Utils::Action::ClientsByName:
             HandleGetClientsByName(clientId, dataStr);
             break;
-        default:
+        case Utils::Action::DeclineCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, false);
+            break;
+        default:
+            std::cout << "Uknown action appeared\n";
             break;
         }
     }
