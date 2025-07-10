@@ -16,9 +16,9 @@ private:
         Utils::Action action,
         const std::string& message,
         const std::unordered_set<std::string>& clients,
-        const std::string& messageIdStr = "",
-        const std::string& authorStr = "",
-        int chatIdInt = -1
+        const std::string& messageIdStr,
+        const std::string& authorStr,
+        int chatIdInt
     );
     void MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId);
     std::unordered_set<std::string> ParseClients(const std::string& clients, const std::string& creator);
