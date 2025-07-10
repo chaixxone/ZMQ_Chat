@@ -11,6 +11,6 @@ class IClientMessageSubject : public IClient
 {
 public:
 	virtual ~IClientMessageSubject() = default;
-	virtual void Attach(std::shared_ptr<IMessageObserver> messageObserver) = 0;
+	virtual void AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver) = 0;
 	virtual std::optional<MessageView> TryGetMessage() = 0;
 };

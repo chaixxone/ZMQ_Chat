@@ -17,7 +17,7 @@ public:
     void RequestChangeIdentity(std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;
-    void Attach(std::shared_ptr<IMessageObserver> messageObserver) override;
+    void AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver) override;
     void GetClientsByName(std::string& name);
 
 private:
