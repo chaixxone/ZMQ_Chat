@@ -29,6 +29,7 @@ private:
     void HandleAllChatsInfoRequest(const std::string& clientId);
     void HandleClientChatsInfoRequest(const std::string& clientId);
     void HandleGetClientsByName(const std::string& clientId, const std::string& name);
+    void HandleClientPendingInvites(const std::string& clientId);
 
     zmq::context_t _context;
     zmq::socket_t _socket;

@@ -51,6 +51,9 @@ void Server::Run()
         case Utils::Action::AllChats:
             HandleAllChatsInfoRequest(clientId);
             break;
+        case Utils::Action::Invites:
+            HandleClientPendingInvites(clientId);
+            break;
         case Utils::Action::ClientsByName:
             HandleGetClientsByName(clientId, dataStr);
             break;
@@ -249,4 +252,22 @@ void Server::HandleGetClientsByName(const std::string& clientId, const std::stri
 
     json clientNamesData = suggestedClientNames;
     MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), clientId);
+}
+
+void Server::HandleClientPendingInvites(const std::string& clientId)
+{
+    std::vector<int> clientChatInvites;
+
+    for (const auto& [chatId, invitedClients] : _pendingChatInvites)
+    {
+        if (invitedClients.contains(clientId))
+        {
+            clientChatInvites.push_back(chatId);
+        }
+    }
+
+    json clientInvitesData;
+    clientInvitesData = clientChatInvites;
+
+    MessageDispatch(Utils::Action::Invites, clientInvitesData.dump(), clientId);
 }
