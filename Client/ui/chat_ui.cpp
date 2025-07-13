@@ -132,8 +132,17 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this, createChatHelperWindow](const QString& name) {
 		_client->GetClientsByName(name.toStdString());
 	});
-	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, [createChatHelperWindow](const std::string& clientsStr) {
+	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, createChatHelperWindow, 
+	[createChatHelperWindow](const std::string& clientsStr) -> void
+	{
 		json clientsNamesData = json::parse(clientsStr);
+
+		if (clientsNamesData.empty())
+		{
+			createChatHelperWindow->HideClientList();
+			return;
+		}
+
 		QStringList clients;
 
 		try
@@ -150,6 +159,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		}
 
 		createChatHelperWindow->AddItems(clients);
+		createChatHelperWindow->ShowClientList();
 	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
