@@ -31,7 +31,7 @@ signals:
 
 	void ClientChats(const MessageView& message);
 
-	void ClientsByName(const QString& clientsStr);
+	void ClientsByName(const std::string& clientsStr);
 
 private:
 	std::weak_ptr<IClientMessageSubject> _client;
