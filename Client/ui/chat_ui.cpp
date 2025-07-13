@@ -1,4 +1,5 @@
 #include <chat_ui.hpp>
+#include <qt_helper_window.hpp>
 #include <chat_text_frame.hpp>
 #include <chat_text_line.hpp>
 #include <popup_signal_emitting_q_combo_box.hpp>
@@ -29,6 +30,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	auto chatIdComboBox = new QComboBox;
 	auto userChatIdComboBox = new PopUpSignalEmittingQComboBox; // TODO change type in the future (if needed)
 	userChatIdComboBox->addItem("No chat");
+	auto createChatPushButton = new QPushButton("Create chat");
+	auto createChatHelperWindow = new HelperWindow(this);
+	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
+	createChatHelperWindow->hide();
 
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
@@ -38,6 +43,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vSidePanelLayout->addWidget(chatIdComboBox);
 	vSidePanelLayout->addWidget(new QLabel("Your chats"));
 	vSidePanelLayout->addWidget(userChatIdComboBox);
+	vSidePanelLayout->addWidget(createChatPushButton);
 	vSidePanelLayout->addStretch(0);
 	// main space
 	auto chat = new ChatTextFrame;
@@ -121,6 +127,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 			return;
 		}
 	});
+	
+	connect(createChatPushButton, &QPushButton::clicked, createChatHelperWindow, &QWidget::show);
+
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
 		std::string stdText = text.toStdString();
 		_client->SendMessageToChat(stdText, chat->GetCurrentChat());
