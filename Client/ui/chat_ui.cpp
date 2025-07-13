@@ -32,8 +32,11 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
+	vSidePanelLayout->addWidget(new QLabel("All users"));
 	vSidePanelLayout->addWidget(userComboBox);
+	vSidePanelLayout->addWidget(new QLabel("All chats"));
 	vSidePanelLayout->addWidget(chatIdComboBox);
+	vSidePanelLayout->addWidget(new QLabel("Your chats"));
 	vSidePanelLayout->addWidget(userChatIdComboBox);
 	vSidePanelLayout->addStretch(0);
 	// main space
