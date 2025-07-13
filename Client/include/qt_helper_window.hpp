@@ -15,7 +15,7 @@ namespace UI
 		explicit HelperWindow(QWidget* parent = nullptr);
 		~HelperWindow();
 
-		void SetPlaceholderTextLineEdit(const QString& text);
+		void SetPlaceholderTextLineEdit(const QString& text);		
 
 	signals:
 		void ConfirmClicked();
@@ -34,6 +34,10 @@ namespace UI
 
 	public slots:
 		void AddItems(const QStringList& list);
+
+		void ShowClientList();
+
+		void HideClientList();
 
 	private slots:
 		void OnConfirmClicked();

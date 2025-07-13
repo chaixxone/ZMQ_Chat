@@ -59,3 +59,13 @@ void HelperWindow::AddItems(const QStringList& list)
 	long long elapsed = duration_cast<milliseconds>(end - start).count();
 	qDebug() << "'Swapped' items in HelperWindow::m_listWidget by " << elapsed << " millisec";
 }
+
+void HelperWindow::HideClientList()
+{
+	m_listWidget->hide();
+}
+
+void HelperWindow::ShowClientList()
+{
+	m_listWidget->show();
+}
