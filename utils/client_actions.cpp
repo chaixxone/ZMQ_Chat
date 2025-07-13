@@ -15,6 +15,7 @@ namespace Utils
         {"new_chat", Action::NewChat},
         {"all_chats", Action::AllChats},
         {"client_chats", Action::ClientChats},
+        {"invites", Action::Invites},
         {"clients_by_name", Action::ClientsByName}
     };
 
