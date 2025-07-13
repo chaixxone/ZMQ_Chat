@@ -45,6 +45,9 @@ void QtMessageObserver::Update()
 		case Utils::Action::NewClientName:
 			emit NewClientName(QString::fromStdString(messageData.Content));
 			break;
+		case Utils::Action::ClientsByName:
+			emit ClientsByName(QString::fromStdString(messageData.Content));
+			break;
 		default:
 			break;
 		}
