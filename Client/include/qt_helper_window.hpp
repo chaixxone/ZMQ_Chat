@@ -29,6 +29,7 @@ namespace UI
 		QLineEdit* m_lineEdit;
 		QPushButton* m_confirmButton;
 		QListWidget* m_listWidget;
+		QListWidget* m_chosenItemsListWidget;
 
 		void OnTextChanged(const QString& text);
 
