@@ -201,3 +201,8 @@ void Client::GetClientsByName(const std::string& name)
 {
     SendRequest(name, Utils::Action::ClientsByName, -1);
 }
+
+void Client::GetInvites()
+{
+    SendRequest("", Utils::Action::Invites, -1);
+}
