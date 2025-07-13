@@ -129,6 +129,28 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	});
 	
 	connect(createChatPushButton, &QPushButton::clicked, createChatHelperWindow, &QWidget::show);
+	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this, createChatHelperWindow](const QString& name) {
+		_client->GetClientsByName(name.toStdString());
+	});
+	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, [createChatHelperWindow](const std::string& clientsStr) {
+		json clientsNamesData = json::parse(clientsStr);
+		QStringList clients;
+
+		try
+		{
+			for (const auto& client : clientsNamesData)
+			{
+				clients.push_back(QString::fromStdString(client.get<std::string>()));
+			}			
+		}
+		catch (const json::exception& e)
+		{
+			qWarning() << "Unable to parse json and create QStringList\n" << e.what();
+			return;
+		}
+
+		createChatHelperWindow->AddItems(clients);
+	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
 		std::string stdText = text.toStdString();
