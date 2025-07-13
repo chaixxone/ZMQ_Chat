@@ -22,12 +22,12 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
-void Client::Attach(std::shared_ptr<IMessageObserver> messageObserver)
+void Client::AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver)
 {
     _messageObserver = messageObserver;
 }
 
-void Client::RequestChangeIdentity(std::string& desiredIdentity)
+void Client::RequestChangeIdentity(const std::string& desiredIdentity)
 {    
     SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
 }
@@ -82,7 +82,7 @@ int Client::GetChatId() const noexcept
     return _chatId;
 }
 
-void Client::SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt)
+void Client::SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
     zmq::message_t actionFrame(actionStr);
@@ -99,14 +99,13 @@ void Client::SendRequest(std::string& messageStr, Utils::Action action, int chat
     }
 }
 
-void Client::SendMessageToChat(std::string& messageStr, int chatIdInt)
+void Client::SendMessageToChat(const std::string& messageStr, int chatIdInt)
 {
     SendRequest(messageStr, Utils::Action::SendMessage, chatIdInt);
 }
 
-void Client::RequestToCreateChat(std::string& clients, int chatId)
+void Client::RequestToCreateChat(const std::string& clients, int chatId)
 {
-    if (!clients.empty() && clients.back() == ' ') clients.pop_back();
     std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
     SendRequest(clients, Utils::Action::CreateChat, chatId);
     _chatId = chatId;
@@ -181,7 +180,7 @@ void Client::ReceiveMessage()
     }
 }
 
-void Client::Reply(const std::string& reply)
+void Client::ReplyChatInvite(const std::string& reply)
 {
     std::string chatIDstr = std::to_string(_pendingChatId);
 
@@ -196,4 +195,14 @@ void Client::Reply(const std::string& reply)
     }
 
     _hasRequestToChat = false;
+}
+
+void Client::GetClientsByName(const std::string& name)
+{
+    SendRequest(name, Utils::Action::ClientsByName, -1);
+}
+
+void Client::GetInvites()
+{
+    SendRequest("", Utils::Action::Invites, -1);
 }

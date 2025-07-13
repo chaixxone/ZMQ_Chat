@@ -3,8 +3,6 @@
 
 namespace Utils
 {
-    const short CREATE_CHAT_PREFIX_LENGTH = 12;
-
     const std::unordered_map<std::string, Action> actionMap = {
         {"!connect!", Action::Connect},
         {"change_name", Action::ChangeName},
@@ -13,9 +11,12 @@ namespace Utils
         {"incoming_message", Action::IncomingMessage},
         {"create_chat", Action::CreateChat},
         {"accept_create_chat", Action::AcceptCreateChat},
+        {"decline_create_chat", Action::DeclineCreateChat},
         {"new_chat", Action::NewChat},
         {"all_chats", Action::AllChats},
         {"client_chats", Action::ClientChats},
+        {"invites", Action::Invites},
+        {"clients_by_name", Action::ClientsByName}
     };
 
     Action stringToAction(const std::string& actionStr)

@@ -1,7 +1,8 @@
 #include "server.hpp"
 #include <iostream>
-#include <sstream>
-#include <utils/client_actions.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 Server::Server(std::string binding) : _context(1), _socket(_context, zmq::socket_type::router)
 {
@@ -44,11 +45,20 @@ void Server::Run()
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
             break;        
+        case Utils::Action::DeclineCreateChat:
+            HandleResponseForInvite(identity, clientId, dataStr, false);
+            break;
         case Utils::Action::AllChats:
             HandleAllChatsInfoRequest(clientId);
             break;
+        case Utils::Action::Invites:
+            HandleClientPendingInvites(clientId);
+            break;
+        case Utils::Action::ClientsByName:
+            HandleGetClientsByName(clientId, dataStr);
+            break;
         default:
-            HandleResponseForInvite(identity, clientId, dataStr, false);
+            std::cout << "Uknown action appeared\n";
             break;
         }
     }
@@ -58,12 +68,11 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
 {
     if (_clients.find(desiredIdentity) != _clients.end())
     {
-        MessageDispatch("bad_name", desiredIdentity, { clientId.to_string() });
+        MessageDispatch(Utils::Action::Unknown, desiredIdentity, clientId.to_string());
         return;
     }
 
-    static std::string actionNewNameStr = "new_name";
-    MessageDispatch(actionNewNameStr, desiredIdentity, { clientId.to_string() });
+    MessageDispatch(Utils::Action::NewClientName, desiredIdentity, clientId.to_string());
 
     _clients.insert(desiredIdentity);
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
@@ -81,7 +90,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
         return;
     }
 
-    MessageDispatch("incoming_message", dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
+    MessageDispatch(Utils::Action::IncomingMessage, dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr, int chatId)
@@ -92,12 +101,12 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
 
     AskClients(chatId, clientId, clients);
     _activeChats[chatId].insert(clientId);
-    MessageDispatch("new_chat", std::to_string(chatId), { clientId });
+    MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
 }
 
 void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
 {
-    auto chatId = static_cast<size_t>(stoi(dataStr));
+    int chatId = std::stoi(dataStr);
 
     if (_pendingChatInvites.find(chatId) != _pendingChatInvites.end())
     {
@@ -112,20 +121,42 @@ void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string
         _activeChats[chatId].insert(clientId);
         std::cout << "[Server] Client " << clientId << " accepted chat invitation.\n";
 
-        MessageDispatch("new_chat", std::to_string(chatId), { clientId });
+        MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
     }
 }
 
 void Server::HandleAllChatsInfoRequest(const std::string& clientId)
 {
-    std::stringstream allChatsIdStringStream;
+    std::vector<std::string> allChatsIdVector;
 
     for (const auto& chat : _activeChats)
     {
-        allChatsIdStringStream << chat.first;
+        allChatsIdVector.push_back(std::to_string(chat.first));
     }
 
-    MessageDispatch("all_chats", allChatsIdStringStream.str(), { clientId });
+    json allChatsJson;
+    allChatsJson = allChatsIdVector;
+
+    MessageDispatch(Utils::Action::AllChats, allChatsJson.dump(), clientId);
+}
+
+void Server::HandleClientChatsInfoRequest(const std::string& clientId)
+{
+    std::vector<std::string> clientChatsIdVector;
+
+    // BAD, yet temporary solution!
+    for (const auto& chat : _activeChats)
+    {
+        if (chat.second.find(clientId) != chat.second.end())
+        {
+            clientChatsIdVector.push_back(std::to_string(chat.first));
+        }
+    }
+
+    json clientChatsJson;
+    clientChatsJson = clientChatsIdVector;
+
+    MessageDispatch(Utils::Action::ClientChats, clientChatsJson.dump(), clientId);
 }
 
 std::unordered_set<std::string> Server::ParseClients(const std::string& clients, const std::string& creator)
@@ -145,7 +176,7 @@ std::unordered_set<std::string> Server::ParseClients(const std::string& clients,
 
 void Server::AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients)
 {
-    MessageDispatch("create_chat", creator, clients, "", creator, PendingInvitesChatId);
+    MessageDispatch(Utils::Action::CreateChat, creator, clients, "", creator, PendingInvitesChatId);
 
     for (const auto& client : clients)
     {
@@ -160,8 +191,28 @@ void Server::AskClients(int PendingInvitesChatId, const std::string& creator, co
     }
 }
 
+void Server::MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId)
+{
+    const std::string defaultChatId = "-1";
+    zmq::message_t clientIdFrame(clientId);
+    zmq::message_t actionFrame(Utils::actionToString(action));
+    zmq::message_t data(message);
+    // create empty frames
+    zmq::message_t messageId(0);
+    zmq::message_t author(0);
+
+    zmq::message_t chatId(defaultChatId);
+
+    _socket.send(clientIdFrame, zmq::send_flags::sndmore);
+    _socket.send(actionFrame, zmq::send_flags::sndmore);
+    _socket.send(data, zmq::send_flags::sndmore);
+    _socket.send(messageId, zmq::send_flags::sndmore);
+    _socket.send(author, zmq::send_flags::sndmore);
+    _socket.send(chatId, zmq::send_flags::none);
+}
+
 void Server::MessageDispatch(
-    const std::string& actionStr, 
+    Utils::Action action,
     const std::string& message, 
     const std::unordered_set<std::string>& clients,
     const std::string& messageIdStr,
@@ -171,29 +222,52 @@ void Server::MessageDispatch(
 {
     for (const auto& client : clients)
     {
-        try
-        {
-            zmq::message_t clientId(client);
-            zmq::message_t action(actionStr);
-            zmq::message_t data(message);
-            zmq::message_t messageId(messageIdStr);
-            zmq::message_t author(authorStr);
-            zmq::message_t chatId(std::to_string(chatIdInt));
+        zmq::message_t clientId(client);
+        zmq::message_t actionFrame(Utils::actionToString(action));
+        zmq::message_t data(message);
+        zmq::message_t messageId(messageIdStr);
+        zmq::message_t author(authorStr);
+        zmq::message_t chatId(std::to_string(chatIdInt));
 
-            _socket.send(clientId, zmq::send_flags::sndmore);
-            _socket.send(action, zmq::send_flags::sndmore);
-            _socket.send(data, zmq::send_flags::sndmore);
-            _socket.send(messageId, zmq::send_flags::sndmore);
-            _socket.send(author, zmq::send_flags::sndmore);
-            _socket.send(chatId, zmq::send_flags::none);
-        }
-        catch (zmq::error_t& e)
+        _socket.send(clientId, zmq::send_flags::sndmore);
+        _socket.send(actionFrame, zmq::send_flags::sndmore);
+        _socket.send(data, zmq::send_flags::sndmore);
+        _socket.send(messageId, zmq::send_flags::sndmore);
+        _socket.send(author, zmq::send_flags::sndmore);
+        _socket.send(chatId, zmq::send_flags::none);
+    }
+}
+
+void Server::HandleGetClientsByName(const std::string& clientId, const std::string& name)
+{
+    std::vector<std::string> suggestedClientNames;
+
+    for (const auto& identifier : _clients)
+    {
+        if (identifier.contains(name))
         {
-            std::cerr << e.what() << std::endl;
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << e.what() << std::endl;
+            suggestedClientNames.push_back(identifier);
         }
     }
+
+    json clientNamesData = suggestedClientNames;
+    MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), clientId);
+}
+
+void Server::HandleClientPendingInvites(const std::string& clientId)
+{
+    std::vector<int> clientChatInvites;
+
+    for (const auto& [chatId, invitedClients] : _pendingChatInvites)
+    {
+        if (invitedClients.contains(clientId))
+        {
+            clientChatInvites.push_back(chatId);
+        }
+    }
+
+    json clientInvitesData;
+    clientInvitesData = clientChatInvites;
+
+    MessageDispatch(Utils::Action::Invites, clientInvitesData.dump(), clientId);
 }
