@@ -12,13 +12,14 @@ namespace Utils
         IncomingMessage,
         CreateChat,
         AcceptCreateChat,
+        DeclineCreateChat,
         NewChat,
         AllChats,
         ClientChats,
+        Invites,
+        ClientsByName,
         Unknown
     };
-
-    extern const short CREATE_CHAT_PREFIX_LENGTH;
 
     Action stringToAction(const std::string& actionStr);
 

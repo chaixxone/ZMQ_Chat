@@ -10,18 +10,20 @@ class Client : public IClientMessageSubject
 public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
     ~Client();
-    void RequestToCreateChat(std::string& clients, int chatId) override;
-    void SendMessageToChat(std::string& messageStr, int chatIdInt) override;
+    void RequestToCreateChat(const std::string& clients, int chatId) override;
+    void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
-    void Reply(const std::string& reply);
-    void RequestChangeIdentity(std::string& desiredIdentity);
+    void ReplyChatInvite(const std::string& reply);
+    void RequestChangeIdentity(const std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;
-    void Attach(std::shared_ptr<IMessageObserver> messageObserver) override;
     void GetClientChatIdsStr();
+    void AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver) override;
+    void GetClientsByName(const std::string& name);
+    void GetInvites();
 
 private:
-    void SendRequest(std::string& messageStr, Utils::Action action, int chatIdInt);
+    void SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt);
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
     void ChangeIdentity(const std::string& identity);
@@ -36,5 +38,5 @@ private:
     int _pendingChatId;
     int _chatId;
     bool _hasRequestToChat;
-    std::atomic_bool _alive = true;
+    bool _alive = true;
 };

@@ -48,7 +48,7 @@ namespace
 
             if (client->HasRequestToChat())
             {
-                client->Reply(line);
+                client->ReplyChatInvite(line);
             }
             else if (line.substr(0, clientsListStartPos) == "/connect:")
             {

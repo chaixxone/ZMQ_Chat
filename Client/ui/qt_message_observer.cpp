@@ -10,7 +10,7 @@ QtMessageObserver::QtMessageObserver()
 void QtMessageObserver::Subscribe(std::shared_ptr<IClientMessageSubject> client)
 {
 	_client = client;
-	client->Attach(shared_from_this());
+	client->AttachMessageObserver(shared_from_this());
 }
 
 QtMessageObserver::~QtMessageObserver()
