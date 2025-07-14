@@ -19,6 +19,8 @@ namespace UI
 
 		bool IsHidden() const;
 
+		const std::vector<std::string> GetChosenClients() const;
+
 	signals:
 		void ConfirmClicked();
 
