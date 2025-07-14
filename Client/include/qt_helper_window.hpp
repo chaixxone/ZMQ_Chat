@@ -37,6 +37,10 @@ namespace UI
 
 		void OnTextChanged(const QString& text);
 
+		void ConnectSignalsSlots();
+
+		void SetupLayout();
+
 	public slots:
 		void AddItems(const QStringList& list);
 

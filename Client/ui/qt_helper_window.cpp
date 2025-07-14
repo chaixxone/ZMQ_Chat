@@ -15,6 +15,15 @@ HelperWindow::HelperWindow(QWidget* parent) :
 	m_listWidget(new QListWidget),
 	m_chosenItemsListWidget(new QListWidget)
 {
+	ConnectSignalsSlots();
+	SetupLayout();	
+	setFixedSize(400, 300);
+}
+
+HelperWindow::~HelperWindow() {}
+
+void HelperWindow::ConnectSignalsSlots()
+{
 	connect(m_confirmButton, &QPushButton::clicked, this, &HelperWindow::OnConfirmClicked);
 	connect(m_lineEdit, &QLineEdit::textChanged, this, &HelperWindow::OnTextChanged);
 	connect(m_listWidget, &QListWidget::itemClicked, m_chosenItemsListWidget, [this](QListWidgetItem* item) {
@@ -28,7 +37,10 @@ HelperWindow::HelperWindow(QWidget* parent) :
 		QListWidgetItem* itemToRemove = m_chosenItemsListWidget->takeItem(itemIndex);
 		delete itemToRemove;
 	});
+}
 
+void HelperWindow::SetupLayout()
+{
 	auto vLayout = new QVBoxLayout;
 	vLayout->addWidget(m_lineEdit);
 	vLayout->addWidget(m_confirmButton);
@@ -38,10 +50,7 @@ HelperWindow::HelperWindow(QWidget* parent) :
 	m_listWidget->hide();
 
 	setLayout(vLayout);
-	setFixedSize(400, 300);
 }
-
-HelperWindow::~HelperWindow() {}
 
 void HelperWindow::SetPlaceholderTextLineEdit(const QString& text)
 {
