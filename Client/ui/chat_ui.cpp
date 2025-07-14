@@ -130,7 +130,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	
 	connect(createChatPushButton, &QPushButton::clicked, createChatHelperWindow, &QWidget::show);
 	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this, createChatHelperWindow](const QString& name) {
-		_client->GetClientsByName(name.toStdString());
+		if (!createChatHelperWindow->IsHidden())
+		{
+			_client->GetClientsByName(name.toStdString());
+		}
 	});
 	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, createChatHelperWindow, 
 	[createChatHelperWindow](const std::string& clientsStr) -> void

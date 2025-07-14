@@ -15,7 +15,9 @@ namespace UI
 		explicit HelperWindow(QWidget* parent = nullptr);
 		~HelperWindow();
 
-		void SetPlaceholderTextLineEdit(const QString& text);		
+		void SetPlaceholderTextLineEdit(const QString& text);	
+
+		bool IsHidden() const;
 
 	signals:
 		void ConfirmClicked();

@@ -48,6 +48,11 @@ void HelperWindow::SetPlaceholderTextLineEdit(const QString& text)
 	m_lineEdit->setPlaceholderText(text);
 }
 
+bool HelperWindow::IsHidden() const
+{
+	return isHidden();
+}
+
 void HelperWindow::OnConfirmClicked()
 {
 	emit ConfirmClicked();
