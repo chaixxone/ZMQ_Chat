@@ -166,6 +166,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	});
 	connect(createChatHelperWindow, &HelperWindow::ConfirmClicked, createChatHelperWindow, [this, createChatHelperWindow]() {
 		_client->RequestToCreateChat(createChatHelperWindow->GetChosenClientsString());
+		createChatHelperWindow->hide();
 	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
