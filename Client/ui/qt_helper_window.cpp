@@ -53,16 +53,19 @@ bool HelperWindow::IsHidden() const
 	return isHidden();
 }
 
-const std::vector<std::string> HelperWindow::GetChosenClients() const
+const std::string HelperWindow::GetChosenClientsString() const
 {
-	std::vector<std::string> names;
+	std::stringstream namesStream;
 
 	for (const auto& name : m_chosenItemsListWidget->findItems("*", Qt::MatchWildcard))
 	{
-		names.push_back(name->text().toStdString());
+		namesStream << name->text().toStdString() << ' ';
 	}
 
-	return names;
+	std::string namesString = namesStream.str();
+	namesString.pop_back();
+
+	return namesString;
 }
 
 void HelperWindow::OnConfirmClicked()
