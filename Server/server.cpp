@@ -40,7 +40,7 @@ void Server::Run()
             HandleSendMessage(clientId, dataStr, chatIdNumber);
             break;
         case Utils::Action::CreateChat:
-            PrepareNewChatSession(clientId, dataStr, chatIdNumber);
+            PrepareNewChatSession(clientId, dataStr);
             break;
         case Utils::Action::AcceptCreateChat:
             HandleResponseForInvite(identity, clientId, dataStr, true);
@@ -96,15 +96,17 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
     MessageDispatch(Utils::Action::IncomingMessage, dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
 }
 
-void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr, int chatId)
+void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr)
 {
-    auto clients = ParseClients(dataStr, clientId);
+    static int chatIdCounter = 0;
+    std::unordered_set<std::string> clients = ParseClients(dataStr, clientId);
 
-    std::cout << "[Server] Client " << clientId << " asked to create a chat (" << chatId << ") with " << dataStr << '\n';
+    std::cout << "[Server] Client " << clientId << " asked to create a chat with " << dataStr << '\n';
 
-    AskClients(chatId, clientId, clients);
-    _activeChats[chatId].insert(clientId);
-    MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
+    AskClients(chatIdCounter, clientId, clients);
+    _activeChats[chatIdCounter].insert(clientId);
+    MessageDispatch(Utils::Action::NewChat, std::to_string(chatIdCounter), clientId);
+    chatIdCounter++;
 }
 
 void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
