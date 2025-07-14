@@ -63,7 +63,11 @@ const std::string HelperWindow::GetChosenClientsString() const
 	}
 
 	std::string namesString = namesStream.str();
-	namesString.pop_back();
+
+	if (!namesString.empty())
+	{
+		namesString.pop_back();
+	}
 
 	return namesString;
 }
