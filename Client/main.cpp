@@ -53,9 +53,9 @@ namespace
             else if (line.substr(0, clientsListStartPos) == "/connect:")
             {
                 // example [/connect:cli1 cli2:55]
-                size_t clientListEndsPos = line.rfind(':');
-                std::string clientListStr = line.substr(clientsListStartPos, clientListEndsPos - clientsListStartPos);
-                client->RequestToCreateChat(clientListStr, std::stoi(line.substr(clientListEndsPos + 1)));
+                // UPD: example [/connect:cli1 cli2]
+                std::string clientListStr = line.substr(clientsListStartPos);
+                client->RequestToCreateChat(clientListStr);
             }
             else if (line.substr(0, clientChangeNamePrefix) == "/change_name:")
             {
