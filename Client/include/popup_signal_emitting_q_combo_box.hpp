@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QComboBox>
+#include <QTimer>
 
 namespace UI
 {
@@ -15,5 +16,8 @@ namespace UI
 
 	signals:
 		void PoppedUp();
+
+	private:
+		QTimer* _popupDelayTimer;
 	};
 }
