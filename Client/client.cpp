@@ -104,11 +104,10 @@ void Client::SendMessageToChat(const std::string& messageStr, int chatIdInt)
     SendRequest(messageStr, Utils::Action::SendMessage, chatIdInt);
 }
 
-void Client::RequestToCreateChat(const std::string& clients, int chatId)
+void Client::RequestToCreateChat(const std::string& clients)
 {
-    std::cout << "I am requesting: " << clients << ", to create chat " << chatId << '\n';
-    SendRequest(clients, Utils::Action::CreateChat, chatId);
-    _chatId = chatId;
+    std::cout << "I am requesting: " << clients << ", to create chat\n";
+    SendRequest(clients, Utils::Action::CreateChat, -1);
 }
 
 std::optional<MessageView> Client::TryGetMessage()

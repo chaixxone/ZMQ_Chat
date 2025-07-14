@@ -10,7 +10,7 @@ class Client : public IClientMessageSubject
 public:
     Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
     ~Client();
-    void RequestToCreateChat(const std::string& clients, int chatId) override;
+    void RequestToCreateChat(const std::string& clients) override;
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
     void ReplyChatInvite(const std::string& reply);
