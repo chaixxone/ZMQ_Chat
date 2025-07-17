@@ -2,7 +2,7 @@
 
 using namespace UI;
 
-explicit ChatInvite::ChatInvite(MessageView& messageView, QWidget* parent) :
+ChatInvite::ChatInvite(MessageView& messageView, QWidget* parent) :
 	QWidget(parent),
 	_author(QString::fromStdString(messageView.Author)),
 	_chatId(messageView.ChatID) {}
