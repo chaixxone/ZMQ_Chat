@@ -3,7 +3,7 @@
 using namespace UI;
 
 ChatInvite::ChatInvite(MessageView& messageView, QWidget* parent) :
-	QWidget(parent),
+	INotifiable(parent),
 	_author(QString::fromStdString(messageView.Author)),
 	_chatId(messageView.ChatID) {}
 
@@ -19,18 +19,20 @@ void ChatInvite::OnClick()
 		parentWidget()
 	);
 
-	connect(askWindow, &QMessageBox::buttonClicked, [askWindow, this]() {
-		int pressedButtonCode = askWindow->exec();
+	connect(askWindow, &QMessageBox::buttonClicked, [askWindow, this](QAbstractButton* button) {
+		QMessageBox::ButtonRole pressedButtonRole = askWindow->buttonRole(button);
 
-		if (pressedButtonCode == QMessageBox::StandardButton::Yes)
+		if (pressedButtonRole == QMessageBox::ButtonRole::YesRole)
 		{
-			emit InvitationAccepted(_chatId);
+			emit Notify(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, true }));
 		}
-		else if (pressedButtonCode == QMessageBox::StandardButton::No)
+		else if (pressedButtonRole == QMessageBox::ButtonRole::NoRole)
 		{
-			emit InvitationDeclined(_chatId);
+			emit Notify(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, false }));
 		}
 
-		emit InvitationProcessed();
+		emit NotificationWatched(Notifications::ChatInvite);
+
+		askWindow->deleteLater();
 	});
 }
