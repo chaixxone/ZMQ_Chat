@@ -26,12 +26,6 @@ namespace UI
 
 		void OnClick() override;
 
-		void InvitationAccepted(int chatId);
-
-		void InvitationDeclined(int chatId);
-
-		void InvitationProcessed();
-		
 	private:
 		QString _author;
 		int _chatId;
