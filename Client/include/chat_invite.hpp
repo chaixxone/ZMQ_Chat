@@ -9,8 +9,16 @@
 
 namespace UI
 {
-	class ChatInvite : public QWidget, public INotifiable
+	struct ChatInviteData
 	{
+		int ChatId;
+		bool IsAccepted;
+	};
+
+	Q_DECLARE_METATYPE(ChatInviteData*);
+
+	class ChatInvite : public QWidget, public INotifiable
+	{		
 		Q_OBJECT
 
 	public:
@@ -18,13 +26,12 @@ namespace UI
 
 		void OnClick() override;
 
-	signals:
 		void InvitationAccepted(int chatId);
 
 		void InvitationDeclined(int chatId);
 
 		void InvitationProcessed();
-
+		
 	private:
 		QString _author;
 		int _chatId;
