@@ -4,15 +4,21 @@
 #include <QScrollArea>
 #include <QToolButton>
 #include <QParallelAnimationGroup>
+#include <message_view.hpp>
 
 namespace UI
 {
 	class NoticeBox : public QWidget
 	{
+		Q_OBJECT
+
 	public:
 		explicit NoticeBox(const QString& title, QWidget* parent = nullptr);
 
 		void SetupLayout(QLayout* layout);
+
+	signals:
+		void InvitationProcessed(int chatId);
 
 	private:
 		QListWidget* _notices;
