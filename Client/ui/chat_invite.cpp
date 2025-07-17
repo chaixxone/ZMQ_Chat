@@ -24,11 +24,11 @@ void ChatInvite::OnClick()
 
 		if (pressedButtonRole == QMessageBox::ButtonRole::YesRole)
 		{
-			emit Notify(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, true }));
+			emit NotificationProcessed(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, true }));
 		}
 		else if (pressedButtonRole == QMessageBox::ButtonRole::NoRole)
 		{
-			emit Notify(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, false }));
+			emit NotificationProcessed(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, false }));
 		}
 
 		emit NotificationWatched(Notifications::ChatInvite);

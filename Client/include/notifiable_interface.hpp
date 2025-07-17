@@ -19,6 +19,6 @@ public:
 	virtual void OnClick() = 0;
 
 signals:
-	void Notify(Notifications notificationType, QVariant data);
+	void NotificationProcessed(Notifications notificationType, QVariant data);
 	void NotificationWatched(Notifications notificationType);
 };
