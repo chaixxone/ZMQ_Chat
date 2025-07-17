@@ -17,10 +17,8 @@ namespace UI
 
 	Q_DECLARE_METATYPE(ChatInviteData*);
 
-	class ChatInvite : public QWidget, public INotifiable
+	class ChatInvite : public INotifiable
 	{		
-		Q_OBJECT
-
 	public:
 		explicit ChatInvite(MessageView& messageView, QWidget* parent = nullptr);
 
