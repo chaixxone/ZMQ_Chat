@@ -3,6 +3,7 @@
 #include <chat_text_frame.hpp>
 #include <chat_text_line.hpp>
 #include <popup_signal_emitting_q_combo_box.hpp>
+#include <chat_invite.hpp>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -15,6 +16,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	_registerPage(new QWidget),
 	_loginPage(new QWidget), 
 	_mainPage(new QWidget),
+	_noticeBox(new NoticeBox("Notices")),
 	_client(client),
 	_messageObserver(observer)
 {	
@@ -171,6 +173,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vSidePanelLayout->addWidget(chatIdComboBox);
 	vSidePanelLayout->addWidget(new QLabel("Your chats"));
 	vSidePanelLayout->addWidget(userChatIdComboBox);
+	vSidePanelLayout->addWidget(_noticeBox);
 	vSidePanelLayout->addWidget(createChatPushButton);
 	vSidePanelLayout->addStretch(0);
 	// main space

@@ -3,6 +3,7 @@
 #include <QtWidgets>
 #include <client.hpp>
 #include <qt_message_observer.hpp>
+#include <notice_box.hpp>
 
 namespace UI
 {
@@ -19,6 +20,7 @@ namespace UI
 		QWidget* _registerPage;
 		QWidget* _loginPage;
 		QWidget* _mainPage;
+		NoticeBox* _noticeBox;
 		std::shared_ptr<Client> _client;
 		std::shared_ptr<QtMessageObserver> _messageObserver;
 	};
