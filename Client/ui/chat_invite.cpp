@@ -1,11 +1,15 @@
 #include "chat_invite.hpp"
+#include <QLabel>
 
 using namespace UI;
 
 ChatInvite::ChatInvite(const MessageView& messageView, QWidget* parent) :
 	INotifiable(parent),
 	_author(QString::fromStdString(messageView.Author)),
-	_chatId(messageView.ChatID) {}
+	_chatId(messageView.ChatID)
+{
+	auto label = new QLabel("chat invite", this);
+}
 
 void ChatInvite::OnClick()
 {
