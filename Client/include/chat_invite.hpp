@@ -20,7 +20,7 @@ namespace UI
 	class ChatInvite : public INotifiable
 	{		
 	public:
-		explicit ChatInvite(MessageView& messageView, QWidget* parent = nullptr);
+		explicit ChatInvite(const MessageView& messageView, QWidget* parent = nullptr);
 
 		void OnClick() override;
 
