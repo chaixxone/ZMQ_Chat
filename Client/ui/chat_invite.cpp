@@ -35,4 +35,6 @@ void ChatInvite::OnClick()
 
 		askWindow->deleteLater();
 	});
+
+	askWindow->show();
 }
