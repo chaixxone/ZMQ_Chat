@@ -304,7 +304,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		_noticeBox->AddNotification(messageView);
 	});
 	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int chatId, bool isAccepted) {
-		std::string dummyInviteResponseString = isAccepted ? "yes" : "no";
+		std::string dummyInviteResponseString = isAccepted ? "y" : "n";
 		_client->ReplyChatInvite(dummyInviteResponseString);
 	});
 
