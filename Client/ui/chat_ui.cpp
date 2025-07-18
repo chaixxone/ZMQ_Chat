@@ -303,6 +303,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
 		_noticeBox->AddNotification(messageView);
 	});
+	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int chatId, bool isAccepted) {
+		std::string dummyInviteResponseString = isAccepted ? "yes" : "no";
+		_client->ReplyChatInvite(dummyInviteResponseString);
+	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
 		std::string stdText = text.toStdString();
