@@ -17,6 +17,8 @@ namespace UI
 
 		void SetupLayout(QLayout* layout);
 
+		void AddNotification(const MessageView& messageView);
+
 	signals:
 		void InvitationProcessed(int chatId);
 
@@ -26,5 +28,7 @@ namespace UI
 		QToolButton* _triangleToolButton;
 		QParallelAnimationGroup* _animation;
 		int _animationDuration = 250;
+
+		void RemoveNotification(QListWidgetItem* item);
 	};
 }
