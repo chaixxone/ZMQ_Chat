@@ -300,6 +300,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		createChatHelperWindow->hide();
 	});
 
+	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
+		_noticeBox->AddNotification(messageView);
+	});
+
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
 		std::string stdText = text.toStdString();
 		_client->SendMessageToChat(stdText, chat->GetCurrentChat());

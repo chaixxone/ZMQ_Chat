@@ -20,7 +20,7 @@ namespace UI
 		void AddNotification(const MessageView& messageView);
 
 	signals:
-		void InvitationProcessed(int chatId);
+		void InvitationProcessed(int chatId, bool isAccepted);
 
 	private:
 		QListWidget* _notices;
