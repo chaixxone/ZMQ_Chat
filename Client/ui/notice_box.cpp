@@ -1,4 +1,6 @@
 #include "notice_box.hpp"
+#include <chat_invite.hpp>
+#include <notifiable_interface.hpp>
 
 #include <QPropertyAnimation>
 #include <QVBoxLayout>
@@ -64,4 +66,20 @@ void NoticeBox::SetupLayout(QLayout* layout)
 	contentAnimation->setDuration(_animationDuration);
 	contentAnimation->setStartValue(0);
 	contentAnimation->setEndValue(contentHeight);
+}
+
+void NoticeBox::AddNotification(const MessageView& messageView)
+{
+	INotifiable* notice = nullptr;
+
+	switch (messageView.Action)
+	{
+	case Utils::Action::CreateChat:
+		notice = new ChatInvite(messageView);
+		auto item = new QListWidgetItem(_notices);
+		_notices->setItemWidget(item, notice);
+		break;
+	}
+
+	// TODO: notify user by a red indicator
 }
