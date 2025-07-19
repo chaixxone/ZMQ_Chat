@@ -7,8 +7,6 @@
 
 using namespace UI;
 
-Q_DECLARE_METATYPE(ChatInvite*)
-
 NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	QWidget(parent),
 	_notices(new QListWidget),
