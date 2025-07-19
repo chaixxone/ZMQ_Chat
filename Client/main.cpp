@@ -42,15 +42,26 @@ namespace
     {
         const size_t clientsListStartPos = 9;
         const size_t clientChangeNamePrefix = 13;
+        const size_t replyInvitePrefix = 6;
         std::string line;
 
         while (alive)
         {
             std::getline(std::cin, line);
 
-            if (client->HasRequestToChat())
+            if (line.substr(0, replyInvitePrefix) == "/reply")
             {
-                client->ReplyChatInvite(line);
+                // example [/reply:yes:<chatId>]  
+                size_t replyValuePartEndIndex = line.rfind(':');
+                std::string replyValue = line.substr(replyInvitePrefix + 1, replyValuePartEndIndex);
+                std::string chatIdStr = line.substr(replyValuePartEndIndex + 1);
+                int chatId = std::stoi(chatIdStr);
+                if (chatIdStr == "yes" || chatIdStr == "no")
+                {
+                    bool isAccepted = chatIdStr == "yes";
+                    client->ReplyChatInvite(chatId, isAccepted);
+                }
+                // drop invalid input
             }
             else if (line.substr(0, clientsListStartPos) == "/connect:")
             {
