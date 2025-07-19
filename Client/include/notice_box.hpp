@@ -32,6 +32,5 @@ namespace UI
 		int _animationDuration = 250;
 
 		void SetNoticeCountLabel();
-		void RemoveNotification(QListWidgetItem* item);
 	};
 }
