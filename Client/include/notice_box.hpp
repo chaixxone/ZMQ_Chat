@@ -1,5 +1,6 @@
 #pragma once
 #include <QWidget>
+#include <QLabel>
 #include <QListWidget>
 #include <QScrollArea>
 #include <QToolButton>
@@ -24,11 +25,13 @@ namespace UI
 
 	private:
 		QListWidget* _notices;
+		QLabel* _noticeCount;
 		QScrollArea* _scrollArea;
 		QToolButton* _triangleToolButton;
 		QParallelAnimationGroup* _animation;
 		int _animationDuration = 250;
 
+		void SetNoticeCountLabel();
 		void RemoveNotification(QListWidgetItem* item);
 	};
 }

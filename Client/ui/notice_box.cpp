@@ -10,6 +10,7 @@ using namespace UI;
 NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	QWidget(parent),
 	_notices(new QListWidget),
+	_noticeCount(new QLabel("0")),
 	_scrollArea(new QScrollArea(this)),
 	_triangleToolButton(new QToolButton(this)),
 	_animation(new QParallelAnimationGroup(this))
@@ -25,6 +26,8 @@ NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	_triangleToolButton->setCheckable(true);
 	_triangleToolButton->setChecked(false);
 
+	_noticeCount->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
 	_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	_scrollArea->setMinimumHeight(0);
 	_scrollArea->setMaximumHeight(0);
@@ -36,7 +39,15 @@ NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	QVBoxLayout* mainLayout = new QVBoxLayout;
 	mainLayout->setSpacing(0);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
-	mainLayout->addWidget(_triangleToolButton);
+	
+	QHBoxLayout* mainHLayout = new QHBoxLayout;
+	mainHLayout->setSpacing(0);
+	mainHLayout->setContentsMargins(0, 0, 0, 0);
+	mainHLayout->addWidget(_triangleToolButton, 0, Qt::AlignLeft);
+	mainHLayout->addWidget(_noticeCount, 0, Qt::AlignLeft);
+	mainHLayout->addStretch(0);
+	
+	mainLayout->addLayout(mainHLayout);
 	mainLayout->addWidget(_scrollArea);
 	setLayout(mainLayout);
 
@@ -92,11 +103,20 @@ void NoticeBox::AddNotification(const MessageView& messageView)
 	{
 		auto item = new QListWidgetItem(_notices);
 		_notices->setItemWidget(item, notice);
+		SetNoticeCountLabel(); // Add to notification count 
+
 		connect(notice, &INotifiable::NotificationWatched, this, [this, item]() {
 			int itemIndex = _notices->indexFromItem(item).row();
 			delete _notices->takeItem(itemIndex);
+			SetNoticeCountLabel(); // Subtrack from notification count
 		});
 	}
 
 	// TODO: notify user by a red indicator
+}
+
+void NoticeBox::SetNoticeCountLabel()
+{
+	QString noticeCountStr = QString::number(_notices->count());
+	_noticeCount->setText(noticeCountStr);
 }
