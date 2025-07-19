@@ -331,18 +331,17 @@ void Client::ReceiveMessage()
     }
 }
 
-void Client::ReplyChatInvite(const std::string& reply)
+void Client::ReplyChatInvite(int chatId, bool isAccepted)
 {
-    std::string chatIDstr = std::to_string(_pendingChatId);
+    std::string replyPendingChatIDstr = std::to_string(chatId);
 
-    if (reply == "y")
+    if (isAccepted)
     {
-        std::cout << "accepted!\n";
-        SendRequest(chatIDstr, Utils::Action::AcceptCreateChat, _pendingChatId);
+        SendRequest(replyPendingChatIDstr, Utils::Action::AcceptCreateChat, -1);
     }
     else
     {
-        SendRequest(chatIDstr, Utils::Action::Unknown, _pendingChatId);
+        SendRequest(replyPendingChatIDstr, Utils::Action::DeclineCreateChat, -1);
     }
 
     _hasRequestToChat = false;
