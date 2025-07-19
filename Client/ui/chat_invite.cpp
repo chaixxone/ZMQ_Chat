@@ -3,6 +3,8 @@
 
 using namespace UI;
 
+Q_DECLARE_METATYPE(ChatInviteData*);
+
 ChatInvite::ChatInvite(const MessageView& messageView, QWidget* parent) :
 	INotifiable(parent),
 	_author(QString::fromStdString(messageView.Author)),

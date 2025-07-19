@@ -15,8 +15,6 @@ namespace UI
 		bool IsAccepted;
 	};
 
-	Q_DECLARE_METATYPE(ChatInviteData*);
-
 	class ChatInvite : public INotifiable
 	{		
 	public:
