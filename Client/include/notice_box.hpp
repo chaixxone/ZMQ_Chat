@@ -18,7 +18,7 @@ namespace UI
 
 		void SetupLayout(QLayout* layout);
 
-		void AddNotification(const MessageView& messageView);
+		void ProcessNotification(const MessageView& messageView);
 
 	signals:
 		void InvitationProcessed(int chatId, bool isAccepted);

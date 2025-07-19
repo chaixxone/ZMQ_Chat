@@ -84,7 +84,7 @@ void NoticeBox::SetupLayout(QLayout* layout)
 	contentAnimation->setEndValue(contentHeight);
 }
 
-void NoticeBox::AddNotification(const MessageView& messageView)
+void NoticeBox::ProcessNotification(const MessageView& messageView)
 {
 	INotifiable* notice = nullptr;
 
