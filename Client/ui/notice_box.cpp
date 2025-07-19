@@ -7,6 +7,8 @@
 
 using namespace UI;
 
+Q_DECLARE_METATYPE(ChatInvite*)
+
 NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	QWidget(parent),
 	_notices(new QListWidget),
@@ -14,6 +16,11 @@ NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	_triangleToolButton(new QToolButton(this)),
 	_animation(new QParallelAnimationGroup(this))
 {
+	connect(_notices, &QListWidget::itemClicked, [this](QListWidgetItem* item) {
+		auto notification = qobject_cast<INotifiable*>(_notices->itemWidget(item));
+		notification->OnClick();
+	});
+
 	_triangleToolButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextBesideIcon);
 	_triangleToolButton->setArrowType(Qt::ArrowType::RightArrow);
 	_triangleToolButton->setText(title);
@@ -75,10 +82,22 @@ void NoticeBox::AddNotification(const MessageView& messageView)
 	switch (messageView.Action)
 	{
 	case Utils::Action::CreateChat:
-		notice = new ChatInvite(messageView);
+		notice = new ChatInvite(messageView);		
+		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
+			auto inviteData = qvariant_cast<ChatInviteData>(data);
+			emit InvitationProcessed(inviteData.ChatId, inviteData.IsAccepted);
+		});
+		break;
+	}
+
+	if (notice)
+	{
 		auto item = new QListWidgetItem(_notices);
 		_notices->setItemWidget(item, notice);
-		break;
+		connect(notice, &INotifiable::NotificationWatched, this, [this, item]() {
+			int itemIndex = _notices->indexFromItem(item).row();
+			delete _notices->takeItem(itemIndex);
+		});
 	}
 
 	// TODO: notify user by a red indicator
