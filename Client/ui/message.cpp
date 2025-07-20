@@ -11,10 +11,15 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	_content->setStyleSheet("border: none; background: transparent;");
 	_content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-	auto layout = new QVBoxLayout;
-	layout->addWidget(new QLabel(_author));
-	layout->addWidget(_content);
-	setLayout(layout);
+	auto messageHeadersLayout = new QHBoxLayout;
+	messageHeadersLayout->setObjectName("Headers Layout");
+	messageHeadersLayout->addWidget(new QLabel(_author));
+
+	auto mainLayout = new QVBoxLayout;
+	mainLayout->addLayout(messageHeadersLayout);
+	mainLayout->addWidget(_content);
+	mainLayout->setSpacing(0);
+	setLayout(mainLayout);
 
 	QTextDocument* doc = _content->document();
 	int documentWidth = _content->viewport()->width();
