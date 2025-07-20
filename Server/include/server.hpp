@@ -7,7 +7,7 @@
 class Server
 {
 public:
-    Server(std::string binding);
+    Server(zmq::context_t& context, std::string binding);
     void Run();
 
 private:
@@ -31,9 +31,10 @@ private:
     void HandleGetClientsByName(const std::string& clientId, const std::string& name);
     void HandleClientPendingInvites(const std::string& clientId);
 
-    zmq::context_t _context;
+    zmq::context_t& _context;
     zmq::socket_t _socket;
     std::unordered_set<std::string> _clients;
     std::unordered_map<int, std::unordered_set<std::string>> _activeChats;
     std::unordered_map<int, std::unordered_set<std::string>> _pendingChatInvites;
+    bool _running;
 };

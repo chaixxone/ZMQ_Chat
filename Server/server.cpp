@@ -4,65 +4,78 @@
 
 using json = nlohmann::json;
 
-Server::Server(std::string binding) : _context(1), _socket(_context, zmq::socket_type::router)
+Server::Server(zmq::context_t& context, std::string binding) : 
+    _context(context), 
+    _socket(_context, zmq::socket_type::router), 
+    _running(true)
 {
     _socket.bind(binding);
 }
 
 void Server::Run()
 {
-    while (true)
+    while (_running)
     {
-        zmq::message_t identity, action, data, chatId;
-        auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
-        auto actionResult = _socket.recv(action, zmq::recv_flags::none);
-        auto dataResult = _socket.recv(data, zmq::recv_flags::none);
-        auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::none);
-
-        std::string clientId = identity.to_string();
-        std::string actionStr = action.to_string();
-        std::string dataStr = data.to_string();
-        std::string chatIdStr = chatId.to_string();
-        int chatIdNumber = std::stoi(chatIdStr);
-        std::cout << clientId << " " << actionStr << " " << dataStr << chatIdNumber << '\n';
-
-        Utils::Action actionEnum = Utils::stringToAction(actionStr);
-
-        switch (actionEnum)
+        try
         {
-        case Utils::Action::Connect:
-            HandleConnection(identity, dataStr);
-            break;
-        case Utils::Action::ChangeName:
-            HandleConnection(identity, dataStr);
-            break;
-        case Utils::Action::SendMessage:
-            HandleSendMessage(clientId, dataStr, chatIdNumber);
-            break;
-        case Utils::Action::CreateChat:
-            PrepareNewChatSession(clientId, dataStr);
-            break;
-        case Utils::Action::AcceptCreateChat:
-            HandleResponseForInvite(identity, clientId, dataStr, true);
-            break;        
-        case Utils::Action::DeclineCreateChat:
-            HandleResponseForInvite(identity, clientId, dataStr, false);
-            break;
-        case Utils::Action::AllChats:
-            HandleAllChatsInfoRequest(clientId);
-            break;
-        case Utils::Action::ClientChats:
-            HandleClientChatsInfoRequest(clientId);
-            break;
-        case Utils::Action::Invites:
-            HandleClientPendingInvites(clientId);
-            break;
-        case Utils::Action::ClientsByName:
-            HandleGetClientsByName(clientId, dataStr);
-            break;
-        default:
-            std::cout << "Uknown action appeared\n";
-            break;
+            zmq::message_t identity, action, data, chatId;
+            auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
+            auto actionResult = _socket.recv(action, zmq::recv_flags::none);
+            auto dataResult = _socket.recv(data, zmq::recv_flags::none);
+            auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::none);
+
+            std::string clientId = identity.to_string();
+            std::string actionStr = action.to_string();
+            std::string dataStr = data.to_string();
+            std::string chatIdStr = chatId.to_string();
+            int chatIdNumber = std::stoi(chatIdStr);
+            std::cout << clientId << " " << actionStr << " " << dataStr << chatIdNumber << '\n';
+
+            Utils::Action actionEnum = Utils::stringToAction(actionStr);
+
+            switch (actionEnum)
+            {
+            case Utils::Action::Connect:
+                HandleConnection(identity, dataStr);
+                break;
+            case Utils::Action::ChangeName:
+                HandleConnection(identity, dataStr);
+                break;
+            case Utils::Action::SendMessage:
+                HandleSendMessage(clientId, dataStr, chatIdNumber);
+                break;
+            case Utils::Action::CreateChat:
+                PrepareNewChatSession(clientId, dataStr);
+                break;
+            case Utils::Action::AcceptCreateChat:
+                HandleResponseForInvite(identity, clientId, dataStr, true);
+                break;
+            case Utils::Action::DeclineCreateChat:
+                HandleResponseForInvite(identity, clientId, dataStr, false);
+                break;
+            case Utils::Action::AllChats:
+                HandleAllChatsInfoRequest(clientId);
+                break;
+            case Utils::Action::ClientChats:
+                HandleClientChatsInfoRequest(clientId);
+                break;
+            case Utils::Action::Invites:
+                HandleClientPendingInvites(clientId);
+                break;
+            case Utils::Action::ClientsByName:
+                HandleGetClientsByName(clientId, dataStr);
+                break;
+            default:
+                std::cout << "Uknown action appeared\n";
+                break;
+            }
+        }
+        catch (const zmq::error_t& error)
+        {
+            if (error.num() == ETERM)
+            {
+                _running = false;
+            }
         }
     }
 }

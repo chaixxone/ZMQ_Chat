@@ -1,5 +1,21 @@
 #include <iostream>
+#include <thread>
+#include <csignal>
+#include <chrono>
+#include <vld.h>
 #include "server.hpp"
+
+using namespace std::chrono_literals;
+
+namespace
+{
+    std::atomic_bool isInterrupted(false);
+
+    void onInterruptionOccured(int)
+    {
+        isInterrupted.store(true);
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -15,15 +31,24 @@ int main(int argc, char** argv)
     std::string bindEndpoint(argv[1]);
 #endif
 
-    try
-    {
-        Server server{ bindEndpoint };
+    std::signal(SIGINT, onInterruptionOccured);
+
+    zmq::context_t context(1);
+    Server server{ context, bindEndpoint };
+
+    std::thread serverThread([&server]() {
         server.Run();
-    }
-    catch (const zmq::error_t& e)
+    });
+
+    while (!isInterrupted.load())
     {
-        std::cerr << e.what() << '\n';
+        std::this_thread::sleep_for(100ms);
     }
+
+    std::cout << "[SYSTEM] Server stopped\n";
+    context.shutdown();
+
+    serverThread.join();
 
     return 0;
 }
