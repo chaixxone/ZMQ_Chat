@@ -35,3 +35,13 @@ QString Message::GetContent() const noexcept
 {
 	return _content->toPlainText();
 }
+
+QSize Message::sizeHint() const
+{
+	QTextDocument* doc = _content->document();
+	int messageInfoHeadersHeight = 20;
+	int contentWidth = _content->viewport()->width();
+	int documentHeight = doc->size().height();
+	int totalHeight = documentHeight + messageInfoHeadersHeight;
+	return QSize{ contentWidth, totalHeight };
+}
