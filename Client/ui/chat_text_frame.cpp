@@ -14,10 +14,11 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 
 void ChatTextFrame::AddMessage(Message* message)
 {
+	int contentWidth = _messages->viewport()->width();
+	message->setFixedWidth(contentWidth);
 	auto messageItem = new QListWidgetItem(_messages);
 	_messages->setItemWidget(messageItem, message);
-	// TODO: adjust message size
-	messageItem->setSizeHint(QSize{ 50, 50 });
+	messageItem->setSizeHint(message->sizeHint());
 }
 
 void ChatTextFrame::RemoveMessage(int messageId)
