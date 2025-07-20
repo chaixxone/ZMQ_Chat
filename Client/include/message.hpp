@@ -14,6 +14,8 @@ namespace UI
 
 		QString GetContent() const noexcept;
 
+		QSize sizeHint() const override;
+
 	public slots:
 		void EditText();
 
