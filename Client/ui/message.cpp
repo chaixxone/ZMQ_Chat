@@ -8,6 +8,8 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	auto layout = new QVBoxLayout;
 	layout->addWidget(new QLabel(_author));
 	_content->setReadOnly(true);
+	_content->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_content->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_content->setStyleSheet("border: none; background: transparent;");
 	_content->setMinimumHeight(50);
 	layout->addWidget(_content);
