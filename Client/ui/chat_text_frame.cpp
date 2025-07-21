@@ -6,6 +6,7 @@ Q_DECLARE_METATYPE(Message*)
 
 ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget), _currentChat(-1)
 {
+	_messages->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 	auto vMessagesLayout = new QVBoxLayout;
 	vMessagesLayout->addWidget(_messages);
 	vMessagesLayout->setContentsMargins(0, 0, 0, 0);
