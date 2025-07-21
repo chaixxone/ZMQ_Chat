@@ -12,8 +12,11 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	_content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	auto messageHeadersLayout = new QHBoxLayout;
-	messageHeadersLayout->setObjectName("Headers Layout");
-	messageHeadersLayout->addWidget(new QLabel(_author));
+	auto authorLabel = new QLabel(_author);
+	authorLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	authorLabel->adjustSize();
+	authorLabel->setObjectName("Author Label");
+	messageHeadersLayout->addWidget(authorLabel);
 
 	auto mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(messageHeadersLayout);
@@ -43,10 +46,15 @@ QString Message::GetContent() const noexcept
 
 QSize Message::sizeHint() const
 {
+	const int infoMargin = 20;
+
 	QTextDocument* doc = _content->document();
-	int messageInfoHeadersHeight = 20;
+	auto firstInfoHeader = findChild<QLabel*>("Author Label");
+
+	int headersHeight = firstInfoHeader->height();
 	int contentWidth = _content->viewport()->width();
 	int documentHeight = doc->size().height();
-	int totalHeight = documentHeight + messageInfoHeadersHeight;
+	int totalHeight = documentHeight + headersHeight + infoMargin;
+
 	return QSize{ contentWidth, totalHeight };
 }
