@@ -17,7 +17,7 @@ namespace UI
 		QSize sizeHint() const override;
 
 	public slots:
-		void EditText();
+		void EditText() {}
 
 	private:
 		const size_t _id;
