@@ -1,36 +1,19 @@
 #pragma once
 
-#include <memory>
-
-#include <sodium.h>
-#include <mysql_driver.h>
-#include <cppconn/connection.h>
-
-class DatabaseConnection
+class __declspec(dllimport) DatabaseConnection
 {
 public:
-	DatabaseConnection(std::string host, std::string user, std::string password, std::string schema);
+	virtual ~DatabaseConnection() = default;
 
-	[[nodiscard]] bool RegisterUser(const std::string& identity, const std::string& password) const;
-	[[nodiscard]] bool AuthorizeUser(const std::string& identity, const std::string& password) const;
+	virtual bool RegisterUser(const char* identity, const char* password) const = 0;
+	virtual bool AuthorizeUser(const char* identity, const char* password) const = 0;
 
 private:
-	sql::Driver* _driver;
-	std::unique_ptr<sql::Connection> _connection;
-
-	bool DoesUserExist(const std::string& identity);
-	std::string HashPassword(const std::string& password);
-	std::string GetPasswordHash(const std::string& identity);
+	virtual bool DoesUserExist(const char* identity) = 0;
+	virtual const char* HashPassword(const char* password) = 0;
+	virtual const char* GetPasswordHash(const char* identity) = 0;
 };
 
-auto CreateDatabaseConnection(std::string host, std::string user, std::string password, std::string schema) 
-	-> std::unique_ptr<DatabaseConnection>
-{
-	if (sodium_init() < 0)
-	{
-		std::cerr << "Sidium isn't initialized!\n";
-		return nullptr;
-	}
-
-	return std::make_unique<DatabaseConnection>(std::move(host), std::move(user), std::move(password), std::move(schema));
-}
+extern "C"
+__declspec(dllimport)
+DatabaseConnection* CreateDatabaseConnection(const char* host, const char* user, const char* password, const char* schema);
