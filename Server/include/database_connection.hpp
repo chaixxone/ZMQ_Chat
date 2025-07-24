@@ -1,19 +1,27 @@
 #pragma once
 
-class __declspec(dllimport) DatabaseConnection
+#include <string>
+#include <memory>
+
+#include <jdbc/mysql_driver.h>
+#include <jdbc/cppconn/connection.h>
+
+class DatabaseConnection
 {
 public:
-	virtual ~DatabaseConnection() = default;
+	DatabaseConnection(std::string host, std::string user, std::string password, std::string schema);
+	~DatabaseConnection();
 
-	virtual bool RegisterUser(const char* identity, const char* password) const = 0;
-	virtual bool AuthorizeUser(const char* identity, const char* password) const = 0;
+	bool RegisterUser(const std::string& identity, const std::string& password) const;
+	bool AuthorizeUser(const std::string& identity, const std::string& password) const;
 
 private:
-	virtual bool DoesUserExist(const char* identity) = 0;
-	virtual const char* HashPassword(const char* password) = 0;
-	virtual const char* GetPasswordHash(const char* identity) = 0;
+	sql::Driver* _driver;
+	std::unique_ptr<sql::Connection> _connection;
+
+	bool DoesUserExist(const std::string& identity);
+	std::string HashPassword(const std::string& password);
+	std::string GetPasswordHash(const std::string& identity);
 };
 
-extern "C"
-__declspec(dllimport)
-DatabaseConnection* CreateDatabaseConnection(const char* host, const char* user, const char* password, const char* schema);
+auto CreateDatabaseConnection(std::string host, std::string user, std::string password, std::string schema) -> std::unique_ptr<DatabaseConnection>;
