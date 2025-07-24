@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <sodium.h>
 #include <mysql_driver.h>
 #include <cppconn/connection.h>
 
@@ -21,3 +22,15 @@ private:
 	std::string HashPassword(const std::string& password);
 	std::string GetPasswordHash(const std::string& identity);
 };
+
+auto CreateDatabaseConnection(std::string host, std::string user, std::string password, std::string schema) 
+	-> std::unique_ptr<DatabaseConnection>
+{
+	if (sodium_init() < 0)
+	{
+		std::cerr << "Sidium isn't initialized!\n";
+		return nullptr;
+	}
+
+	return std::make_unique<DatabaseConnection>(std::move(host), std::move(user), std::move(password), std::move(schema));
+}
