@@ -1,13 +1,16 @@
 #pragma once
 #include <unordered_set>
 #include <unordered_map>
+
 #include <zmq.hpp>
+
 #include <utils/client_actions.hpp>
+#include <database_connection.hpp>
 
 class Server
 {
 public:
-    Server(std::string binding);
+    Server(zmq::context_t& context, std::string binding, std::unique_ptr<DatabaseConnection> dbConn);
     void Run();
 
 private:
@@ -31,9 +34,11 @@ private:
     void HandleGetClientsByName(const std::string& clientId, const std::string& name);
     void HandleClientPendingInvites(const std::string& clientId);
 
-    zmq::context_t _context;
+    zmq::context_t& _context;
     zmq::socket_t _socket;
     std::unordered_set<std::string> _clients;
     std::unordered_map<int, std::unordered_set<std::string>> _activeChats;
     std::unordered_map<int, std::unordered_set<std::string>> _pendingChatInvites;
+    std::unique_ptr<DatabaseConnection> _databaseConnection;
+    bool _running;
 };
