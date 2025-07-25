@@ -1,10 +1,13 @@
-#include "client.hpp"
-#include <utils/client_actions.hpp>
-#include <utils/helpers.hpp>
+#include <client.hpp>
+
 #include <iostream>
 #include <random>
+#include <filesystem>
 
-Client::Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> message_queue) :
+#include <utils/client_actions.hpp>
+#include <utils/helpers.hpp>
+
+Client::Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> message_queue, const std::string& serverPublicKey) :
     _context(1), 
     _socket(_context, zmq::socket_type::dealer), 
     _endpoint(endpoint), 
@@ -12,9 +15,22 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     _messageQueue(message_queue),
     _chatId(-1),
     _hasRequestToChat(false)
-{
+{   
+    char clientPublicKey[Utils::CURVE_KEY_LENGTH];
+    char clientSecretKey[Utils::CURVE_KEY_LENGTH];
+    int keyGenerationResult = zmq_curve_keypair(clientPublicKey, clientSecretKey);
+
+    if (keyGenerationResult != 0)
+    {
+        throw std::runtime_error("Couldn't generate client keys");
+    }
+
     _socket.set(zmq::sockopt::routing_id, _identity);
     _socket.set(zmq::sockopt::linger, 0);
+    _socket.set(zmq::sockopt::curve_serverkey, serverPublicKey);
+    _socket.set(zmq::sockopt::curve_publickey, clientPublicKey);
+    _socket.set(zmq::sockopt::curve_secretkey, clientSecretKey);
+    
     _socket.connect(endpoint);
 
     SendRequest(identity, Utils::Action::Connect, -1);

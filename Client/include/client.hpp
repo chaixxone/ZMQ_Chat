@@ -8,7 +8,7 @@
 class Client : public IClientMessageSubject
 {
 public:
-    Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue);
+    Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue, const std::string& serverPublicKey);
     ~Client();
     void RequestToCreateChat(const std::string& clients) override;
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;

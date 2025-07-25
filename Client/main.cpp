@@ -1,8 +1,10 @@
 #include <iostream>
 #include <csignal>
 #include <limits>
+#include <fstream>
 
 #include <vld.h>
+#include <nlohmann/json.hpp>
 
 #include <chat_ui.hpp>
 #include <client.hpp>
@@ -94,11 +96,23 @@ int main(int argc, char** argv)
     host = "tcp://localhost:5555";
     self = "debug_client";
 #endif
+
+    std::string dotEnvFile = "conf.json";
+    std::filesystem::path configFilePath = std::filesystem::current_path().append(dotEnvFile);
+
+    if (!std::filesystem::exists(configFilePath))
+    {
+        std::cerr << "conf.json doesn't present in the same directory as the executable\n";
+        return -1;
+    }
+
+    nlohmann::json configFile = nlohmann::json::parse(std::ifstream(configFilePath));
+    std::string serverPublicKey = configFile["server_public_key"].get<std::string>();
     
     QApplication app{ argc, argv };
     
     auto messageQueue = std::make_shared<MessageQueue>();
-    auto client = std::make_shared<Client>(host, self, messageQueue);
+    auto client = std::make_shared<Client>(host, self, messageQueue, serverPublicKey);
     auto messageObserver = std::make_shared<QtMessageObserver>();
     messageObserver->Subscribe(client);
     UI::ChatUI chat{ client, messageObserver };
