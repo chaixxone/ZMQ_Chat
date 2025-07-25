@@ -19,9 +19,10 @@ private:
 	sql::Driver* _driver;
 	std::unique_ptr<sql::Connection> _connection;
 
-	bool DoesUserExist(const std::string& identity);
-	std::string HashPassword(const std::string& password);
-	std::string GetPasswordHash(const std::string& identity);
+	bool DoesUserExist(const std::string& identity) const;
+	bool IsPasswordValid(const std::string& identity, const std::string& password) const;
+	std::string HashPassword(const std::string& password) const;
+	std::string GetPasswordHash(const std::string& identity) const;
 };
 
 auto CreateDatabaseConnection(std::string host, std::string user, std::string password, std::string schema) -> std::unique_ptr<DatabaseConnection>;
