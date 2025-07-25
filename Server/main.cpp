@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     std::signal(SIGINT, onInterruptionOccured);
 
     zmq::context_t context(1);
-    Server server{ context, bindEndpoint };
+    Server server{ context, bindEndpoint, std::move(db_conn) };
 
     std::thread serverThread([&server]() {
         server.Run();

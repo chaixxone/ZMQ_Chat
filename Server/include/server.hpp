@@ -1,13 +1,16 @@
 #pragma once
 #include <unordered_set>
 #include <unordered_map>
+
 #include <zmq.hpp>
+
 #include <utils/client_actions.hpp>
+#include <database_connection.hpp>
 
 class Server
 {
 public:
-    Server(zmq::context_t& context, std::string binding);
+    Server(zmq::context_t& context, std::string binding, std::unique_ptr<DatabaseConnection> dbConn);
     void Run();
 
 private:
@@ -36,5 +39,6 @@ private:
     std::unordered_set<std::string> _clients;
     std::unordered_map<int, std::unordered_set<std::string>> _activeChats;
     std::unordered_map<int, std::unordered_set<std::string>> _pendingChatInvites;
+    std::unique_ptr<DatabaseConnection> _databaseConnection;
     bool _running;
 };

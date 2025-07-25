@@ -4,9 +4,10 @@
 
 using json = nlohmann::json;
 
-Server::Server(zmq::context_t& context, std::string binding) : 
+Server::Server(zmq::context_t& context, std::string binding, std::unique_ptr<DatabaseConnection> dbConn) :
     _context(context), 
     _socket(_context, zmq::socket_type::router), 
+    _databaseConnection(std::move(dbConn)),
     _running(true)
 {
     _socket.bind(binding);
