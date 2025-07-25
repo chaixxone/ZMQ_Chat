@@ -31,11 +31,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(mysql_concpp)
 
 # dotenv
-FetchContent_Declare(
-	dotenv
-	GIT_REPOSITORY "https://github.com/laserpants/dotenv-cpp"
-)
-FetchContent_MakeAvailable(dotenv)
+find_package(laserpants_dotenv)
 
 find_package(PkgConfig QUIET)
 if (PKG_CONFIG_FOUND)
