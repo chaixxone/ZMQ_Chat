@@ -4,7 +4,9 @@
 #include <chrono>
 #include <filesystem>
 
+#ifdef WIN32
 #include <vld.h>
+#endif
 #include <dotenv.h>
 
 #include <server.hpp>
