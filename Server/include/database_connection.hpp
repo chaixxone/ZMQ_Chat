@@ -3,7 +3,11 @@
 #include <string>
 #include <memory>
 
+#ifdef CONTAINER_APP
+#include <jdbc/cppconn/driver.h>
+#else
 #include <jdbc/mysql_driver.h>
+#endif
 #include <jdbc/cppconn/connection.h>
 
 class DatabaseConnection

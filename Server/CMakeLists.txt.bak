@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Os -O2)
 
 add_executable(server "main.cpp" "server.cpp" "database/database_connection.cpp" "../utils/helpers.cpp" "../utils/client_actions.cpp")
+target_compile_definitions(server PUBLIC CONTAINER_APP=1)
 
 include_directories("../" "include")
 
