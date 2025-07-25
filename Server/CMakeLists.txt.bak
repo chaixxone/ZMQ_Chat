@@ -31,11 +31,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(mysql_concpp)
 
 # dotenv
-find_package(laserpants_dotenv)
+FetchContent_Declare(
+	dotenv
+	GIT_REPOSITORY "https://github.com/laserpants/dotenv-cpp"
+)
+FetchContent_MakeAvailable(dotenv)
 
 find_package(PkgConfig QUIET)
 if (PKG_CONFIG_FOUND)
     pkg_check_modules(sodium_PKG QUIET libsodium)
 endif()
 
-target_link_libraries(server PRIVATE cppzmq OpenSSL::SSL OpenSSL::Crypto mysql_concpp libsodium)
+target_link_libraries(server PRIVATE cppzmq OpenSSL::SSL OpenSSL::Crypto mysql_concpp libsodium dotenv)
