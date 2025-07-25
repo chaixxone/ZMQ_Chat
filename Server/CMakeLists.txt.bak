@@ -5,11 +5,15 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Os -O2)
 
-add_executable(server "main.cpp" "server.cpp" "../utils/helpers.cpp" "../utils/client_actions.cpp")
+add_executable(server "main.cpp" "server.cpp" "database/database_connection.cpp" "../utils/helpers.cpp" "../utils/client_actions.cpp")
 
 include_directories("../" "include")
 
+find_package(cppzmq CONFIG REQUIRED)
+find_package(OpenSSL REQUIRED)
+
 include(FetchContent)
+
 FetchContent_Declare(
     nlohmann_json
     GIT_REPOSITORY      https://github.com/nlohmann/json.git
@@ -17,5 +21,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-find_package(cppzmq CONFIG REQUIRED)
-target_link_libraries(server PRIVATE cppzmq nlohmann_json::nlohmann_json)
+FetchContent_Declare(
+    mysql_concpp
+    GIT_REPOSITORY      https://github.com/mysql/mysql-connector-cpp.git
+)
+FetchContent_MakeAvailable(mysql_concpp)
+
+find_package(PkgConfig QUIET)
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(sodium_PKG QUIET libsodium)
+endif()
+
+target_link_libraries(server PRIVATE cppzmq OpenSSL::SSL OpenSSL::Crypto mysql_concpp libsodium)
