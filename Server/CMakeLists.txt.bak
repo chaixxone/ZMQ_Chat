@@ -26,6 +26,7 @@ FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_Declare(
     mysql_concpp
     GIT_REPOSITORY      https://github.com/mysql/mysql-connector-cpp.git
+    GIT_TAG             9.4.0
 )
 FetchContent_MakeAvailable(mysql_concpp)
 
