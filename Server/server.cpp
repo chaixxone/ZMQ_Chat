@@ -10,6 +10,12 @@ Server::Server(zmq::context_t& context, std::string binding, std::unique_ptr<Dat
     _databaseConnection(std::move(dbConn)),
     _running(true)
 {
+    char* zmqPublicKey = std::getenv("SERVER_PUBLIC_KEY");
+    char* zmqSecretKey = std::getenv("SERVER_SECRET_KEY");
+
+    _socket.set(zmq::sockopt::curve_server, true);
+    _socket.set(zmq::sockopt::curve_secretkey, zmqSecretKey);
+    _socket.set(zmq::sockopt::curve_publickey, zmqPublicKey);
     _socket.bind(binding);
 }
 
