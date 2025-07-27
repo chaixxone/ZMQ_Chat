@@ -3,8 +3,14 @@
 #include <iostream>
 
 #include <sodium.h>
+
+#ifdef CONTAINER_APP
+#include <cppconn/prepared_statement.h>
+#include <cppconn/resultset.h>
+#else
 #include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/cppconn/resultset.h>
+#endif
 
 DatabaseConnection::DatabaseConnection(std::string host, std::string user, std::string password, std::string schema) :
 	_driver(get_driver_instance())
