@@ -24,12 +24,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 
 # mysql-connector-cpp
-FetchContent_Declare(
-    mysql_concpp
-    GIT_REPOSITORY      https://github.com/mysql/mysql-connector-cpp.git
-    GIT_TAG             9.4.0
-)
-FetchContent_MakeAvailable(mysql_concpp)
+set(MYSQL_LIBS "/usr/lib/x86_64_linux_gnu")
+set(MYSQL_INCLUDE "/usr/include")
+target_include_directories(server PUBLIC ${MYSQL_INCLUDE})
+target_link_directories(server PRIVATE ${MYSQL_LIBS})
 
 # dotenv
 FetchContent_Declare(
@@ -43,4 +41,4 @@ if (PKG_CONFIG_FOUND)
     pkg_check_modules(sodium_PKG QUIET libsodium)
 endif()
 
-target_link_libraries(server PRIVATE cppzmq OpenSSL::SSL OpenSSL::Crypto mysql_concpp libsodium dotenv)
+target_link_libraries(server PRIVATE cppzmq OpenSSL::SSL OpenSSL::Crypto mysqlcppconn sodium dotenv nlohmann_json)
