@@ -89,15 +89,16 @@ bool DatabaseConnection::UserDeviceSession(const std::string& identity, const st
 	return deviceSessionResult->next();
 }
 
-bool DatabaseConnection::DoesSessionExist(const std::string& identity, const std::string& sessionId) const
+bool DatabaseConnection::DoesSessionExist(const std::string& identity, const std::string& deviceID, const std::string& sessionId) const
 {
 	auto sessionQuery = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
-			"SELECT * FROM sessions WHERE session_id = ? AND user_identity = ?"
+			"SELECT * FROM sessions WHERE device_id = ? AND session_id = ? AND user_identity = ?"
 		)
 	);
-	sessionQuery->setString(1, sessionId);
-	sessionQuery->setString(2, identity);
+	sessionQuery->setString(1, deviceID);
+	sessionQuery->setString(2, sessionId);
+	sessionQuery->setString(3, identity);
 	std::unique_ptr<sql::ResultSet> sessionResult{ sessionQuery->executeQuery() };
 
 	return sessionResult->next();
