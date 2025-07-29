@@ -48,6 +48,9 @@ void Server::Run()
             case Utils::Action::ChangeName:
                 HandleConnection(identity, dataStr);
                 break;
+            case Utils::Action::Register:
+                HandleRegister(clientId, dataStr);
+                break;
             case Utils::Action::SendMessage:
                 HandleSendMessage(clientId, dataStr, chatIdNumber);
                 break;
@@ -99,6 +102,49 @@ void Server::HandleConnection(zmq::message_t& clientId, const std::string& desir
 
     _clients.insert(desiredIdentity);
     std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
+}
+
+void Server::HandleRegister(const std::string& clientId, const std::string& data)
+{
+    std::string successfulRegisterMessage = "Successfully registrated";
+    std::string failedRegisterMessage = "Couldn't register account, login is already used";
+
+    json userData;
+    std::string desiredLogin;
+    std::string password;
+    std::string passwordRepeat;
+
+    try
+    {
+        userData = json::parse(data);
+        desiredLogin = userData["login"].get<std::string>();
+        password = userData["password"].get<std::string>();
+        passwordRepeat = userData["password_repeat"].get<std::string>();
+    }
+    catch (const json::exception& e)
+    {
+        std::cerr << "[Server] JSON parsing failed at registration: " << e.what() << '\n';
+        return;
+    }
+
+    json registrationStatus;
+
+    if (password != passwordRepeat)
+    {
+        registrationStatus = { { "message", "passwords are mismatching" }, {"is_registered", false } };
+        MessageDispatch(Utils::Action::Register, registrationStatus.dump(), clientId);
+        return;
+    }
+    else if (!_databaseConnection->RegisterUser(desiredLogin, password))
+    {
+        registrationStatus = { { "message", failedRegisterMessage }, {"is_registered", false } };
+        MessageDispatch(Utils::Action::Register, registrationStatus.dump(), clientId);
+        return;
+    }
+
+    registrationStatus = { { "message", successfulRegisterMessage }, {"is_registered", true } };
+
+    MessageDispatch(Utils::Action::Register, registrationStatus.dump(), clientId);
 }
 
 void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)

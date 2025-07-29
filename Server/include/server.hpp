@@ -29,6 +29,8 @@ private:
     void PrepareNewChatSession(const std::string& clientId, const std::string& dataStr);
     void HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted);
     void HandleConnection(zmq::message_t& clientId, const std::string& desiredIdentity);
+    void HandleRegister(const std::string& clientId, const std::string& data);
+    void HandleAuthorize(const std::string& clientId, const std::string& dataStr);
     void HandleAllChatsInfoRequest(const std::string& clientId);
     void HandleClientChatsInfoRequest(const std::string& clientId);
     void HandleGetClientsByName(const std::string& clientId, const std::string& name);
