@@ -47,7 +47,7 @@ Client::Client(std::string endpoint,
 
     if (!configFileJson.contains("device_id"))
     {
-        std::string deviceID = GenerateDeviceID();
+        std::string deviceID = Utils::GenerateString();
         configFileJson["device_id"] = deviceID;
 
         std::ofstream configFileOut(_configFilePath);
