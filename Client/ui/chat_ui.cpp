@@ -20,8 +20,26 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
 	// TODO: remove current index setting
-	_pages->setCurrentIndex(1);
+	_pages->setCurrentIndex(0);
 	setCentralWidget(_pages);
+
+	// login page
+	constexpr int loginPageLineEditsMaxWidth = 300;
+
+	auto loginLineEdit = new QLineEdit;
+	loginLineEdit->setMaximumWidth(loginPageLineEditsMaxWidth);
+	loginLineEdit->setPlaceholderText("Enter login");
+
+	auto passwordLineEdit = new QLineEdit;
+	passwordLineEdit->setMaximumWidth(loginPageLineEditsMaxWidth);
+	passwordLineEdit->setPlaceholderText("Enter password");
+	passwordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
+
+	auto vLoginLayout = new QVBoxLayout;
+	vLoginLayout->addWidget(loginLineEdit, 0);
+	vLoginLayout->addWidget(passwordLineEdit, 0);
+	vLoginLayout->setAlignment(Qt::AlignCenter);
+	_loginPage->setLayout(vLoginLayout);
 
 	// -----------------------------------
 	// left side panel widgets
