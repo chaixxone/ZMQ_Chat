@@ -109,7 +109,7 @@ int main(int argc, char** argv)
     QApplication app{ argc, argv };
     
     auto messageQueue = std::make_shared<MessageQueue>();
-    auto client = std::make_shared<Client>(host, self, messageQueue, configFilePath);
+    auto client = std::make_shared<Client>(host, self, messageQueue, configFilePath.string());
     auto messageObserver = std::make_shared<QtMessageObserver>();
     messageObserver->Subscribe(client);
     UI::ChatUI chat{ client, messageObserver };
