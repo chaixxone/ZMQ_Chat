@@ -140,3 +140,23 @@ size_t DatabaseConnection::StoreMessage(int chatId, const std::string& messageCo
 
 	return lastMessageID;
 }
+
+std::unordered_set<std::string> DatabaseConnection::GetChatClients(int chatId)
+{
+	auto chatClientsQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"SELECT user_identity FROM user_chats WHERE chat_id = ?"
+		)
+	);
+	chatClientsQuery->setInt(1, chatId);
+	std::unique_ptr<sql::ResultSet> chatClientsResult{ chatClientsQuery->executeQuery() };
+
+	std::unordered_set<std::string> chatClients;
+
+	while (chatClientsResult->next())
+	{
+		chatClients.insert(chatClientsResult->getString("user_identity"));
+	}
+
+	return chatClients;
+}

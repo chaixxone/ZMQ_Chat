@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <unordered_set>
 
 #ifdef CONTAINER_APP
 #include <mysql_driver.h>
@@ -22,6 +23,7 @@ public:
 	bool DoesUserExist(const std::string& identity) const;
 	// returns message id 
 	size_t StoreMessage(int chatId, const std::string& messageContent);
+	std::unordered_set<std::string> GetChatClients(int chatId);
 
 private:
 	sql::Driver* _driver;
