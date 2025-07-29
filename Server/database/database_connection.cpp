@@ -75,6 +75,20 @@ bool DatabaseConnection::DoesUserExist(const std::string& identity) const
 	return userResult->rowsCount() == 1;
 }
 
+bool DatabaseConnection::UserDeviceSession(const std::string& identity, const std::string& deviceID) const
+{
+	auto deviceSessionQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"SELECT * FROM sessions WHERE device_id = ? AND user_identity = ?"
+		)
+	);
+	deviceSessionQuery->setString(1, deviceID);
+	deviceSessionQuery->setString(2, identity);
+	std::unique_ptr<sql::ResultSet> deviceSessionResult{ deviceSessionQuery->executeQuery() };
+
+	return deviceSessionResult->next();
+}
+
 bool DatabaseConnection::DoesSessionExist(const std::string& identity, const std::string& sessionId) const
 {
 	auto sessionQuery = std::unique_ptr<sql::PreparedStatement>(

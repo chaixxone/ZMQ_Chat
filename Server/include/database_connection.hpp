@@ -21,6 +21,7 @@ public:
 	bool RegisterUser(const std::string& identity, const std::string& password) const;
 	bool AuthorizeUser(const std::string& identity, const std::string& password) const;
 	bool DoesUserExist(const std::string& identity) const;
+	bool UserDeviceSession(const std::string& identity, const std::string& deviceID) const;
 	bool DoesSessionExist(const std::string& identity, const std::string& sessionId) const;
 	// returns message id 
 	size_t StoreMessage(int chatId, const std::string& messageContent);
