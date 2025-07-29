@@ -8,6 +8,7 @@ namespace Utils
         {"register", Action::Register},
         {"authorize", Action::Authorize},
         {"already_authorized", Action::AlreadyAuthorized},
+        {"not_authorized", Action::NotAuthorized},
         {"change_name", Action::ChangeName},
         {"new_name", Action::NewClientName},
         {"send_message", Action::SendMessage},

@@ -9,6 +9,7 @@ namespace Utils
         Register,
         Authorize,
         AlreadyAuthorized,
+        NotAuthorized,
         ChangeName,
         NewClientName,
         SendMessage,
