@@ -20,6 +20,8 @@ public:
 	bool RegisterUser(const std::string& identity, const std::string& password) const;
 	bool AuthorizeUser(const std::string& identity, const std::string& password) const;
 	bool DoesUserExist(const std::string& identity) const;
+	// returns message id 
+	size_t StoreMessage(int chatId, const std::string& messageContent);
 
 private:
 	sql::Driver* _driver;
