@@ -185,17 +185,16 @@ void Server::HandleAuthorize(const std::string& clientId, const std::string& dat
 
 void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
 {
-    size_t delimiter = dataStr.find_first_of(":");
-
-    static size_t messageId = 0;
-
     if (chatId == -1)
     {
         std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
         return;
     }
 
-    MessageDispatch(Utils::Action::IncomingMessage, dataStr, _activeChats[chatId], std::to_string(messageId++), clientId, chatId);
+    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr);
+    // Send message to active clients
+    std::unordered_set<std::string> chatClients = _databaseConnection->GetChatClients(chatId);
+    MessageDispatch(Utils::Action::IncomingMessage, dataStr, chatClients, std::to_string(messageID), clientId, chatId);
 }
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr)
