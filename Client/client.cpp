@@ -133,11 +133,13 @@ int Client::GetChatId() const noexcept
 void Client::SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
+    zmq::message_t deviceIdFrame(_deviceID);
     zmq::message_t actionFrame(actionStr);
     zmq::message_t message(messageStr);
     zmq::message_t chatId(std::to_string(chatIdInt));
 
-    bool result = _socket.send(actionFrame, zmq::send_flags::sndmore) 
+    bool result = _socket.send(deviceIdFrame, zmq::send_flags::sndmore)
+        && _socket.send(actionFrame, zmq::send_flags::sndmore) 
         && _socket.send(message, zmq::send_flags::sndmore)
         && _socket.send(chatId, zmq::send_flags::none);
 
