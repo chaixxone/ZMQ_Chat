@@ -28,7 +28,7 @@ private:
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId);
     void PrepareNewChatSession(const std::string& clientId, const std::string& dataStr);
     void HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted);
-    void HandleConnection(zmq::message_t& clientId, const std::string& desiredIdentity);
+    void HandleConnection(const std::string& clientId, const std::string& deviceID);
     void HandleRegister(const std::string& clientId, const std::string& data);
     void HandleAuthorize(const std::string& clientId, const std::string& dataStr);
     void HandleAllChatsInfoRequest(const std::string& clientId);

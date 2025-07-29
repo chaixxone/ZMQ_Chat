@@ -45,13 +45,28 @@ void Server::Run()
             switch (actionEnum)
             {
             case Utils::Action::Connect:
-                HandleConnection(identity, dataStr);
-                break;
-            case Utils::Action::ChangeName:
-                HandleConnection(identity, dataStr);
+                HandleConnection(clientId, dataStr);
                 break;
             case Utils::Action::Register:
                 HandleRegister(clientId, dataStr);
+                break;
+            case Utils::Action::Authorize:
+                HandleAuthorize(clientId, dataStr);
+                break;
+            default:
+                break;
+            }
+
+            if (_databaseConnection->DoesSessionExist(clientId, deviceIDStr, sessionIDStr))
+            {
+                MessageDispatch(Utils::Action::NotAuthorized, "Error: you're not allowed to do anything without logging in", clientId);
+                continue;
+            }
+
+            switch (actionEnum)
+            {
+            case Utils::Action::ChangeName:
+                HandleConnection(clientId, dataStr);
                 break;
             case Utils::Action::SendMessage:
                 HandleSendMessage(clientId, dataStr, chatIdNumber);
@@ -92,18 +107,18 @@ void Server::Run()
     }
 }
 
-void Server::HandleConnection(zmq::message_t& clientId, const std::string& desiredIdentity)
+void Server::HandleConnection(const std::string& clientId, const std::string& deviceID)
 {
-    if (_clients.find(desiredIdentity) != _clients.end())
+    if (_databaseConnection->UserDeviceSession(clientId, deviceID))
     {
-        MessageDispatch(Utils::Action::Unknown, desiredIdentity, clientId.to_string());
-        return;
+        MessageDispatch(Utils::Action::AlreadyAuthorized, " ", clientId);
+        std::cout << "[Server] Client " << clientId << " connected.\n";
+    }   
+    else
+    {
+        std::string notAuthorizedMessage = "Please authorize first";
+        MessageDispatch(Utils::Action::NotAuthorized, notAuthorizedMessage, clientId);
     }
-
-    MessageDispatch(Utils::Action::NewClientName, desiredIdentity, clientId.to_string());
-
-    _clients.insert(desiredIdentity);
-    std::cout << "[Server] Client " << desiredIdentity << " connected.\n";
 }
 
 void Server::HandleRegister(const std::string& clientId, const std::string& data)
@@ -144,7 +159,7 @@ void Server::HandleRegister(const std::string& clientId, const std::string& data
         return;
     }
 
-    registrationStatus = { { "message", successfulRegisterMessage }, {"is_registered", true } };
+    registrationStatus = { { "message", successfulRegisterMessage }, {"is_registered", true } };    
 
     MessageDispatch(Utils::Action::Register, registrationStatus.dump(), clientId);
 }
