@@ -12,6 +12,8 @@
 #include <jdbc/cppconn/resultset.h>
 #endif
 
+#include <utils/helpers.hpp>
+
 DatabaseConnection::DatabaseConnection(std::string host, std::string user, std::string password, std::string schema) :
 	_driver(get_driver_instance())
 {
@@ -89,15 +91,7 @@ bool DatabaseConnection::DoesSessionExist(const std::string& identity, const std
 
 std::string DatabaseConnection::CreateSession(const std::string& identity) const
 {
-	constexpr int BINARY_BUFFER_SIZE = 16;
-	constexpr int HEX_BUFFER_SIZE = BINARY_BUFFER_SIZE * 2 + 1;
-
-	unsigned char binarySessionIdBuffer[BINARY_BUFFER_SIZE];
-	// Generate binary representation of session_id
-	randombytes_buf(binarySessionIdBuffer, BINARY_BUFFER_SIZE);
-
-	char hexSessionIdBuffer[HEX_BUFFER_SIZE];
-	sodium_bin2hex(hexSessionIdBuffer, HEX_BUFFER_SIZE, binarySessionIdBuffer, BINARY_BUFFER_SIZE);
+	std::string hexSessionIdBuffer = Utils::GenerateString();
 
 	auto insertSessionStatement = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
