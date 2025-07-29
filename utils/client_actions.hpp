@@ -8,6 +8,7 @@ namespace Utils
         Connect,
         Register,
         Authorize,
+        AlreadyAuthorized,
         ChangeName,
         NewClientName,
         SendMessage,

@@ -7,6 +7,7 @@ namespace Utils
         {"!connect!", Action::Connect},
         {"register", Action::Register},
         {"authorize", Action::Authorize},
+        {"already_authorized", Action::AlreadyAuthorized},
         {"change_name", Action::ChangeName},
         {"new_name", Action::NewClientName},
         {"send_message", Action::SendMessage},
