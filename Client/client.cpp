@@ -2,16 +2,25 @@
 
 #include <iostream>
 #include <random>
-#include <filesystem>
+#include <fstream>
+
+#include <nlohmann/json.hpp>
 
 #include <utils/client_actions.hpp>
 #include <utils/helpers.hpp>
 
-Client::Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> message_queue, const std::string& serverPublicKey) :
+using json = nlohmann::json;
+
+Client::Client(std::string endpoint, 
+    std::string identity, 
+    std::shared_ptr<MessageQueue> message_queue, 
+    const std::string& pathToConfigFile
+) :
     _context(1), 
     _socket(_context, zmq::socket_type::dealer), 
     _endpoint(endpoint), 
     _identity(GenerateTemporaryId()), 
+    _configFilePath(pathToConfigFile),
     _messageQueue(message_queue),
     _chatId(-1),
     _hasRequestToChat(false)
@@ -24,6 +33,29 @@ Client::Client(std::string endpoint, std::string identity, std::shared_ptr<Messa
     {
         throw std::runtime_error("Couldn't generate client keys");
     }
+
+    std::ifstream configFile(_configFilePath);
+    
+    if (!configFile.is_open())
+    {
+        throw std::runtime_error("Couldn't open config file");    
+    }
+
+    json configFileJson = json::parse(configFile);
+    configFile.close();
+    std::string serverPublicKey = configFileJson["server_public_key"].get<std::string>();
+
+    if (!configFileJson.contains("device_id"))
+    {
+        std::string deviceID = GenerateDeviceID();
+        configFileJson["device_id"] = deviceID;
+
+        std::ofstream configFileOut(_configFilePath);
+        configFileOut << configFileJson.dump(4);
+        configFileOut.close();
+    }
+
+    _deviceID = configFileJson["device_id"].get<std::string>();
 
     _socket.set(zmq::sockopt::routing_id, _identity);
     _socket.set(zmq::sockopt::linger, 0);

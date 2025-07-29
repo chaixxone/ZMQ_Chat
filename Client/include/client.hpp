@@ -8,7 +8,12 @@
 class Client : public IClientMessageSubject
 {
 public:
-    Client(std::string endpoint, std::string identity, std::shared_ptr<MessageQueue> messageQueue, const std::string& serverPublicKey);
+    Client(
+        std::string endpoint, 
+        std::string identity, 
+        std::shared_ptr<MessageQueue> messageQueue,
+        const std::string& pathToConfigFile
+    );
     ~Client();
     void RequestToCreateChat(const std::string& clients) override;
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
@@ -32,6 +37,8 @@ private:
     zmq::socket_t _socket;
     std::string _endpoint;
     std::string _identity;
+    std::string _configFilePath;
+    std::string _deviceID;
     std::thread _receiver;
     std::shared_ptr<MessageQueue> _messageQueue;
     std::shared_ptr<IMessageObserver> _messageObserver;
