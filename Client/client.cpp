@@ -153,8 +153,10 @@ int Client::GetChatId() const noexcept
 void Client::SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
+    std::string sessionID = ReadSessionID(_configFilePath);
 
     zmq::message_t deviceIdFrame(_deviceID);
+    zmq::message_t sessionIdFrame(sessionID);
     zmq::message_t actionFrame(actionStr);
     zmq::message_t message(messageStr);
     zmq::message_t chatId(std::to_string(chatIdInt));

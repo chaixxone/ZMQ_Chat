@@ -25,15 +25,17 @@ void Server::Run()
     {
         try
         {
-            zmq::message_t identity, deviceID, action, data, chatId;
+            zmq::message_t identity, deviceID, sessionID, action, data, chatId;
             auto identityResult = _socket.recv(identity, zmq::recv_flags::none);
             auto deviceIDResult = _socket.recv(deviceID, zmq::recv_flags::none);
+            auto sessionIDResult = _socket.recv(sessionID, zmq::recv_flags::none);
             auto actionResult = _socket.recv(action, zmq::recv_flags::none);
             auto dataResult = _socket.recv(data, zmq::recv_flags::none);
             auto chatIdResult = _socket.recv(chatId, zmq::recv_flags::none);
 
             std::string clientId = identity.to_string();
             std::string deviceIDStr = deviceID.to_string();
+            std::string sessionIDStr = sessionID.to_string();
             std::string actionStr = action.to_string();
             std::string dataStr = data.to_string();
             std::string chatIdStr = chatId.to_string();
