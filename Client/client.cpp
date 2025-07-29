@@ -111,6 +111,26 @@ std::string Client::GenerateTemporaryId()
     return temporaryIdentifier;
 }
 
+std::string Client::ReadSessionID(const std::string& pathToConfig)
+{
+    std::ifstream configFile(pathToConfig);
+
+    if (!configFile.is_open())
+    {
+        return "";
+    }
+
+    json configFileJson = json::parse(configFile);
+
+    if (!configFileJson.contains("session_id") || configFileJson["session_id"].is_null())
+    {
+        return "";
+    }
+
+    std::string sessionID = configFileJson["session_id"].get<std::string>();
+    return sessionID;
+}
+
 Client::~Client()
 {
     _alive = false;
@@ -133,6 +153,7 @@ int Client::GetChatId() const noexcept
 void Client::SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt)
 {
     std::string actionStr = Utils::actionToString(action);
+
     zmq::message_t deviceIdFrame(_deviceID);
     zmq::message_t actionFrame(actionStr);
     zmq::message_t message(messageStr);

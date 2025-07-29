@@ -31,6 +31,7 @@ private:
     void SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt);
     void ReceiveMessage();
     static std::string GenerateTemporaryId();
+    static std::string ReadSessionID(const std::string& pathToConfig);
     void ChangeIdentity(const std::string& identity);
 
     zmq::context_t _context;
