@@ -73,6 +73,20 @@ bool DatabaseConnection::DoesUserExist(const std::string& identity) const
 	return userResult->rowsCount() == 1;
 }
 
+bool DatabaseConnection::DoesSessionExist(const std::string& identity, const std::string& sessionId) const
+{
+	auto sessionQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"SELECT * FROM sessions WHERE session_id = ? AND user_identity = ?"
+		)
+	);
+	sessionQuery->setString(1, sessionId);
+	sessionQuery->setString(2, identity);
+	std::unique_ptr<sql::ResultSet> sessionResult{ sessionQuery->executeQuery() };
+
+	return sessionResult->next();
+}
+
 std::string DatabaseConnection::CreateSession(const std::string& identity) const
 {
 	constexpr int BINARY_BUFFER_SIZE = 16;

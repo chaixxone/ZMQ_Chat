@@ -21,6 +21,7 @@ public:
 	bool RegisterUser(const std::string& identity, const std::string& password) const;
 	bool AuthorizeUser(const std::string& identity, const std::string& password) const;
 	bool DoesUserExist(const std::string& identity) const;
+	bool DoesSessionExist(const std::string& identity, const std::string& sessionId) const;
 	// returns message id 
 	size_t StoreMessage(int chatId, const std::string& messageContent);
 	std::unordered_set<std::string> GetChatClients(int chatId);
