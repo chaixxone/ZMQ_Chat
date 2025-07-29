@@ -32,6 +32,7 @@ private:
 	bool IsPasswordValid(const std::string& identity, const std::string& password) const;
 	std::string HashPassword(const std::string& password) const;
 	std::string GetPasswordHash(const std::string& identity) const;
+	std::string CreateSession(const std::string& identity) const;
 };
 
 auto CreateDatabaseConnection(std::string host, std::string user, std::string password, std::string schema) -> std::unique_ptr<DatabaseConnection>;
