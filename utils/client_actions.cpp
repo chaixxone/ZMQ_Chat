@@ -5,6 +5,8 @@ namespace Utils
 {
     const std::unordered_map<std::string, Action> actionMap = {
         {"!connect!", Action::Connect},
+        {"register", Action::Register},
+        {"authorize", Action::Authorize},
         {"change_name", Action::ChangeName},
         {"new_name", Action::NewClientName},
         {"send_message", Action::SendMessage},

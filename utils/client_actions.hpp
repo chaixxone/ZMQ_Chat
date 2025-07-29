@@ -6,6 +6,8 @@ namespace Utils
     enum class Action
     {
         Connect,
+        Register,
+        Authorize,
         ChangeName,
         NewClientName,
         SendMessage,
