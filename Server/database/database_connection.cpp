@@ -87,12 +87,14 @@ std::string DatabaseConnection::CreateSession(const std::string& identity) const
 
 	auto insertSessionStatement = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
-			"INSERT INTO sessions (session_id, user_identity, created_at, expired_at) VALUES (?, ?, NOW(), NOW() + INTERVAL 30 DAYS)"
+			"INSERT INTO sessions (session_id, user_identity, created_at, expired_at) VALUES (?, ?, NOW(), NOW() + INTERVAL 30 DAY)"
 		)
 	);
 	insertSessionStatement->setString(1, hexSessionIdBuffer);
 	insertSessionStatement->setString(2, identity);
 	insertSessionStatement->execute();
+
+	return hexSessionIdBuffer;
 }
 
 std::string DatabaseConnection::HashPassword(const std::string& password) const
