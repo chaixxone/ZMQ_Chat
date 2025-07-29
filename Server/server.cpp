@@ -147,6 +147,42 @@ void Server::HandleRegister(const std::string& clientId, const std::string& data
     MessageDispatch(Utils::Action::Register, registrationStatus.dump(), clientId);
 }
 
+void Server::HandleAuthorize(const std::string& clientId, const std::string& dataStr)
+{
+    std::string successLoginMessage = "Successfully authorized";
+    std::string failedLoginMessage = "Authorization failed, incorrect data";
+
+    json userData;
+    std::string login;
+    std::string password;
+
+    try
+    {
+        userData = json::parse(dataStr);
+        login = userData["login"].get<std::string>();
+        password = userData["password"].get<std::string>();
+    }
+    catch (const json::exception& e)
+    {
+        std::cerr << "[Server] JSON parsing failed at authorization: " << e.what() << '\n';
+        return;
+    }
+
+    json authorizeStatus;
+
+    // TODO: create session for 30 days for a client in a database, update timer if authorize requested before it ends
+    if (!_databaseConnection->AuthorizeUser(login, password))
+    {
+        authorizeStatus = { { "message", failedLoginMessage }, {"is_authorized", false } };
+        MessageDispatch(Utils::Action::Authorize, authorizeStatus.dump(), clientId);
+        return;
+    }
+
+    authorizeStatus = { { "message", successLoginMessage }, {"is_authorized", true } };
+
+    MessageDispatch(Utils::Action::Authorize, authorizeStatus.dump(), clientId);
+}
+
 void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     size_t delimiter = dataStr.find_first_of(":");
