@@ -65,7 +65,7 @@ auto CreateDatabaseConnection(std::string host, std::string user, std::string pa
 {
 	if (DoesUserExist(identity) && IsPasswordValid(identity, password))
 	{
-		std::string sessionID = CreateSession(identity);
+		std::string sessionID = CreateSession(identity, deviceID);
 		return sessionID;
 	}
 
@@ -114,17 +114,18 @@ bool DatabaseConnection::DoesSessionExist(const std::string& identity, const std
 	return sessionResult->next();
 }
 
-std::string DatabaseConnection::CreateSession(const std::string& identity) const
+std::string DatabaseConnection::CreateSession(const std::string& identity, const std::string& deviceID) const
 {
 	std::string hexSessionIdBuffer = Utils::GenerateString();
 
 	auto insertSessionStatement = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
-			"INSERT INTO sessions (session_id, user_identity, created_at, expired_at) VALUES (?, ?, NOW(), NOW() + INTERVAL 30 DAY)"
+			"INSERT INTO sessions (device_id, session_id, user_identity, created_at, expired_at) VALUES (?, ?, ?, NOW(), NOW() + INTERVAL 30 DAY)"
 		)
 	);
-	insertSessionStatement->setString(1, hexSessionIdBuffer);
-	insertSessionStatement->setString(2, identity);
+	insertSessionStatement->setString(1, deviceID);
+	insertSessionStatement->setString(2, hexSessionIdBuffer);
+	insertSessionStatement->setString(3, identity);
 	insertSessionStatement->execute();
 
 	return hexSessionIdBuffer;
