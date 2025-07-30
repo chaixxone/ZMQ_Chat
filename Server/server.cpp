@@ -47,7 +47,7 @@ void Server::Run()
             switch (actionEnum)
             {
             case Utils::Action::Connect:
-                HandleConnection(clientId, dataStr);
+                HandleConnection(clientId, dataStr, deviceIDStr);
                 break;
             case Utils::Action::Register:
                 HandleRegister(clientId, dataStr);
@@ -68,7 +68,7 @@ void Server::Run()
             switch (actionEnum)
             {
             case Utils::Action::ChangeName:
-                HandleConnection(clientId, dataStr);
+                HandleConnection(clientId, dataStr, deviceIDStr);
                 break;
             case Utils::Action::SendMessage:
                 HandleSendMessage(clientId, dataStr, chatIdNumber);
@@ -109,17 +109,18 @@ void Server::Run()
     }
 }
 
-void Server::HandleConnection(const std::string& clientId, const std::string& deviceID)
+void Server::HandleConnection(const std::string& generatedClientId, const std::string& clientId, const std::string& deviceID)
 {
     if (_databaseConnection->UserDeviceSession(clientId, deviceID))
     {
-        MessageDispatch(Utils::Action::AlreadyAuthorized, " ", clientId);
+        MessageDispatch(Utils::Action::AlreadyAuthorized, " ", generatedClientId);
+        MessageDispatch(Utils::Action::NewClientName, clientId, generatedClientId);
         std::cout << "[Server] Client " << clientId << " connected.\n";
     }   
     else
     {
         std::string notAuthorizedMessage = "Please authorize first";
-        MessageDispatch(Utils::Action::NotAuthorized, notAuthorizedMessage, clientId);
+        MessageDispatch(Utils::Action::NotAuthorized, notAuthorizedMessage, generatedClientId);
     }
 }
 
