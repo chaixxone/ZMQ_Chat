@@ -49,7 +49,44 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vRegisterLayout->setAlignment(Qt::AlignCenter);
 	_registerPage->setLayout(vRegisterLayout);
 
+	auto parseDataFromRegisterInput = [&]() {
+		QString login = registerLoginLineEdit->text().trimmed();
+		QString password = registerPasswordLineEdit->text().trimmed();
+		QString passwordRepeat = registerPasswordRepeatLineEdit->text().trimmed();
 
+		if (!login.isEmpty() && !password.isEmpty() && !passwordRepeat.isEmpty())
+		{
+			_client->RequestRegister(login.toStdString(), password.toStdString(), passwordRepeat.toStdString());
+		}
+	};
+
+	connect(registerLoginLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
+	connect(registerPasswordLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
+	connect(registerPasswordRepeatLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
+
+	connect(_messageObserver.get(), &QtMessageObserver::Register, this, [this](const MessageView& message) {
+		json registerStatus = json::parse(message.Content);
+		bool isRegistered = registerStatus["is_registered"].get<bool>();
+
+		// TODO take login and password and paste them into login page inputs
+
+		int nextPageIndex = isRegistered ? 0 : 2; // 2 - register page | 0 - login page
+
+		_pages->setCurrentIndex(nextPageIndex);
+
+		std::string registerStatusMessage = registerStatus["message"].get<std::string>();
+		auto registerStatusMessageBox = new QMessageBox(this);
+		registerStatusMessageBox->setWindowTitle("Authorize status");
+		registerStatusMessageBox->setText(QString::fromStdString(registerStatusMessage));
+		// TODO: position message box on top of the window
+		registerStatusMessageBox->show();
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, registerStatusMessageBox, [registerStatusMessageBox]() {
+			registerStatusMessageBox->close();
+			registerStatusMessageBox->deleteLater();
+		});
+	});
 	// ------------------------------------------------
 
 	// login page
