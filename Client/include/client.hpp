@@ -36,6 +36,7 @@ private:
     static void UpdateSessionID(const std::string sessionID, const std::string& pathToConfig);
     static std::string ReadSessionID(const std::string& pathToConfig);
     void ChangeIdentity(const std::string& identity);
+    static void UpdateClientIDConfig(const std::string& pathToConfig, const std::string& identity);
 
     zmq::context_t _context;
     zmq::socket_t _socket;

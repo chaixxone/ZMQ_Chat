@@ -92,6 +92,26 @@ void Client::RequestChangeIdentity(const std::string& desiredIdentity)
     SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
 }
 
+static void UpdateClientIDConfig(const std::string& pathToConfig, const std::string& identity)
+{
+    std::fstream configFile(pathToConfig, std::ios::in);
+
+    if (!configFile.is_open())
+    {
+        std::cerr << "Couldn't open config file\n";
+        return;
+    }
+
+    json configFileJson = json::parse(configFile);
+    configFile.close();
+
+    configFileJson["identity"] = identity;
+
+    configFile.open(pathToConfig, std::ios::out);
+    configFile << configFileJson.dump(4);
+    configFile.close();
+}
+
 void Client::ChangeIdentity(const std::string& identity)
 {
     _identity = identity;
