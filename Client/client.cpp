@@ -255,6 +255,19 @@ void Client::ReceiveMessage()
 
             switch (actionEnum)
             {
+            case Utils::Action::Authorize:
+            {
+                json authorizeStatus = json::parse(dataStr);
+                bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
+
+                if (isAuthorized)
+                {
+                    std::string sessionID = authorizeStatus["session_id"].get<std::string>();
+                    UpdateSessionID(sessionID, _configFilePath);
+                }
+
+                break;
+            }
             case Utils::Action::CreateChat:
                 std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdInt << '\n';
                 _hasRequestToChat = true;
