@@ -99,7 +99,7 @@ void Client::RequestChangeIdentity(const std::string& desiredIdentity)
     SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);
 }
 
-static void UpdateClientIDConfig(const std::string& pathToConfig, const std::string& identity)
+void Client::UpdateClientIDConfig(const std::string& pathToConfig, const std::string& identity)
 {
     std::fstream configFile(pathToConfig, std::ios::in);
 
