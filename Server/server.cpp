@@ -189,15 +189,24 @@ void Server::HandleAuthorize(const std::string& clientId, const std::string& dat
 
     json authorizeStatus;
 
-    // TODO: create session for 30 days for a client in a database, update timer if authorize requested before it ends
-    if (!_databaseConnection->AuthorizeUser(login, password))
+    // TODO: update timer if authorize requested before it ends
+    std::string sessionID = _databaseConnection->AuthorizeUser(login, password);
+
+    if (sessionID.empty())
     {
-        authorizeStatus = { { "message", failedLoginMessage }, {"is_authorized", false } };
+        authorizeStatus = { 
+            { "message", failedLoginMessage }, 
+            { "is_authorized", false } 
+        };
         MessageDispatch(Utils::Action::Authorize, authorizeStatus.dump(), clientId);
         return;
     }
 
-    authorizeStatus = { { "message", successLoginMessage }, {"is_authorized", true } };
+    authorizeStatus = { 
+        { "message", successLoginMessage }, 
+        { "is_authorized", true }, 
+        { "session_id", sessionID } 
+    };
 
     MessageDispatch(Utils::Action::Authorize, authorizeStatus.dump(), clientId);
 }
