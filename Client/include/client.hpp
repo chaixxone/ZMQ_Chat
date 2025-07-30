@@ -15,6 +15,7 @@ public:
         const std::string& pathToConfigFile
     );
     ~Client();
+    void RequestAuthorize(const std::string& identity, const std::string& password);
     void RequestToCreateChat(const std::string& clients) override;
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
