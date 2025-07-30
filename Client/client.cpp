@@ -117,6 +117,28 @@ std::string Client::GenerateTemporaryId()
     return temporaryIdentifier;
 }
 
+void Client::UpdateSessionID(const std::string sessionID, const std::string& pathToConfig)
+{
+    std::ofstream configFile(pathToConfig);
+
+    if (!configFile.is_open())
+    {
+        std::cerr << "Couldn't open config file\n";
+        return;
+    }
+
+    json configFileJson = json::parse(configFile);
+
+    if (!configFileJson.contains("session_id") || configFileJson["session_id"].is_null())
+    {
+        return;
+    }
+
+    configFileJson["session_id"] = sessionID;
+    configFile << configFileJson.dump(4);
+    configFile.close();
+}
+
 std::string Client::ReadSessionID(const std::string& pathToConfig)
 {
     std::ifstream configFile(pathToConfig);
