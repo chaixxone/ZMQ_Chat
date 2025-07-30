@@ -75,6 +75,12 @@ void Client::AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObse
     _messageObserver = messageObserver;
 }
 
+void Client::RequestRegister(const std::string identity, const std::string& password, const std::string& passwordRepeat)
+{
+    json clientData = { { "login", identity }, { "password", password }, { "password_repeat", passwordRepeat } };
+    SendRequest(clientData.dump(), Utils::Action::Register, -1);
+}
+
 void Client::RequestAuthorize(const std::string& identity, const std::string& password)
 {
     json clientData = { { "login", identity }, { "password", password } };
