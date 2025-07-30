@@ -100,9 +100,12 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	passwordLineEdit->setPlaceholderText("Enter password");
 	passwordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
+	auto toRegisterButton = new QPushButton("Register");
+
 	auto vLoginLayout = new QVBoxLayout;
 	vLoginLayout->addWidget(loginLineEdit, 0);
 	vLoginLayout->addWidget(passwordLineEdit, 0);
+	vLoginLayout->addWidget(toRegisterButton);
 	vLoginLayout->setAlignment(Qt::AlignCenter);
 	_loginPage->setLayout(vLoginLayout);
 
@@ -138,6 +141,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 			authorizeStatusMessageBox->close();
 			authorizeStatusMessageBox->deleteLater();
 		});
+	});
+
+	connect(toRegisterButton, &QPushButton::clicked, _pages, [this]() {
+		_pages->setCurrentIndex(2); // switch page to register
 	});
 
 	// -----------------------------------
