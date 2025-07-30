@@ -210,7 +210,7 @@ void Server::HandleAuthorize(const std::string& clientId, const std::string& dat
     };
 
     MessageDispatch(Utils::Action::Authorize, authorizeStatus.dump(), clientId);
-    MessageDispatch(Utils::Action::NewClientName, clientId, login);
+    MessageDispatch(Utils::Action::NewClientName, login, clientId);
 }
 
 void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
