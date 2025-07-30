@@ -41,7 +41,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vLoginLayout->setAlignment(Qt::AlignCenter);
 	_loginPage->setLayout(vLoginLayout);
 
-	auto parseDataFromInput = [&]() {
+	auto parseDataFromInput = [this, loginLineEdit, passwordLineEdit]() {
 		QString login = loginLineEdit->text().trimmed();
 		QString password = passwordLineEdit->text().trimmed();
 
