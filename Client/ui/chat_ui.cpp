@@ -41,6 +41,19 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vLoginLayout->setAlignment(Qt::AlignCenter);
 	_loginPage->setLayout(vLoginLayout);
 
+	auto parseDataFromInput = [&]() {
+		QString login = loginLineEdit->text().trimmed();
+		QString password = passwordLineEdit->text().trimmed();
+
+		if (!login.isEmpty() && !password.isEmpty())
+		{
+			_client->RequestAuthorize(login.toStdString(), password.toStdString());
+		}
+	};
+
+	connect(loginLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
+	connect(passwordLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
+
 	connect(_messageObserver.get(), &QtMessageObserver::Authorize, this, [this](const MessageView& message) {
 		json authorizeStatus = json::parse(message.Content);
 
