@@ -65,6 +65,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		auto authorizeStatusMessageBox = new QMessageBox(this);
 		authorizeStatusMessageBox->setWindowTitle("Authorize status");
 		authorizeStatusMessageBox->setText(QString::fromStdString(authorizeStatusMessage));
+		// TODO: position message box on top of the window
+		authorizeStatusMessageBox->show();
 
 		const int showStatusBoxDuration = 1500; // ms
 		QTimer::singleShot(showStatusBoxDuration, authorizeStatusMessageBox, [authorizeStatusMessageBox]() {
