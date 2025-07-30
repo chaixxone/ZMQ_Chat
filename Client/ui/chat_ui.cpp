@@ -49,7 +49,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vRegisterLayout->setAlignment(Qt::AlignCenter);
 	_registerPage->setLayout(vRegisterLayout);
 
-	auto parseDataFromRegisterInput = [&]() {
+	auto parseDataFromRegisterInput = [this, registerLoginLineEdit, registerPasswordLineEdit, registerPasswordRepeatLineEdit]() {
 		QString login = registerLoginLineEdit->text().trimmed();
 		QString password = registerPasswordLineEdit->text().trimmed();
 		QString passwordRepeat = registerPasswordRepeatLineEdit->text().trimmed();
