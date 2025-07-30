@@ -122,6 +122,7 @@ static void UpdateClientIDConfig(const std::string& pathToConfig, const std::str
 void Client::ChangeIdentity(const std::string& identity)
 {
     _identity = identity;
+    UpdateClientIDConfig(_configFilePath, identity);
     _socket.disconnect(_endpoint);
     _socket.set(zmq::sockopt::routing_id, _identity);
     _socket.connect(_endpoint);
