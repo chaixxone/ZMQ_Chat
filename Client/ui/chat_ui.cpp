@@ -147,6 +147,10 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		_pages->setCurrentIndex(2); // switch page to register
 	});
 
+	connect(_messageObserver.get(), &QtMessageObserver::AlreadyAuthorized, _pages, [this]() {
+		_pages->setCurrentIndex(1); // skip authorize because session is valid
+	});
+
 	// -----------------------------------
 	// left side panel widgets
 	auto nameLineEdit = new QLineEdit;
