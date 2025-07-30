@@ -20,7 +20,7 @@ public:
 
 	bool RegisterUser(const std::string& identity, const std::string& password) const;
 	// returns fresh session_id string or an empty string if data is invalid
-	std::string AuthorizeUser(const std::string& identity, const std::string& password) const;
+	std::string AuthorizeUser(const std::string& identity, const std::string& password, const std::string& deviceID) const;
 	bool DoesUserExist(const std::string& identity) const;
 	bool UserDeviceSession(const std::string& identity, const std::string& deviceID) const;
 	bool DoesSessionExist(const std::string& identity, const std::string& deviceID, const std::string& sessionId) const;

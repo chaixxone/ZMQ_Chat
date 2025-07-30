@@ -57,7 +57,11 @@ auto CreateDatabaseConnection(std::string host, std::string user, std::string pa
 	return false;
 }
 
-[[nodiscard]] std::string DatabaseConnection::AuthorizeUser(const std::string& identity, const std::string& password) const
+[[nodiscard]] std::string DatabaseConnection::AuthorizeUser(
+	const std::string& identity, 
+	const std::string& password, 
+	const std::string& deviceID
+) const
 {
 	if (DoesUserExist(identity) && IsPasswordValid(identity, password))
 	{
