@@ -193,6 +193,7 @@ void Client::SendRequest(const std::string& messageStr, Utils::Action action, in
     zmq::message_t chatId(std::to_string(chatIdInt));
 
     bool result = _socket.send(deviceIdFrame, zmq::send_flags::sndmore)
+        && _socket.send(sessionIdFrame, zmq::send_flags::sndmore)
         && _socket.send(actionFrame, zmq::send_flags::sndmore) 
         && _socket.send(message, zmq::send_flags::sndmore)
         && _socket.send(chatId, zmq::send_flags::none);
