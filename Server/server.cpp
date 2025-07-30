@@ -53,7 +53,7 @@ void Server::Run()
                 HandleRegister(clientId, dataStr);
                 break;
             case Utils::Action::Authorize:
-                HandleAuthorize(clientId, dataStr);
+                HandleAuthorize(clientId, dataStr, deviceIDStr);
                 break;
             default:
                 break;
@@ -167,7 +167,7 @@ void Server::HandleRegister(const std::string& clientId, const std::string& data
     MessageDispatch(Utils::Action::Register, registrationStatus.dump(), clientId);
 }
 
-void Server::HandleAuthorize(const std::string& clientId, const std::string& dataStr)
+void Server::HandleAuthorize(const std::string& clientId, const std::string& dataStr, const std::string deviceID)
 {
     std::string successLoginMessage = "Successfully authorized";
     std::string failedLoginMessage = "Authorization failed, incorrect data";
@@ -191,7 +191,7 @@ void Server::HandleAuthorize(const std::string& clientId, const std::string& dat
     json authorizeStatus;
 
     // TODO: update timer if authorize requested before it ends
-    std::string sessionID = _databaseConnection->AuthorizeUser(login, password);
+    std::string sessionID = _databaseConnection->AuthorizeUser(login, password, deviceID);
 
     if (sessionID.empty())
     {
