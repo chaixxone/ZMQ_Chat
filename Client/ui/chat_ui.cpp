@@ -12,26 +12,54 @@ using namespace UI;
 ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver> observer, QWidget* parent) :
 	QMainWindow(parent), 
 	_pages(new QStackedWidget(this)), 
+	_registerPage(new QWidget),
 	_loginPage(new QWidget), 
 	_mainPage(new QWidget),
 	_client(client),
 	_messageObserver(observer)
-{
+{	
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
+	_pages->addWidget(_registerPage);
 	// TODO: remove current index setting
 	_pages->setCurrentIndex(0);
 	setCentralWidget(_pages);
 
+	constexpr int lineEditsMaxWidth = 300;
+
+	// register page
+	auto registerLoginLineEdit = new QLineEdit;
+	registerLoginLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerLoginLineEdit->setPlaceholderText("Enter login");	
+
+	auto registerPasswordLineEdit = new QLineEdit;
+	registerPasswordLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerPasswordLineEdit->setPlaceholderText("Enter password");
+	registerPasswordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
+
+	auto registerPasswordRepeatLineEdit = new QLineEdit;
+	registerPasswordRepeatLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerPasswordRepeatLineEdit->setPlaceholderText("Repeat password");
+	registerPasswordRepeatLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
+
+	auto vRegisterLayout = new QVBoxLayout;
+	vRegisterLayout->addWidget(registerLoginLineEdit, 0);
+	vRegisterLayout->addWidget(registerPasswordLineEdit, 0);
+	vRegisterLayout->addWidget(registerPasswordRepeatLineEdit, 0);
+	vRegisterLayout->setAlignment(Qt::AlignCenter);
+	_registerPage->setLayout(vRegisterLayout);
+
+
+	// ------------------------------------------------
+
 	// login page
-	constexpr int loginPageLineEditsMaxWidth = 300;
 
 	auto loginLineEdit = new QLineEdit;
-	loginLineEdit->setMaximumWidth(loginPageLineEditsMaxWidth);
+	loginLineEdit->setMaximumWidth(lineEditsMaxWidth);
 	loginLineEdit->setPlaceholderText("Enter login");
 
 	auto passwordLineEdit = new QLineEdit;
-	passwordLineEdit->setMaximumWidth(loginPageLineEditsMaxWidth);
+	passwordLineEdit->setMaximumWidth(lineEditsMaxWidth);
 	passwordLineEdit->setPlaceholderText("Enter password");
 	passwordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
