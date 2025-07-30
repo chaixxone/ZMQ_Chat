@@ -41,6 +41,25 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vLoginLayout->setAlignment(Qt::AlignCenter);
 	_loginPage->setLayout(vLoginLayout);
 
+	connect(_messageObserver.get(), &QtMessageObserver::Authorize, this, [this](const MessageView& message) {
+		json authorizeStatus = json::parse(message.Content);
+
+		bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
+		int nextPageIndex = isAuthorized ? 1 : 0; // 1 - main page | 0 - login page
+		_pages->setCurrentIndex(nextPageIndex);
+		
+		std::string authorizeStatusMessage = authorizeStatus["message"].get<std::string>();		
+		auto authorizeStatusMessageBox = new QMessageBox(this);
+		authorizeStatusMessageBox->setWindowTitle("Authorize status");
+		authorizeStatusMessageBox->setText(QString::fromStdString(authorizeStatusMessage));
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, authorizeStatusMessageBox, [authorizeStatusMessageBox]() {
+			authorizeStatusMessageBox->close();
+			authorizeStatusMessageBox->deleteLater();
+		});
+	});
+
 	// -----------------------------------
 	// left side panel widgets
 	auto nameLineEdit = new QLineEdit;
