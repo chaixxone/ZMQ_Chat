@@ -55,6 +55,13 @@ Client::Client(std::string endpoint,
         configFileOut.close();
     }
 
+    std::string desiredIdentity = identity;
+    
+    if (configFileJson.contains("identity") && !configFileJson["identity"].is_null())
+    {
+        desiredIdentity = configFileJson["identity"].get<std::string>();
+    }
+
     _deviceID = configFileJson["device_id"].get<std::string>();
 
     _socket.set(zmq::sockopt::routing_id, _identity);
@@ -65,7 +72,7 @@ Client::Client(std::string endpoint,
     
     _socket.connect(endpoint);
 
-    SendRequest(identity, Utils::Action::Connect, -1);
+    SendRequest(desiredIdentity, Utils::Action::Connect, -1);
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
