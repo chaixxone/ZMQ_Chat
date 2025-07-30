@@ -119,7 +119,7 @@ std::string Client::GenerateTemporaryId()
 
 void Client::UpdateSessionID(const std::string sessionID, const std::string& pathToConfig)
 {
-    std::ofstream configFile(pathToConfig);
+    std::fstream configFile(pathToConfig, std::ios::out);
 
     if (!configFile.is_open())
     {
@@ -128,11 +128,14 @@ void Client::UpdateSessionID(const std::string sessionID, const std::string& pat
     }
 
     json configFileJson = json::parse(configFile);
+    configFile.close();
 
     if (!configFileJson.contains("session_id") || configFileJson["session_id"].is_null())
     {
         return;
     }
+
+    configFile.open(pathToConfig, std::ios::in);
 
     configFileJson["session_id"] = sessionID;
     configFile << configFileJson.dump(4);
