@@ -16,6 +16,7 @@ namespace UI
 
 	private:
 		QStackedWidget* _pages;
+		QWidget* _registerPage;
 		QWidget* _loginPage;
 		QWidget* _mainPage;
 		std::shared_ptr<Client> _client;

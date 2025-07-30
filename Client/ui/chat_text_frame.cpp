@@ -6,6 +6,7 @@ Q_DECLARE_METATYPE(Message*)
 
 ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget), _currentChat(-1)
 {
+	_messages->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 	auto vMessagesLayout = new QVBoxLayout;
 	vMessagesLayout->addWidget(_messages);
 	vMessagesLayout->setContentsMargins(0, 0, 0, 0);
@@ -14,23 +15,24 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 
 void ChatTextFrame::AddMessage(Message* message)
 {
+	int contentWidth = _messages->viewport()->width();
+	message->setFixedWidth(contentWidth);
 	auto messageItem = new QListWidgetItem(_messages);
 	_messages->setItemWidget(messageItem, message);
-	// TODO: adjust message size
-	messageItem->setSizeHint(QSize{ 50, 50 });
+	messageItem->setSizeHint(message->sizeHint());
 }
 
-void ChatTextFrame::RemoveMessage(int messageId)
+void ChatTextFrame::RemoveMessage(size_t messageId)
 {
-	size_t messages = _messages->count();
-	size_t left = 0;
-	size_t right = messages - 1;
-	size_t index = 0;
+	int left = 0;
+	int right = _messages->count() - 1;
+	int index = 0;
 
 	while (left <= right)
 	{
-		size_t middle = (left + right) / 2;
-		size_t messageIdAtMiddle = qvariant_cast<Message*>(_messages->item(static_cast<int>(middle))->data(Qt::UserRole))->GetId();
+		int middle = (left + right) / 2;
+		QListWidgetItem* middleItem = _messages->item(middle);
+		size_t messageIdAtMiddle = static_cast<Message*>(_messages->itemWidget(middleItem))->GetId();
 
 		if (messageId < messageIdAtMiddle)
 		{
@@ -47,7 +49,7 @@ void ChatTextFrame::RemoveMessage(int messageId)
 		}
 	}
 
-	_messages->removeItemWidget(_messages->item(static_cast<int>(index)));
+	delete _messages->takeItem(index);
 }
 
 ChatTextFrame::~ChatTextFrame() {}

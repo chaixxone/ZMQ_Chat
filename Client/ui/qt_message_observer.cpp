@@ -30,6 +30,18 @@ void QtMessageObserver::Update()
 
 		switch (messageData.Action)
 		{
+		case Utils::Action::Register:
+			emit Register(messageData);
+			break;
+		case Utils::Action::Authorize:
+			emit Authorize(messageData);
+			break;
+		case Utils::Action::AlreadyAuthorized:
+			emit AlreadyAuthorized(messageData);
+			break;
+		case Utils::Action::NotAuthorized:
+			emit NotAuthorized(messageData);
+			break;
 		case Utils::Action::IncomingMessage:
 			emit IncomingMessage(messageData);
 			break;

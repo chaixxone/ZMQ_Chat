@@ -28,6 +28,6 @@ namespace UI
 		int _currentChat;
 
 	private slots:
-		void RemoveMessage(int messageId);
+		void RemoveMessage(size_t messageId);
 	};
 }

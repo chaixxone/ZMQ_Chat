@@ -21,6 +21,14 @@ public:
 	void Subscribe(std::shared_ptr<IClientMessageSubject> client);
 
 signals:
+	void Register(const MessageView& message);
+
+	void Authorize(const MessageView& message);
+
+	void AlreadyAuthorized(const MessageView& message);
+
+	void NotAuthorized(const MessageView& message);
+
 	void IncomingMessage(const MessageView& message);
 
 	void CreateChat(const MessageView& message);

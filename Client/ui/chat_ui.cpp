@@ -12,16 +12,144 @@ using namespace UI;
 ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver> observer, QWidget* parent) :
 	QMainWindow(parent), 
 	_pages(new QStackedWidget(this)), 
+	_registerPage(new QWidget),
 	_loginPage(new QWidget), 
 	_mainPage(new QWidget),
 	_client(client),
 	_messageObserver(observer)
-{
+{	
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
+	_pages->addWidget(_registerPage);
 	// TODO: remove current index setting
-	_pages->setCurrentIndex(1);
+	_pages->setCurrentIndex(0);
 	setCentralWidget(_pages);
+
+	constexpr int lineEditsMaxWidth = 300;
+
+	// register page
+	auto registerLoginLineEdit = new QLineEdit;
+	registerLoginLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerLoginLineEdit->setPlaceholderText("Enter login");	
+
+	auto registerPasswordLineEdit = new QLineEdit;
+	registerPasswordLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerPasswordLineEdit->setPlaceholderText("Enter password");
+	registerPasswordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
+
+	auto registerPasswordRepeatLineEdit = new QLineEdit;
+	registerPasswordRepeatLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerPasswordRepeatLineEdit->setPlaceholderText("Repeat password");
+	registerPasswordRepeatLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
+
+	auto vRegisterLayout = new QVBoxLayout;
+	vRegisterLayout->addWidget(registerLoginLineEdit, 0);
+	vRegisterLayout->addWidget(registerPasswordLineEdit, 0);
+	vRegisterLayout->addWidget(registerPasswordRepeatLineEdit, 0);
+	vRegisterLayout->setAlignment(Qt::AlignCenter);
+	_registerPage->setLayout(vRegisterLayout);
+
+	auto parseDataFromRegisterInput = [this, registerLoginLineEdit, registerPasswordLineEdit, registerPasswordRepeatLineEdit]() {
+		QString login = registerLoginLineEdit->text().trimmed();
+		QString password = registerPasswordLineEdit->text().trimmed();
+		QString passwordRepeat = registerPasswordRepeatLineEdit->text().trimmed();
+
+		if (!login.isEmpty() && !password.isEmpty() && !passwordRepeat.isEmpty())
+		{
+			_client->RequestRegister(login.toStdString(), password.toStdString(), passwordRepeat.toStdString());
+		}
+	};
+
+	connect(registerLoginLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
+	connect(registerPasswordLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
+	connect(registerPasswordRepeatLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
+
+	connect(_messageObserver.get(), &QtMessageObserver::Register, this, [this](const MessageView& message) {
+		json registerStatus = json::parse(message.Content);
+		bool isRegistered = registerStatus["is_registered"].get<bool>();
+
+		// TODO take login and password and paste them into login page inputs
+
+		int nextPageIndex = isRegistered ? 0 : 2; // 2 - register page | 0 - login page
+
+		_pages->setCurrentIndex(nextPageIndex);
+
+		std::string registerStatusMessage = registerStatus["message"].get<std::string>();
+		auto registerStatusMessageBox = new QMessageBox(this);
+		registerStatusMessageBox->setWindowTitle("Authorize status");
+		registerStatusMessageBox->setText(QString::fromStdString(registerStatusMessage));
+		// TODO: position message box on top of the window
+		registerStatusMessageBox->show();
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, registerStatusMessageBox, [registerStatusMessageBox]() {
+			registerStatusMessageBox->close();
+			registerStatusMessageBox->deleteLater();
+		});
+	});
+	// ------------------------------------------------
+
+	// login page
+
+	auto loginLineEdit = new QLineEdit;
+	loginLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	loginLineEdit->setPlaceholderText("Enter login");
+
+	auto passwordLineEdit = new QLineEdit;
+	passwordLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	passwordLineEdit->setPlaceholderText("Enter password");
+	passwordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
+
+	auto toRegisterButton = new QPushButton("Register");
+
+	auto vLoginLayout = new QVBoxLayout;
+	vLoginLayout->addWidget(loginLineEdit, 0);
+	vLoginLayout->addWidget(passwordLineEdit, 0);
+	vLoginLayout->addWidget(toRegisterButton);
+	vLoginLayout->setAlignment(Qt::AlignCenter);
+	_loginPage->setLayout(vLoginLayout);
+
+	auto parseDataFromInput = [this, loginLineEdit, passwordLineEdit]() {
+		QString login = loginLineEdit->text().trimmed();
+		QString password = passwordLineEdit->text().trimmed();
+
+		if (!login.isEmpty() && !password.isEmpty())
+		{
+			_client->RequestAuthorize(login.toStdString(), password.toStdString());
+		}
+	};
+
+	connect(loginLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
+	connect(passwordLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
+
+	connect(_messageObserver.get(), &QtMessageObserver::Authorize, this, [this](const MessageView& message) {
+		json authorizeStatus = json::parse(message.Content);
+
+		bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
+		int nextPageIndex = isAuthorized ? 1 : 0; // 1 - main page | 0 - login page
+		_pages->setCurrentIndex(nextPageIndex);
+		
+		std::string authorizeStatusMessage = authorizeStatus["message"].get<std::string>();		
+		auto authorizeStatusMessageBox = new QMessageBox(this);
+		authorizeStatusMessageBox->setWindowTitle("Authorize status");
+		authorizeStatusMessageBox->setText(QString::fromStdString(authorizeStatusMessage));
+		// TODO: position message box on top of the window
+		authorizeStatusMessageBox->show();
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, authorizeStatusMessageBox, [authorizeStatusMessageBox]() {
+			authorizeStatusMessageBox->close();
+			authorizeStatusMessageBox->deleteLater();
+		});
+	});
+
+	connect(toRegisterButton, &QPushButton::clicked, _pages, [this]() {
+		_pages->setCurrentIndex(2); // switch page to register
+	});
+
+	connect(_messageObserver.get(), &QtMessageObserver::AlreadyAuthorized, _pages, [this]() {
+		_pages->setCurrentIndex(1); // skip authorize because session is valid
+	});
 
 	// -----------------------------------
 	// left side panel widgets
