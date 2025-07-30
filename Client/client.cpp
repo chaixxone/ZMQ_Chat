@@ -136,11 +136,6 @@ void Client::UpdateSessionID(const std::string sessionID, const std::string& pat
     json configFileJson = json::parse(configFile);
     configFile.close();
 
-    if (!configFileJson.contains("session_id") || configFileJson["session_id"].is_null())
-    {
-        return;
-    }
-
     configFileJson["session_id"] = sessionID;
 
     configFile.open(pathToConfig, std::ios::out);
