@@ -57,9 +57,15 @@ auto CreateDatabaseConnection(std::string host, std::string user, std::string pa
 	return false;
 }
 
-[[nodiscard]] bool DatabaseConnection::AuthorizeUser(const std::string& identity, const std::string& password) const
+[[nodiscard]] std::string DatabaseConnection::AuthorizeUser(const std::string& identity, const std::string& password) const
 {
-	return DoesUserExist(identity) && IsPasswordValid(identity, password);
+	if (DoesUserExist(identity) && IsPasswordValid(identity, password))
+	{
+		std::string sessionID = CreateSession(identity);
+		return sessionID;
+	}
+
+	return "";
 }
 
 bool DatabaseConnection::DoesUserExist(const std::string& identity) const
