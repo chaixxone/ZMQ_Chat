@@ -155,7 +155,7 @@ std::string DatabaseConnection::GetPasswordHash(const std::string& userLogin) co
 {
 	auto query = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
-			"SELECT password_hash FROM users WHERE login=?"
+			"SELECT password_hash FROM users WHERE identity = ?"
 		)
 	);
 	query->setString(1, userLogin);
