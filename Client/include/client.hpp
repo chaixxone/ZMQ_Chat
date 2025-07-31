@@ -21,7 +21,7 @@ public:
     void RequestToCreateChat(const std::string& clients) override;
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
-    void ReplyChatInvite(int chatId, bool isAccepted);
+    void ReplyChatInvite(int chatId, int notificationID, bool isAccepted);
     void RequestChangeIdentity(const std::string& desiredIdentity);
     std::optional<MessageView> TryGetMessage() override;
     int GetChatId() const noexcept;

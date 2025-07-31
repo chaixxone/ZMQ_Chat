@@ -331,7 +331,7 @@ void Client::ReceiveMessage()
     }
 }
 
-void Client::ReplyChatInvite(int chatId, bool isAccepted)
+void Client::ReplyChatInvite(int chatId, int notificationID, bool isAccepted)
 {
     std::string replyPendingChatIDstr = std::to_string(chatId);
 
