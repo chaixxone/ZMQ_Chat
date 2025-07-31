@@ -234,3 +234,18 @@ std::unordered_set<std::string> DatabaseConnection::GetChatClients(int chatId)
 
 	return chatClients;
 }
+
+int DatabaseConnection::CreateChat()
+{
+	auto createChatStatement = std::unique_ptr<sql::Statement>(
+		_connection->createStatement()
+	);
+	std::unique_ptr<sql::ResultSet> createdChatResult{ createChatStatement->executeQuery("INSERT INTO chats VALUES ()") };
+
+	if (createdChatResult->next())
+	{
+		return createdChatResult->getInt("id");
+	}
+
+	return -1;
+}

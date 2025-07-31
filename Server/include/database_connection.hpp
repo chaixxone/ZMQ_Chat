@@ -30,6 +30,8 @@ public:
 	int DeleteSession(const std::string& identity, const std::string& deviceID, const std::string& sessionID) const;
 	std::unordered_set<std::string> GetChatClients(int chatId);
 
+	int CreateChat();
+
 private:
 	sql::Driver* _driver;
 	std::unique_ptr<sql::Connection> _connection;
