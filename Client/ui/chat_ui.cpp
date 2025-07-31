@@ -10,6 +10,13 @@ using json = nlohmann::json;
 
 using namespace UI;
 
+enum Pages
+{
+	LoginPage    = 0,
+	MainPage     = 1,
+	RegisterPage = 2
+};
+
 ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver> observer, QWidget* parent) :
 	QMainWindow(parent), 
 	_pages(new QStackedWidget(this)), 
@@ -46,7 +53,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 	auto toLoginButton = new QPushButton("Login", _registerPage);
 	connect(toLoginButton, &QPushButton::clicked, _pages, [this]() {
-		_pages->setCurrentIndex(0); // return to login page from register page
+		_pages->setCurrentIndex(Pages::LoginPage);
 	});
 
 	auto vRegisterLayout = new QVBoxLayout;
@@ -79,7 +86,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 		// TODO take login and password and paste them into login page inputs
 
-		int nextPageIndex = isRegistered ? 0 : 2; // 2 - register page | 0 - login page
+		int nextPageIndex = isRegistered ? Pages::LoginPage : Pages::RegisterPage;
 
 		_pages->setCurrentIndex(nextPageIndex);
 
@@ -135,7 +142,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		json authorizeStatus = json::parse(message.Content);
 
 		bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
-		int nextPageIndex = isAuthorized ? 1 : 0; // 1 - main page | 0 - login page
+		int nextPageIndex = isAuthorized ? Pages::MainPage : Pages::LoginPage;
 		_pages->setCurrentIndex(nextPageIndex);
 		
 		std::string authorizeStatusMessage = authorizeStatus["message"].get<std::string>();		
