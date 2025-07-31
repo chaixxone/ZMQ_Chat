@@ -296,17 +296,7 @@ void Server::HandleAllChatsInfoRequest(const std::string& clientId)
 
 void Server::HandleClientChatsInfoRequest(const std::string& clientId)
 {
-    std::vector<std::string> clientChatsIdVector;
-
-    // BAD, yet temporary solution!
-    for (const auto& chat : _activeChats)
-    {
-        if (chat.second.find(clientId) != chat.second.end())
-        {
-            clientChatsIdVector.push_back(std::to_string(chat.first));
-        }
-    }
-
+    std::vector<int> clientChatsIdVector = _databaseConnection->GetClientChats(clientId);
     json clientChatsJson;
     clientChatsJson = clientChatsIdVector;
     MessageDispatch(Utils::Action::ClientChats, clientChatsJson.dump(), clientId);
