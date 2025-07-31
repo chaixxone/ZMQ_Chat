@@ -32,6 +32,15 @@ public:
 
 	int CreateChat();
 	void AddClientToChat(const std::string& identity, int chatId) const;
+	// returns notification id
+	int AddNotification(
+		const std::string& sender, 
+		const std::string& receiver, 
+		const std::string& notificationType, 
+		const std::string& content, 
+		int chatId = -1
+	);
+	void SetNotificationChecked(int notificationID) const;
 
 private:
 	sql::Driver* _driver;

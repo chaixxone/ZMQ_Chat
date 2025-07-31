@@ -261,3 +261,43 @@ void DatabaseConnection::AddClientToChat(const std::string& identity, int chatId
 	insertUserChatsStatement->setString(2, identity);
 	insertUserChatsStatement->execute();
 }
+
+int DatabaseConnection::AddNotification(
+	const std::string& sender,
+	const std::string& receiver,
+	const std::string& notificationType,
+	const std::string& content,
+	int chatId
+)
+{
+	auto insertNotification = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"INSERT INTO notifications (sender_identity, receiver_identity, notification_type, content, chat_id, receiver_checked) "
+			"VALUES (?, ?, ?, ?, ?, FALSE)"
+		)
+	);
+	insertNotification->setString(1, sender);
+	insertNotification->setString(2, receiver);
+	insertNotification->setString(3, notificationType);
+	insertNotification->setString(4, content);
+	insertNotification->setInt(5, chatId);
+	std::unique_ptr<sql::ResultSet> insertResult{ insertNotification->executeQuery() };
+
+	if (insertResult->next())
+	{
+		return insertResult->getInt("id");
+	}
+
+	return -1;
+}
+
+void DatabaseConnection::SetNotificationChecked(int notificationID) const
+{
+	auto updateNotificationStatement = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"UPDATE notifications SET receiver_checked = TRUE WHERE id = ?"
+		)
+	);
+	updateNotificationStatement->setInt(1, notificationID);
+	updateNotificationStatement->execute();
+}
