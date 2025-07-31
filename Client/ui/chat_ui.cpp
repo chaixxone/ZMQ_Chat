@@ -44,11 +44,18 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	registerPasswordRepeatLineEdit->setPlaceholderText("Repeat password");
 	registerPasswordRepeatLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
+	auto toLoginButton = new QPushButton("Login", _registerPage);
+	connect(toLoginButton, &QPushButton::clicked, _pages, [this]() {
+		_pages->setCurrentIndex(0); // return to login page from register page
+	});
+
 	auto vRegisterLayout = new QVBoxLayout;
-	vRegisterLayout->addWidget(registerLoginLineEdit, 0);
-	vRegisterLayout->addWidget(registerPasswordLineEdit, 0);
-	vRegisterLayout->addWidget(registerPasswordRepeatLineEdit, 0);
-	vRegisterLayout->setAlignment(Qt::AlignCenter);
+	vRegisterLayout->addStretch(0);
+	vRegisterLayout->addWidget(registerLoginLineEdit, 0, Qt::AlignCenter);
+	vRegisterLayout->addWidget(registerPasswordLineEdit, 0, Qt::AlignCenter);
+	vRegisterLayout->addWidget(registerPasswordRepeatLineEdit, 0, Qt::AlignCenter);
+	vRegisterLayout->addStretch(0);
+	vRegisterLayout->addWidget(toLoginButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 	_registerPage->setLayout(vRegisterLayout);
 
 	auto parseDataFromRegisterInput = [this, registerLoginLineEdit, registerPasswordLineEdit, registerPasswordRepeatLineEdit]() {
