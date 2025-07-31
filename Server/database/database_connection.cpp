@@ -200,7 +200,7 @@ size_t DatabaseConnection::StoreMessage(int chatId, const std::string& messageCo
 	lastMessageQuery->setInt(1, chatId);
 	std::unique_ptr<sql::ResultSet> lastMessageResult{ lastMessageQuery->executeQuery() };
 
-	size_t lastMessageID = lastMessageResult->next() ? lastMessageResult->getUInt64("id") + 1 : 0;
+	size_t lastMessageID = lastMessageResult->next() ? lastMessageResult->getUInt64("MAX(id)") + 1 : 0;
 
 	auto insertMessageStatement = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
