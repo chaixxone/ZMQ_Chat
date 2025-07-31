@@ -333,15 +333,15 @@ void Client::ReceiveMessage()
 
 void Client::ReplyChatInvite(int chatId, int notificationID, bool isAccepted)
 {
-    std::string replyPendingChatIDstr = std::to_string(chatId);
+    json inviteReplyClientData = { { "notification_id", notificationID }, { "invite_chat_id", chatId } };
 
     if (isAccepted)
     {
-        SendRequest(replyPendingChatIDstr, Utils::Action::AcceptCreateChat, -1);
+        SendRequest(inviteReplyClientData.dump(), Utils::Action::AcceptCreateChat, -1);
     }
     else
     {
-        SendRequest(replyPendingChatIDstr, Utils::Action::DeclineCreateChat, -1);
+        SendRequest(inviteReplyClientData.dump(), Utils::Action::DeclineCreateChat, -1);
     }
 
     _hasRequestToChat = false;
