@@ -237,15 +237,15 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
 
 void Server::PrepareNewChatSession(const std::string& clientId, const std::string& dataStr)
 {
-    static int chatIdCounter = 0;
     std::unordered_set<std::string> clients = ParseClients(dataStr, clientId);
 
     std::cout << "[Server] Client " << clientId << " asked to create a chat with " << dataStr << '\n';
+    
+    int chatId = _databaseConnection->CreateChat();
+    AskClients(chatId, clientId, clients);
+    _databaseConnection->AddClientToChat(clientId, chatId);
 
-    AskClients(chatIdCounter, clientId, clients);
-    _activeChats[chatIdCounter].insert(clientId);
-    MessageDispatch(Utils::Action::NewChat, std::to_string(chatIdCounter), clientId);
-    chatIdCounter++;
+    MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
 }
 
 void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
