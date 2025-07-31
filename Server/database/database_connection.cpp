@@ -131,6 +131,22 @@ std::string DatabaseConnection::CreateSession(const std::string& identity, const
 	return hexSessionIdBuffer;
 }
 
+int DatabaseConnection::DeleteSession(const std::string& identity, const std::string& deviceID, const std::string& sessionID) const
+{
+	auto deleteSessionStatement = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"DELETE FROM sessions WHERE user_identity = ? AND session_id = ? AND device_id = ?"
+		)
+	);
+
+	deleteSessionStatement->setString(1, identity);
+	deleteSessionStatement->setString(2, sessionID);
+	deleteSessionStatement->setString(3, deviceID);
+	int deletedRowCount = deleteSessionStatement->executeUpdate();
+
+	return deletedRowCount;
+}
+
 std::string DatabaseConnection::HashPassword(const std::string& password) const
 {
 	char hash[crypto_pwhash_STRBYTES];
