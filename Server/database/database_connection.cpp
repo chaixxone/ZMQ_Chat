@@ -240,11 +240,18 @@ int DatabaseConnection::CreateChat()
 	auto createChatStatement = std::unique_ptr<sql::Statement>(
 		_connection->createStatement()
 	);
-	std::unique_ptr<sql::ResultSet> createdChatResult{ createChatStatement->executeQuery("INSERT INTO chats VALUES ()") };
+	createChatStatement->execute("INSERT INTO chats VALUES ()");
 
-	if (createdChatResult->next())
+	auto lastChatIDQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"SELECT id FROM chats ORDER BY created_at DESC LIMIT 1"
+		)
+	);
+	std::unique_ptr<sql::ResultSet> lastChatIDResult{ lastChatIDQuery->executeQuery() };
+
+	if (lastChatIDResult->next())
 	{
-		return createdChatResult->getInt("id");
+		return lastChatIDResult->getInt("id");
 	}
 
 	return -1;
