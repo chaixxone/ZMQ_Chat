@@ -384,16 +384,7 @@ void Server::MessageDispatch(
 
 void Server::HandleGetClientsByName(const std::string& clientId, const std::string& name)
 {
-    std::vector<std::string> suggestedClientNames;
-
-    for (const auto& identifier : _clients)
-    {
-        if (identifier.contains(name))
-        {
-            suggestedClientNames.push_back(identifier);
-        }
-    }
-
+    std::vector<std::string> suggestedClientNames = _databaseConnection->GetClientsRegexp(clientId, name);
     json clientNamesData = suggestedClientNames;
     MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), clientId);
 }
