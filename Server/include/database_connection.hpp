@@ -29,6 +29,7 @@ public:
 	// returns deleted session count - useful for logging
 	int DeleteSession(const std::string& identity, const std::string& deviceID, const std::string& sessionID) const;
 	std::unordered_set<std::string> GetChatClients(int chatId);
+	std::vector<int> GetClientChats(const std::string& identity);
 
 	int CreateChat();
 	void AddClientToChat(const std::string& identity, int chatId) const;

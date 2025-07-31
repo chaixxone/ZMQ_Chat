@@ -301,3 +301,21 @@ void DatabaseConnection::SetNotificationChecked(int notificationID) const
 	updateNotificationStatement->setInt(1, notificationID);
 	updateNotificationStatement->execute();
 }
+
+std::vector<int> DatabaseConnection::GetClientChats(const std::string& identity)
+{
+	auto clientChatsQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement("SELECT chat_id FROM user_chats WHERE user_identity = ?")
+	);
+	clientChatsQuery->setString(1, identity);
+	std::unique_ptr<sql::ResultSet> clientChatsResult{ clientChatsQuery->executeQuery() };
+
+	std::vector<int> clientChats;
+
+	while (clientChatsResult->next())
+	{
+		clientChats.push_back(clientChatsResult->getInt("chat_id"));
+	}
+
+	return clientChats;
+}
