@@ -317,14 +317,14 @@ std::unordered_set<std::string> Server::ParseClients(const std::string& clients,
     return clientSet;
 }
 
-void Server::AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients)
+void Server::AskClients(int pendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients)
 {
     for (const auto& client : clients)
     {
         if (_databaseConnection->DoesUserExist(client))
         {
             std::string notificationType = Utils::actionToString(Utils::Action::CreateChat);
-            int notificationID = _databaseConnection->AddNotification(creator, client, notificationType, creator, PendingInvitesChatId);
+            int notificationID = _databaseConnection->AddNotification(creator, client, notificationType, creator, pendingInvitesChatId);
             json inviteData = { { "notification_id", notificationID }, { "content", creator } };
             MessageDispatch(Utils::Action::CreateChat, inviteData.dump(), client);
         }

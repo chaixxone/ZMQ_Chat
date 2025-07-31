@@ -14,7 +14,7 @@ public:
     void Run();
 
 private:
-    void AskClients(int PendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients);
+    void AskClients(int pendingInvitesChatId, const std::string& creator, const std::unordered_set<std::string>& clients);
     void MessageDispatch(
         Utils::Action action,
         const std::string& message,
