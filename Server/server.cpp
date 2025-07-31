@@ -250,23 +250,33 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
 
 void Server::HandleResponseForInvite(const std::string& clientId, const std::string& dataStr, bool isAccepted)
 {
-    int chatId = std::stoi(dataStr);
+    int notificationID = -1;
+    int chatId = -1;
 
-    if (_pendingChatInvites.find(chatId) != _pendingChatInvites.end())
+    try
     {
-        _pendingChatInvites[chatId].erase(clientId);
+        json clientData = json::parse(dataStr);
+        notificationID = clientData["notification_id"].get<int>();
+        chatId = clientData["invite_chat_id"].get<int>();
+    }
+    catch (const json::exception& e)
+    {
+        std::cerr << "[Server] JSON parsing failed at handling response for invite: " << e.what() << '\n';
+        return;
+    }
 
-        if (!isAccepted)
-        {
-            std::cout << "[Server] Client " << clientId << " declined chat invitation.\n";
-            return;
-        }
-
-        _activeChats[chatId].insert(clientId);
+    if (isAccepted)
+    {
+        _databaseConnection->AddClientToChat(clientId, chatId);
         std::cout << "[Server] Client " << clientId << " accepted chat invitation.\n";
-
         MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
     }
+    else
+    {
+        std::cout << "[Server] Client " << clientId << " declined chat invitation.\n";
+    }
+
+    _databaseConnection->SetNotificationChecked(notificationID);
 }
 
 void Server::HandleAllChatsInfoRequest(const std::string& clientId)
