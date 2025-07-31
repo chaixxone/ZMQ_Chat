@@ -3,11 +3,19 @@
 #include <chat_text_frame.hpp>
 #include <chat_text_line.hpp>
 #include <popup_signal_emitting_q_combo_box.hpp>
+#include <chat_invite.hpp>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
 using namespace UI;
+
+enum Pages
+{
+	LoginPage    = 0,
+	MainPage     = 1,
+	RegisterPage = 2
+};
 
 ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver> observer, QWidget* parent) :
 	QMainWindow(parent), 
@@ -15,6 +23,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	_registerPage(new QWidget),
 	_loginPage(new QWidget), 
 	_mainPage(new QWidget),
+	_noticeBox(new NoticeBox("Notices")),
 	_client(client),
 	_messageObserver(observer)
 {	
@@ -42,11 +51,18 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	registerPasswordRepeatLineEdit->setPlaceholderText("Repeat password");
 	registerPasswordRepeatLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
+	auto toLoginButton = new QPushButton("Login", _registerPage);
+	connect(toLoginButton, &QPushButton::clicked, _pages, [this]() {
+		_pages->setCurrentIndex(Pages::LoginPage);
+	});
+
 	auto vRegisterLayout = new QVBoxLayout;
-	vRegisterLayout->addWidget(registerLoginLineEdit, 0);
-	vRegisterLayout->addWidget(registerPasswordLineEdit, 0);
-	vRegisterLayout->addWidget(registerPasswordRepeatLineEdit, 0);
-	vRegisterLayout->setAlignment(Qt::AlignCenter);
+	vRegisterLayout->addStretch(0);
+	vRegisterLayout->addWidget(registerLoginLineEdit, 0, Qt::AlignCenter);
+	vRegisterLayout->addWidget(registerPasswordLineEdit, 0, Qt::AlignCenter);
+	vRegisterLayout->addWidget(registerPasswordRepeatLineEdit, 0, Qt::AlignCenter);
+	vRegisterLayout->addStretch(0);
+	vRegisterLayout->addWidget(toLoginButton, 0, Qt::AlignBottom | Qt::AlignLeft);
 	_registerPage->setLayout(vRegisterLayout);
 
 	auto parseDataFromRegisterInput = [this, registerLoginLineEdit, registerPasswordLineEdit, registerPasswordRepeatLineEdit]() {
@@ -70,7 +86,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 		// TODO take login and password and paste them into login page inputs
 
-		int nextPageIndex = isRegistered ? 0 : 2; // 2 - register page | 0 - login page
+		int nextPageIndex = isRegistered ? Pages::LoginPage : Pages::RegisterPage;
 
 		_pages->setCurrentIndex(nextPageIndex);
 
@@ -126,7 +142,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		json authorizeStatus = json::parse(message.Content);
 
 		bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
-		int nextPageIndex = isAuthorized ? 1 : 0; // 1 - main page | 0 - login page
+		int nextPageIndex = isAuthorized ? Pages::MainPage : Pages::LoginPage;
 		_pages->setCurrentIndex(nextPageIndex);
 		
 		std::string authorizeStatusMessage = authorizeStatus["message"].get<std::string>();		
@@ -171,6 +187,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vSidePanelLayout->addWidget(chatIdComboBox);
 	vSidePanelLayout->addWidget(new QLabel("Your chats"));
 	vSidePanelLayout->addWidget(userChatIdComboBox);
+	vSidePanelLayout->addWidget(_noticeBox);
 	vSidePanelLayout->addWidget(createChatPushButton);
 	vSidePanelLayout->addStretch(0);
 	// main space
@@ -295,6 +312,13 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(createChatHelperWindow, &HelperWindow::ConfirmClicked, createChatHelperWindow, [this, createChatHelperWindow]() {
 		_client->RequestToCreateChat(createChatHelperWindow->GetChosenClientsString());
 		createChatHelperWindow->hide();
+	});
+
+	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
+		_noticeBox->ProcessNotification(messageView);
+	});
+	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int chatId, bool isAccepted) {
+		_client->ReplyChatInvite(chatId, isAccepted);
 	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
