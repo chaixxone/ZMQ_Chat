@@ -94,6 +94,11 @@ void Client::RequestAuthorize(const std::string& identity, const std::string& pa
     SendRequest(clientData.dump(), Utils::Action::Authorize, -1);
 }
 
+void Client::RequestLogout()
+{
+    SendRequest("", Utils::Action::Logout, -1);
+}
+
 void Client::RequestChangeIdentity(const std::string& desiredIdentity)
 {    
     SendRequest(desiredIdentity, Utils::Action::ChangeName, -1);

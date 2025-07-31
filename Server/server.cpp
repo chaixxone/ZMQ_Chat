@@ -55,6 +55,8 @@ void Server::Run()
             case Utils::Action::Authorize:
                 HandleAuthorize(clientId, dataStr, deviceIDStr);
                 break;
+            case Utils::Action::Logout:
+                HandleLogout(clientId, sessionIDStr, deviceIDStr);
             default:
                 break;
             }

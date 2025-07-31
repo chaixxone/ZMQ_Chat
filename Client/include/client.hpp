@@ -17,6 +17,7 @@ public:
     ~Client();
     void RequestRegister(const std::string identity, const std::string& password, const std::string& passwordRepeat);
     void RequestAuthorize(const std::string& identity, const std::string& password);
+    void RequestLogout();
     void RequestToCreateChat(const std::string& clients) override;
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
     bool HasRequestToChat() const;
