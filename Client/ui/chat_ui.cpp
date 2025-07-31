@@ -258,7 +258,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 			for (const auto& chatIdJsonValue : jsonMessageData)
 			{
-				QString chatIdStr = QString::fromStdString(chatIdJsonValue.get<std::string>());
+				QString chatIdStr = QString::number(chatIdJsonValue.get<int>());
 
 				if (userChatIdComboBox->findText(chatIdStr) == -1)
 				{
