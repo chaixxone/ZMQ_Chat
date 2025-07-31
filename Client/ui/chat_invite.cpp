@@ -1,15 +1,19 @@
 #include "chat_invite.hpp"
 #include <QLabel>
+#include <nlohmann/json.hpp>
 
 using namespace UI;
 
 Q_DECLARE_METATYPE(ChatInviteData*);
 
 ChatInvite::ChatInvite(const MessageView& messageView, QWidget* parent) :
-	INotifiable(parent),
-	_author(QString::fromStdString(messageView.Author)),
-	_chatId(messageView.ChatID)
+	INotifiable(parent)
 {
+	nlohmann::json inviteData = nlohmann::json::parse(messageView.Content);
+	_author = QString::fromStdString(inviteData["author"].get<std::string>());
+	_chatId = inviteData["invite_chat_id"].get<int>();
+	_notificationID = inviteData["notification_id"].get<int>();
+
 	auto label = new QLabel("chat invite", this);
 }
 
@@ -30,11 +34,11 @@ void ChatInvite::OnClick()
 
 		if (pressedButtonRole == QMessageBox::ButtonRole::YesRole)
 		{
-			emit NotificationProcessed(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, true }));
+			emit NotificationProcessed(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _notificationID, _chatId, true }));
 		}
 		else if (pressedButtonRole == QMessageBox::ButtonRole::NoRole)
 		{
-			emit NotificationProcessed(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _chatId, false }));
+			emit NotificationProcessed(Notifications::ChatInvite, QVariant::fromValue(ChatInviteData{ _notificationID, _chatId, false }));
 		}
 
 		emit NotificationWatched(Notifications::ChatInvite);

@@ -11,6 +11,7 @@ namespace UI
 {
 	struct ChatInviteData
 	{
+		int NotificationID;
 		int ChatId;
 		bool IsAccepted;
 	};
@@ -25,5 +26,6 @@ namespace UI
 	private:
 		QString _author;
 		int _chatId;
+		int _notificationID;
 	};
 }
