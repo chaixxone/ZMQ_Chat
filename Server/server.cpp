@@ -79,10 +79,10 @@ void Server::Run()
                 PrepareNewChatSession(clientId, dataStr);
                 break;
             case Utils::Action::AcceptCreateChat:
-                HandleResponseForInvite(identity, clientId, dataStr, true);
+                HandleResponseForInvite(clientId, dataStr, true);
                 break;
             case Utils::Action::DeclineCreateChat:
-                HandleResponseForInvite(identity, clientId, dataStr, false);
+                HandleResponseForInvite(clientId, dataStr, false);
                 break;
             case Utils::Action::AllChats:
                 HandleAllChatsInfoRequest(clientId);
@@ -248,7 +248,7 @@ void Server::PrepareNewChatSession(const std::string& clientId, const std::strin
     MessageDispatch(Utils::Action::NewChat, std::to_string(chatId), clientId);
 }
 
-void Server::HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted)
+void Server::HandleResponseForInvite(const std::string& clientId, const std::string& dataStr, bool isAccepted)
 {
     int chatId = std::stoi(dataStr);
 

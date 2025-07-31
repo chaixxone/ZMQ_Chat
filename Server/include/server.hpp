@@ -27,7 +27,7 @@ private:
     std::unordered_set<std::string> ParseClients(const std::string& clients, const std::string& creator);
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId);
     void PrepareNewChatSession(const std::string& clientId, const std::string& dataStr);
-    void HandleResponseForInvite(zmq::message_t& identity, const std::string& clientId, const std::string& dataStr, bool isAccepted);
+    void HandleResponseForInvite(const std::string& clientId, const std::string& dataStr, bool isAccepted);
     void HandleConnection(const std::string& generatedClientId, const std::string& clientId, const std::string& deviceID);
     void HandleRegister(const std::string& clientId, const std::string& data);
     void HandleAuthorize(const std::string& clientId, const std::string& dataStr, const std::string deviceID);
