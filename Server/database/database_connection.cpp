@@ -288,7 +288,13 @@ int DatabaseConnection::AddNotification(
 	insertNotification->setString(3, notificationType);
 	insertNotification->setString(4, content);
 	insertNotification->setInt(5, chatId);
-	std::unique_ptr<sql::ResultSet> insertResult{ insertNotification->executeQuery() };
+	insertNotification->execute();
+
+	std::unique_ptr<sql::Statement> lastInsertedNotificationQuery{ _connection->createStatement() };	
+
+	auto insertResult = std::unique_ptr<sql::ResultSet>(
+		lastInsertedNotificationQuery->executeQuery("SELECT id FROM notifications ORDER BY created_at DESC LIMIT 1")
+	);
 
 	if (insertResult->next())
 	{
