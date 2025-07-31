@@ -335,6 +335,11 @@ std::vector<int> DatabaseConnection::GetClientChats(const std::string& identity)
 
 std::vector<std::string> DatabaseConnection::GetClientsRegexp(const std::string& identity, const std::string& clientExpression)
 {
+	if (clientExpression.empty())
+	{
+		return {};
+	}
+
 	auto clientRegexpStatement = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
 			"SELECT identity FROM users WHERE identity REGEXP ? AND identity <> ?"
