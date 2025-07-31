@@ -213,6 +213,12 @@ void Server::HandleAuthorize(const std::string& clientId, const std::string& dat
     MessageDispatch(Utils::Action::NewClientName, login, clientId);
 }
 
+void Server::HandleLogout(const std::string& clientId, const std::string& sessionId, const std::string& deviceID)
+{
+    _databaseConnection->DeleteSession(clientId, deviceID, sessionId);
+    MessageDispatch(Utils::Action::NotAuthorized, "logged out", clientId);
+}
+
 void Server::HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId)
 {
     if (chatId == -1)
