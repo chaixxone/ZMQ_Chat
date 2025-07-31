@@ -40,6 +40,7 @@ public:
 		const std::string& content, 
 		int chatId = -1
 	);
+	void SetNotificationChecked(int notificationID) const;
 
 private:
 	sql::Driver* _driver;

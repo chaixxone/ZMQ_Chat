@@ -290,3 +290,14 @@ int DatabaseConnection::AddNotification(
 
 	return -1;
 }
+
+void DatabaseConnection::SetNotificationChecked(int notificationID) const
+{
+	auto updateNotificationStatement = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"UPDATE notifications SET receiver_checked = TRUE WHERE id = ?"
+		)
+	);
+	updateNotificationStatement->setInt(1, notificationID);
+	updateNotificationStatement->execute();
+}
