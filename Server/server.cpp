@@ -325,7 +325,7 @@ void Server::AskClients(int pendingInvitesChatId, const std::string& creator, co
         {
             std::string notificationType = Utils::actionToString(Utils::Action::CreateChat);
             int notificationID = _databaseConnection->AddNotification(creator, client, notificationType, creator, pendingInvitesChatId);
-            json inviteData = { { "notification_id", notificationID }, { "content", creator } };
+            json inviteData = { { "notification_id", notificationID }, { "author", creator }, { "invite_chat_id", pendingInvitesChatId } };
             MessageDispatch(Utils::Action::CreateChat, inviteData.dump(), client);
         }
         else
