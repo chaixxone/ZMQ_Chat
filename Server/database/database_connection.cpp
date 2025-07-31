@@ -249,3 +249,15 @@ int DatabaseConnection::CreateChat()
 
 	return -1;
 }
+
+void DatabaseConnection::AddClientToChat(const std::string& identity, int chatId) const
+{
+	auto insertUserChatsStatement = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement(
+			"INSERT INTO user_chats (chat_id, user_identity) VALUES (?, ?)"
+		)
+	);
+	insertUserChatsStatement->setInt(1, chatId);
+	insertUserChatsStatement->setString(2, identity);
+	insertUserChatsStatement->execute();
+}

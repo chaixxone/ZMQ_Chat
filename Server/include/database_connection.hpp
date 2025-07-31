@@ -31,6 +31,7 @@ public:
 	std::unordered_set<std::string> GetChatClients(int chatId);
 
 	int CreateChat();
+	void AddClientToChat(const std::string& identity, int chatId) const;
 
 private:
 	sql::Driver* _driver;
