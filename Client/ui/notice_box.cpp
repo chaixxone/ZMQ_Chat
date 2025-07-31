@@ -94,7 +94,7 @@ void NoticeBox::ProcessNotification(const MessageView& messageView)
 		notice = new ChatInvite(messageView);		
 		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
 			auto inviteData = qvariant_cast<ChatInviteData>(data);
-			emit InvitationProcessed(inviteData.ChatId, inviteData.IsAccepted);
+			emit InvitationProcessed(inviteData.NotificationID, inviteData.ChatId, inviteData.IsAccepted);
 		});
 		break;
 	}

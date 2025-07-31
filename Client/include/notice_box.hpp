@@ -21,7 +21,7 @@ namespace UI
 		void ProcessNotification(const MessageView& messageView);
 
 	signals:
-		void InvitationProcessed(int chatId, bool isAccepted);
+		void InvitationProcessed(int notificationID, int chatId, bool isAccepted);
 
 	private:
 		QListWidget* _notices;

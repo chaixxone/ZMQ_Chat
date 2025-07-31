@@ -317,8 +317,8 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
 		_noticeBox->ProcessNotification(messageView);
 	});
-	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int chatId, bool isAccepted) {
-		_client->ReplyChatInvite(chatId, isAccepted);
+	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int notificationID, int chatId, bool isAccepted) {
+		_client->ReplyChatInvite(chatId, notificationID, isAccepted);
 	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
