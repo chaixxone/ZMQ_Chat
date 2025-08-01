@@ -167,6 +167,27 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		_pages->setCurrentIndex(1); // skip authorize because session is valid
 	});
 
+	connect(_messageObserver.get(), &QtMessageObserver::NotAuthorized, _pages, [this](const MessageView& message) {
+		std::string notAuthorizedMessage = json::parse(message.Content).get<std::string>();
+		_pages->setCurrentIndex(Pages::LoginPage);
+
+		auto messageBox = new QMessageBox(this);
+		messageBox->setWindowTitle("Not authorized");
+		messageBox->setText(QString::fromStdString(notAuthorizedMessage));
+		// TODO: position message box on top of the window
+		messageBox->show();
+		QPoint chatUITopLeft = this->geometry().topLeft();
+		int x = chatUITopLeft.x() + (this->width() - messageBox->width()) / 2;
+		int y = chatUITopLeft.y();
+		messageBox->move(x, y);
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, messageBox, [messageBox]() {
+			messageBox->close();
+			messageBox->deleteLater();
+		});
+	});
+
 	// -----------------------------------
 	// left side panel widgets
 	auto nameLineEdit = new QLineEdit;
