@@ -4,6 +4,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include <nlohmann/json.hpp>
 #ifdef CONTAINER_APP
 #include <mysql_driver.h>
 #include <cppconn/connection.h>
@@ -31,6 +32,7 @@ public:
 	std::unordered_set<std::string> GetChatClients(int chatId);
 	std::vector<int> GetClientChats(const std::string& identity);
 	std::vector<std::string> GetClientsRegexp(const std::string& identity, const std::string& clientExpression);
+	std::vector<nlohmann::json> GetClientNotifications(const std::string& identity);
 
 	int CreateChat();
 	void AddClientToChat(const std::string& identity, int chatId) const;
