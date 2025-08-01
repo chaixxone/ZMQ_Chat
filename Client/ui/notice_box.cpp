@@ -3,6 +3,7 @@
 
 #include <QPropertyAnimation>
 #include <QVBoxLayout>
+#include <QPushButton>
 
 using namespace UI;
 
@@ -38,12 +39,16 @@ NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	QVBoxLayout* mainLayout = new QVBoxLayout;
 	mainLayout->setSpacing(0);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
+
+	auto updateButton = new QPushButton("Update");
+	connect(updateButton, &QPushButton::clicked, this, [this]() { emit FetchAllNotifications(); });
 	
 	QHBoxLayout* mainHLayout = new QHBoxLayout;
 	mainHLayout->setSpacing(0);
 	mainHLayout->setContentsMargins(0, 0, 0, 0);
 	mainHLayout->addWidget(_triangleToolButton, 0, Qt::AlignLeft);
 	mainHLayout->addWidget(_noticeCount, 0, Qt::AlignLeft);
+	mainHLayout->addWidget(updateButton, 0, Qt::AlignRight);
 	mainHLayout->addStretch(0);
 	
 	mainLayout->addLayout(mainHLayout);
