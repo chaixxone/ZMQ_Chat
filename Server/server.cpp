@@ -391,18 +391,10 @@ void Server::HandleGetClientsByName(const std::string& clientId, const std::stri
 
 void Server::HandleClientNotifications(const std::string& clientId)
 {
-    std::vector<int> clientChatInvites;
-
-    for (const auto& [chatId, invitedClients] : _pendingChatInvites)
-    {
-        if (invitedClients.contains(clientId))
-        {
-            clientChatInvites.push_back(chatId);
-        }
-    }
+    std::vector<json> clientNotifications = _databaseConnection->GetClientNotifications(clientId);
 
     json clientInvitesData;
-    clientInvitesData = clientChatInvites;
+    clientInvitesData = clientNotifications;
 
-    MessageDispatch(Utils::Action::Invites, clientInvitesData.dump(), clientId);
+    MessageDispatch(Utils::Action::Notifications, clientInvitesData.dump(), clientId);
 }
