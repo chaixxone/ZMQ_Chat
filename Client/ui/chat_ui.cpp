@@ -167,12 +167,11 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	});
 
 	connect(_messageObserver.get(), &QtMessageObserver::NotAuthorized, _pages, [this](const MessageView& message) {
-		std::string notAuthorizedMessage = json::parse(message.Content).get<std::string>();
 		_pages->setCurrentIndex(Pages::LoginPage);
 
 		auto messageBox = new QMessageBox(this);
 		messageBox->setWindowTitle("Not authorized");
-		messageBox->setText(QString::fromStdString(notAuthorizedMessage));
+		messageBox->setText(QString::fromStdString(message.Content));
 		// TODO: position message box on top of the window
 		messageBox->show();
 		QPoint chatUITopLeft = this->geometry().topLeft();
