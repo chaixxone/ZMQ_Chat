@@ -1,6 +1,5 @@
 #pragma once
 #include <unordered_set>
-#include <unordered_map>
 
 #include <zmq.hpp>
 
@@ -39,9 +38,6 @@ private:
 
     zmq::context_t& _context;
     zmq::socket_t _socket;
-    std::unordered_set<std::string> _clients;
-    std::unordered_map<int, std::unordered_set<std::string>> _activeChats;
-    std::unordered_map<int, std::unordered_set<std::string>> _pendingChatInvites;
     std::unique_ptr<DatabaseConnection> _databaseConnection;
     bool _running;
 };
