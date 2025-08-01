@@ -357,7 +357,7 @@ void Client::GetClientsByName(const std::string& name)
     SendRequest(name, Utils::Action::ClientsByName, -1);
 }
 
-void Client::GetInvites()
+void Client::GetNotifications()
 {
-    SendRequest("", Utils::Action::Invites, -1);
+    SendRequest("", Utils::Action::Notifications, -1);
 }
