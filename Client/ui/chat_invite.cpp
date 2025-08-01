@@ -11,7 +11,7 @@ ChatInvite::ChatInvite(const MessageView& messageView, QWidget* parent) :
 {
 	nlohmann::json inviteData = nlohmann::json::parse(messageView.Content);
 	_author = QString::fromStdString(inviteData["author"].get<std::string>());
-	_chatId = inviteData["invite_chat_id"].get<int>();
+	_chatId = inviteData["chat_id"].get<int>();
 	_notificationID = inviteData["notification_id"].get<int>();
 
 	auto label = new QLabel("chat invite", this);
