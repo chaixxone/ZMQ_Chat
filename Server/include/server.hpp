@@ -31,7 +31,6 @@ private:
     void HandleRegister(const std::string& clientId, const std::string& data);
     void HandleAuthorize(const std::string& clientId, const std::string& dataStr, const std::string deviceID);
     void HandleLogout(const std::string& clientId, const std::string& sessionId, const std::string& deviceID);
-    void HandleAllChatsInfoRequest(const std::string& clientId);
     void HandleClientChatsInfoRequest(const std::string& clientId);
     void HandleGetClientsByName(const std::string& clientId, const std::string& name);
     void HandleClientNotifications(const std::string& clientId);

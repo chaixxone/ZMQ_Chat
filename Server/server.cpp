@@ -90,9 +90,6 @@ void Server::Run()
                 case Utils::Action::DeclineCreateChat:
                     HandleResponseForInvite(clientId, dataStr, false);
                     break;
-                case Utils::Action::AllChats:
-                    HandleAllChatsInfoRequest(clientId);
-                    break;
                 case Utils::Action::ClientChats:
                     HandleClientChatsInfoRequest(clientId);
                     break;
@@ -284,21 +281,6 @@ void Server::HandleResponseForInvite(const std::string& clientId, const std::str
     }
 
     _databaseConnection->SetNotificationChecked(notificationID);
-}
-
-void Server::HandleAllChatsInfoRequest(const std::string& clientId)
-{
-    std::vector<std::string> allChatsIdVector;
-
-    for (const auto& chat : _activeChats)
-    {
-        allChatsIdVector.push_back(std::to_string(chat.first));
-    }
-
-    json allChatsJson;
-    allChatsJson = allChatsIdVector;
-
-    MessageDispatch(Utils::Action::AllChats, allChatsJson.dump(), clientId);
 }
 
 void Server::HandleClientChatsInfoRequest(const std::string& clientId)
