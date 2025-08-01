@@ -389,7 +389,7 @@ void Server::HandleGetClientsByName(const std::string& clientId, const std::stri
     MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), clientId);
 }
 
-void Server::HandleClientPendingInvites(const std::string& clientId)
+void Server::HandleClientNotifications(const std::string& clientId)
 {
     std::vector<int> clientChatInvites;
 
