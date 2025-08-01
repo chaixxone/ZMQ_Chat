@@ -5,6 +5,8 @@
 #include <QScrollArea>
 #include <QToolButton>
 #include <QParallelAnimationGroup>
+#include <nlohmann/json.hpp>
+
 #include <message_view.hpp>
 
 namespace UI
@@ -19,6 +21,7 @@ namespace UI
 		void SetupLayout(QLayout* layout);
 
 		void ProcessNotification(const MessageView& messageView);
+		void ProcessAllNotifications(const MessageView& messageView);
 
 	signals:
 		void InvitationProcessed(int notificationID, int chatId, bool isAccepted);
@@ -32,5 +35,6 @@ namespace UI
 		int _animationDuration = 250;
 
 		void SetNoticeCountLabel();
+		void ProcessNotificationIteration(Utils::Action notificationType, const nlohmann::json& notificationPayload);
 	};
 }

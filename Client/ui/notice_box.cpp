@@ -87,11 +87,12 @@ void NoticeBox::SetupLayout(QLayout* layout)
 void NoticeBox::ProcessNotification(const MessageView& messageView)
 {
 	INotifiable* notice = nullptr;
+	nlohmann::json notificationPayload = nlohmann::json::parse(messageView.Content);
 
 	switch (messageView.Action)
 	{
 	case Utils::Action::CreateChat:
-		notice = new ChatInvite(messageView);		
+		notice = new ChatInvite(notificationPayload);
 		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
 			auto inviteData = qvariant_cast<ChatInviteData>(data);
 			emit InvitationProcessed(inviteData.NotificationID, inviteData.ChatId, inviteData.IsAccepted);
@@ -113,6 +114,47 @@ void NoticeBox::ProcessNotification(const MessageView& messageView)
 	}
 
 	// TODO: notify user by a red indicator
+}
+
+void NoticeBox::ProcessNotificationIteration(Utils::Action notificationType, const nlohmann::json& notificationPayload)
+{
+	INotifiable* notice = nullptr;
+
+	switch (notificationType)
+	{
+	case Utils::Action::CreateChat:
+		notice = new ChatInvite(notificationPayload);
+		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
+			auto inviteData = qvariant_cast<ChatInviteData>(data);
+			emit InvitationProcessed(inviteData.NotificationID, inviteData.ChatId, inviteData.IsAccepted);
+		});
+		break;
+	}
+
+	if (notice)
+	{
+		auto item = new QListWidgetItem(_notices);
+		_notices->setItemWidget(item, notice);
+
+		connect(notice, &INotifiable::NotificationWatched, this, [this, item]() {
+			int itemIndex = _notices->indexFromItem(item).row();
+			delete _notices->takeItem(itemIndex);
+			SetNoticeCountLabel(); // Subtrack from notification count
+		});
+	}
+}
+
+void NoticeBox::ProcessAllNotifications(const MessageView& messageView)
+{
+	nlohmann::json notificationsPayload = nlohmann::json::parse(messageView.Content);
+
+	for (const auto& notificationData : notificationsPayload)
+	{
+		Utils::Action notificationType = Utils::stringToAction(notificationData["notification_type"].get<std::string>());
+		ProcessNotificationIteration(notificationType, notificationData);
+	}
+
+	SetNoticeCountLabel();
 }
 
 void NoticeBox::SetNoticeCountLabel()
