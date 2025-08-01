@@ -48,8 +48,8 @@ NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	mainHLayout->setContentsMargins(0, 0, 0, 0);
 	mainHLayout->addWidget(_triangleToolButton, 0, Qt::AlignLeft);
 	mainHLayout->addWidget(_noticeCount, 0, Qt::AlignLeft);
+	mainHLayout->addStretch();
 	mainHLayout->addWidget(updateButton, 0, Qt::AlignRight);
-	mainHLayout->addStretch(0);
 	
 	mainLayout->addLayout(mainHLayout);
 	mainLayout->addWidget(_scrollArea);
