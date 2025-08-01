@@ -30,8 +30,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
 	_pages->addWidget(_registerPage);
-	// TODO: remove current index setting
-	_pages->setCurrentIndex(0);
+	_pages->setCurrentIndex(Pages::LoginPage);
 	setCentralWidget(_pages);
 
 	constexpr int lineEditsMaxWidth = 300;
@@ -160,11 +159,11 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	});
 
 	connect(toRegisterButton, &QPushButton::clicked, _pages, [this]() {
-		_pages->setCurrentIndex(2); // switch page to register
+		_pages->setCurrentIndex(Pages::RegisterPage);
 	});
 
 	connect(_messageObserver.get(), &QtMessageObserver::AlreadyAuthorized, _pages, [this]() {
-		_pages->setCurrentIndex(1); // skip authorize because session is valid
+		_pages->setCurrentIndex(Pages::MainPage);
 	});
 
 	connect(_messageObserver.get(), &QtMessageObserver::NotAuthorized, _pages, [this](const MessageView& message) {
