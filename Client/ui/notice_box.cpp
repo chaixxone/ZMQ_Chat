@@ -141,6 +141,8 @@ void NoticeBox::ProcessNotificationIteration(Utils::Action notificationType, con
 
 void NoticeBox::ProcessAllNotifications(const MessageView& messageView)
 {
+	_notices->clear();
+
 	nlohmann::json notificationsPayload = nlohmann::json::parse(messageView.Content);
 
 	for (const auto& notificationData : notificationsPayload)
