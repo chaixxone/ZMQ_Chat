@@ -320,6 +320,12 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int notificationID, int chatId, bool isAccepted) {
 		_client->ReplyChatInvite(chatId, notificationID, isAccepted);
 	});
+	connect(_noticeBox, &NoticeBox::FetchAllNotifications, this, [this]() { 
+		_client->GetNotifications(); 
+	});
+	connect(_messageObserver.get(), &QtMessageObserver::Notifications, _noticeBox, [this](const MessageView& messageView) {
+		_noticeBox->ProcessAllNotifications(messageView);
+	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
 		std::string stdText = text.toStdString();
