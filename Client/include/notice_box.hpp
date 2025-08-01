@@ -5,7 +5,10 @@
 #include <QScrollArea>
 #include <QToolButton>
 #include <QParallelAnimationGroup>
+#include <nlohmann/json.hpp>
+
 #include <message_view.hpp>
+#include <notifiable_interface.hpp>
 
 namespace UI
 {
@@ -19,9 +22,11 @@ namespace UI
 		void SetupLayout(QLayout* layout);
 
 		void ProcessNotification(const MessageView& messageView);
+		void ProcessAllNotifications(const MessageView& messageView);
 
 	signals:
-		void InvitationProcessed(int chatId, bool isAccepted);
+		void FetchAllNotifications();
+		void InvitationProcessed(int notificationID, int chatId, bool isAccepted);
 
 	private:
 		QListWidget* _notices;
@@ -32,5 +37,7 @@ namespace UI
 		int _animationDuration = 250;
 
 		void SetNoticeCountLabel();
+		INotifiable* CreateNotification(Utils::Action notificationType, const nlohmann::json& notificationPayload);
+		void ProcessNotificationIteration(Utils::Action notificationType, const nlohmann::json& notificationPayload);
 	};
 }

@@ -30,8 +30,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	_pages->addWidget(_loginPage);
 	_pages->addWidget(_mainPage);
 	_pages->addWidget(_registerPage);
-	// TODO: remove current index setting
-	_pages->setCurrentIndex(0);
+	_pages->setCurrentIndex(Pages::LoginPage);
 	setCentralWidget(_pages);
 
 	constexpr int lineEditsMaxWidth = 300;
@@ -160,11 +159,31 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	});
 
 	connect(toRegisterButton, &QPushButton::clicked, _pages, [this]() {
-		_pages->setCurrentIndex(2); // switch page to register
+		_pages->setCurrentIndex(Pages::RegisterPage);
 	});
 
 	connect(_messageObserver.get(), &QtMessageObserver::AlreadyAuthorized, _pages, [this]() {
-		_pages->setCurrentIndex(1); // skip authorize because session is valid
+		_pages->setCurrentIndex(Pages::MainPage);
+	});
+
+	connect(_messageObserver.get(), &QtMessageObserver::NotAuthorized, _pages, [this](const MessageView& message) {
+		_pages->setCurrentIndex(Pages::LoginPage);
+
+		auto messageBox = new QMessageBox(this);
+		messageBox->setWindowTitle("Not authorized");
+		messageBox->setText(QString::fromStdString(message.Content));
+		// TODO: position message box on top of the window
+		messageBox->show();
+		QPoint chatUITopLeft = this->geometry().topLeft();
+		int x = chatUITopLeft.x() + (this->width() - messageBox->width()) / 2;
+		int y = chatUITopLeft.y();
+		messageBox->move(x, y);
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, messageBox, [messageBox]() {
+			messageBox->close();
+			messageBox->deleteLater();
+		});
 	});
 
 	// -----------------------------------
@@ -179,6 +198,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
 	createChatHelperWindow->hide();
 
+	auto logutButton = new QPushButton("Logout");
+	connect(logutButton, &QPushButton::clicked, this, [this]() { _client->RequestLogout(); });
+
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
 	vSidePanelLayout->addWidget(new QLabel("All users"));
@@ -189,7 +211,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vSidePanelLayout->addWidget(userChatIdComboBox);
 	vSidePanelLayout->addWidget(_noticeBox);
 	vSidePanelLayout->addWidget(createChatPushButton);
-	vSidePanelLayout->addStretch(0);
+	vSidePanelLayout->addStretch();
+	vSidePanelLayout->addWidget(logutButton, 0, Qt::AlignLeft);
+
 	// main space
 	auto chat = new ChatTextFrame;
 	auto messageTextBar = new ChatTextLine(300, 25);
@@ -258,7 +282,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 			for (const auto& chatIdJsonValue : jsonMessageData)
 			{
-				QString chatIdStr = QString::fromStdString(chatIdJsonValue.get<std::string>());
+				QString chatIdStr = QString::number(chatIdJsonValue.get<int>());
 
 				if (userChatIdComboBox->findText(chatIdStr) == -1)
 				{
@@ -317,8 +341,14 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
 		_noticeBox->ProcessNotification(messageView);
 	});
-	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int chatId, bool isAccepted) {
-		_client->ReplyChatInvite(chatId, isAccepted);
+	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int notificationID, int chatId, bool isAccepted) {
+		_client->ReplyChatInvite(chatId, notificationID, isAccepted);
+	});
+	connect(_noticeBox, &NoticeBox::FetchAllNotifications, this, [this]() { 
+		_client->GetNotifications(); 
+	});
+	connect(_messageObserver.get(), &QtMessageObserver::Notifications, _noticeBox, [this](const MessageView& messageView) {
+		_noticeBox->ProcessAllNotifications(messageView);
 	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {

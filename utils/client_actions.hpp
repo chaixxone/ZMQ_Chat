@@ -21,7 +21,7 @@ namespace Utils
         NewChat,
         AllChats,
         ClientChats,
-        Invites,
+        Notifications,
         ClientsByName,
         Unknown
     };

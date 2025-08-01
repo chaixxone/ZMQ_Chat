@@ -60,6 +60,9 @@ void QtMessageObserver::Update()
 		case Utils::Action::ClientsByName:
 			emit ClientsByName(messageData.Content);
 			break;
+		case Utils::Action::Notifications:
+			emit Notifications(messageData);
+			break;
 		default:
 			break;
 		}

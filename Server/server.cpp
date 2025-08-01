@@ -75,9 +75,6 @@ void Server::Run()
 
                 switch (actionEnum)
                 {
-                case Utils::Action::Logout:
-                    HandleLogout(clientId, sessionIDStr, deviceIDStr);
-                    break;
                 case Utils::Action::ChangeName:
                     HandleConnection(clientId, dataStr, deviceIDStr);
                     break;
@@ -99,8 +96,8 @@ void Server::Run()
                 case Utils::Action::ClientChats:
                     HandleClientChatsInfoRequest(clientId);
                     break;
-                case Utils::Action::Invites:
-                    HandleClientPendingInvites(clientId);
+                case Utils::Action::Notifications:
+                    HandleClientNotifications(clientId);
                     break;
                 case Utils::Action::ClientsByName:
                     HandleGetClientsByName(clientId, dataStr);
@@ -335,7 +332,7 @@ void Server::AskClients(int pendingInvitesChatId, const std::string& creator, co
         {
             std::string notificationType = Utils::actionToString(Utils::Action::CreateChat);
             int notificationID = _databaseConnection->AddNotification(creator, client, notificationType, creator, pendingInvitesChatId);
-            json inviteData = { { "notification_id", notificationID }, { "content", creator } };
+            json inviteData = { { "notification_id", notificationID }, { "author", creator }, { "chat_id", pendingInvitesChatId } };
             MessageDispatch(Utils::Action::CreateChat, inviteData.dump(), client);
         }
         else
@@ -399,20 +396,12 @@ void Server::HandleGetClientsByName(const std::string& clientId, const std::stri
     MessageDispatch(Utils::Action::ClientsByName, clientNamesData.dump(), clientId);
 }
 
-void Server::HandleClientPendingInvites(const std::string& clientId)
+void Server::HandleClientNotifications(const std::string& clientId)
 {
-    std::vector<int> clientChatInvites;
-
-    for (const auto& [chatId, invitedClients] : _pendingChatInvites)
-    {
-        if (invitedClients.contains(clientId))
-        {
-            clientChatInvites.push_back(chatId);
-        }
-    }
+    std::vector<json> clientNotifications = _databaseConnection->GetClientNotifications(clientId);
 
     json clientInvitesData;
-    clientInvitesData = clientChatInvites;
+    clientInvitesData = clientNotifications;
 
-    MessageDispatch(Utils::Action::Invites, clientInvitesData.dump(), clientId);
+    MessageDispatch(Utils::Action::Notifications, clientInvitesData.dump(), clientId);
 }

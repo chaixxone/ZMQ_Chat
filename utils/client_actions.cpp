@@ -20,7 +20,7 @@ namespace Utils
         {"new_chat", Action::NewChat},
         {"all_chats", Action::AllChats},
         {"client_chats", Action::ClientChats},
-        {"invites", Action::Invites},
+        {"notifications", Action::Notifications},
         {"clients_by_name", Action::ClientsByName}
     };
 

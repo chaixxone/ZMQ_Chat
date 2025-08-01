@@ -1,9 +1,9 @@
 #include "notice_box.hpp"
 #include <chat_invite.hpp>
-#include <notifiable_interface.hpp>
 
 #include <QPropertyAnimation>
 #include <QVBoxLayout>
+#include <QPushButton>
 
 using namespace UI;
 
@@ -39,13 +39,17 @@ NoticeBox::NoticeBox(const QString& title, QWidget* parent) :
 	QVBoxLayout* mainLayout = new QVBoxLayout;
 	mainLayout->setSpacing(0);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
+
+	auto updateButton = new QPushButton("Update");
+	connect(updateButton, &QPushButton::clicked, this, [this]() { emit FetchAllNotifications(); });
 	
 	QHBoxLayout* mainHLayout = new QHBoxLayout;
 	mainHLayout->setSpacing(0);
 	mainHLayout->setContentsMargins(0, 0, 0, 0);
 	mainHLayout->addWidget(_triangleToolButton, 0, Qt::AlignLeft);
 	mainHLayout->addWidget(_noticeCount, 0, Qt::AlignLeft);
-	mainHLayout->addStretch(0);
+	mainHLayout->addStretch();
+	mainHLayout->addWidget(updateButton, 0, Qt::AlignRight);
 	
 	mainLayout->addLayout(mainHLayout);
 	mainLayout->addWidget(_scrollArea);
@@ -84,20 +88,28 @@ void NoticeBox::SetupLayout(QLayout* layout)
 	contentAnimation->setEndValue(contentHeight);
 }
 
-void NoticeBox::ProcessNotification(const MessageView& messageView)
+INotifiable* NoticeBox::CreateNotification(Utils::Action notificationType, const nlohmann::json& notificationPayload)
 {
 	INotifiable* notice = nullptr;
 
-	switch (messageView.Action)
+	switch (notificationType)
 	{
 	case Utils::Action::CreateChat:
-		notice = new ChatInvite(messageView);		
+		notice = new ChatInvite(notificationPayload);
 		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
 			auto inviteData = qvariant_cast<ChatInviteData>(data);
-			emit InvitationProcessed(inviteData.ChatId, inviteData.IsAccepted);
+			emit InvitationProcessed(inviteData.NotificationID, inviteData.ChatId, inviteData.IsAccepted);
 		});
 		break;
 	}
+
+	return notice;
+}
+
+void NoticeBox::ProcessNotification(const MessageView& messageView)
+{
+	nlohmann::json notificationPayload = nlohmann::json::parse(messageView.Content);
+	INotifiable* notice = CreateNotification(messageView.Action, notificationPayload);
 
 	if (notice)
 	{
@@ -113,6 +125,38 @@ void NoticeBox::ProcessNotification(const MessageView& messageView)
 	}
 
 	// TODO: notify user by a red indicator
+}
+
+void NoticeBox::ProcessNotificationIteration(Utils::Action notificationType, const nlohmann::json& notificationPayload)
+{
+	INotifiable* notice = CreateNotification(notificationType, notificationPayload);
+
+	if (notice)
+	{
+		auto item = new QListWidgetItem(_notices);
+		_notices->setItemWidget(item, notice);
+
+		connect(notice, &INotifiable::NotificationWatched, this, [this, item]() {
+			int itemIndex = _notices->indexFromItem(item).row();
+			delete _notices->takeItem(itemIndex);
+			SetNoticeCountLabel(); // Subtrack from notification count
+		});
+	}
+}
+
+void NoticeBox::ProcessAllNotifications(const MessageView& messageView)
+{
+	_notices->clear();
+
+	nlohmann::json notificationsPayload = nlohmann::json::parse(messageView.Content);
+
+	for (const auto& notificationData : notificationsPayload)
+	{
+		Utils::Action notificationType = Utils::stringToAction(notificationData["notification_type"].get<std::string>());
+		ProcessNotificationIteration(notificationType, notificationData);
+	}
+
+	SetNoticeCountLabel();
 }
 
 void NoticeBox::SetNoticeCountLabel()
