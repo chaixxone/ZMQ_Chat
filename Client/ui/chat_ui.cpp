@@ -200,6 +200,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
 	createChatHelperWindow->hide();
 
+	auto logutButton = new QPushButton("Logout");
+	connect(logutButton, &QPushButton::clicked, this, [this]() { _client->RequestLogout(); });
+
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
 	vSidePanelLayout->addWidget(new QLabel("All users"));
@@ -210,7 +213,9 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	vSidePanelLayout->addWidget(userChatIdComboBox);
 	vSidePanelLayout->addWidget(_noticeBox);
 	vSidePanelLayout->addWidget(createChatPushButton);
-	vSidePanelLayout->addStretch(0);
+	vSidePanelLayout->addStretch();
+	vSidePanelLayout->addWidget(logutButton, 0, Qt::AlignLeft);
+
 	// main space
 	auto chat = new ChatTextFrame;
 	auto messageTextBar = new ChatTextLine(300, 25);
