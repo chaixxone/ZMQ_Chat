@@ -90,8 +90,8 @@ void Server::Run()
             case Utils::Action::ClientChats:
                 HandleClientChatsInfoRequest(clientId);
                 break;
-            case Utils::Action::Invites:
-                HandleClientPendingInvites(clientId);
+            case Utils::Action::Notifications:
+                HandleClientNotifications(clientId);
                 break;
             case Utils::Action::ClientsByName:
                 HandleGetClientsByName(clientId, dataStr);
