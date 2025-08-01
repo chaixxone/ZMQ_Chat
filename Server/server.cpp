@@ -48,61 +48,67 @@ void Server::Run()
 
             Utils::Action actionEnum = Utils::stringToAction(actionStr);
 
-            switch (actionEnum)
+            if (_nonSessionActions.contains(actionEnum))
             {
-            case Utils::Action::Connect:
-                HandleConnection(clientId, dataStr, deviceIDStr);
-                break;
-            case Utils::Action::Register:
-                HandleRegister(clientId, dataStr);
-                break;
-            case Utils::Action::Authorize:
-                HandleAuthorize(clientId, dataStr, deviceIDStr);
-                break;
-            case Utils::Action::Logout:
-                HandleLogout(clientId, sessionIDStr, deviceIDStr);
-            default:
-                break;
+                switch (actionEnum)
+                {
+                case Utils::Action::Connect:
+                    HandleConnection(clientId, dataStr, deviceIDStr);
+                    break;
+                case Utils::Action::Register:
+                    HandleRegister(clientId, dataStr);
+                    break;
+                case Utils::Action::Authorize:
+                    HandleAuthorize(clientId, dataStr, deviceIDStr);
+                    break;
+                default:
+                    break;
+                }
             }
-
-            if (_databaseConnection->DoesSessionExist(clientId, deviceIDStr, sessionIDStr))
+            else
             {
-                MessageDispatch(Utils::Action::NotAuthorized, "Error: you're not allowed to do anything without logging in", clientId);
-                continue;
-            }
+                if (_databaseConnection->DoesSessionExist(clientId, deviceIDStr, sessionIDStr))
+                {
+                    MessageDispatch(Utils::Action::NotAuthorized, "Error: you're not allowed to do anything without logging in", clientId);
+                    continue;
+                }
 
-            switch (actionEnum)
-            {
-            case Utils::Action::ChangeName:
-                HandleConnection(clientId, dataStr, deviceIDStr);
-                break;
-            case Utils::Action::SendMessage:
-                HandleSendMessage(clientId, dataStr, chatIdNumber);
-                break;
-            case Utils::Action::CreateChat:
-                PrepareNewChatSession(clientId, dataStr);
-                break;
-            case Utils::Action::AcceptCreateChat:
-                HandleResponseForInvite(clientId, dataStr, true);
-                break;
-            case Utils::Action::DeclineCreateChat:
-                HandleResponseForInvite(clientId, dataStr, false);
-                break;
-            case Utils::Action::AllChats:
-                HandleAllChatsInfoRequest(clientId);
-                break;
-            case Utils::Action::ClientChats:
-                HandleClientChatsInfoRequest(clientId);
-                break;
-            case Utils::Action::Invites:
-                HandleClientPendingInvites(clientId);
-                break;
-            case Utils::Action::ClientsByName:
-                HandleGetClientsByName(clientId, dataStr);
-                break;
-            default:
-                std::cout << "Uknown action appeared\n";
-                break;
+                switch (actionEnum)
+                {
+                case Utils::Action::Logout:
+                    HandleLogout(clientId, sessionIDStr, deviceIDStr);
+                    break;
+                case Utils::Action::ChangeName:
+                    HandleConnection(clientId, dataStr, deviceIDStr);
+                    break;
+                case Utils::Action::SendMessage:
+                    HandleSendMessage(clientId, dataStr, chatIdNumber);
+                    break;
+                case Utils::Action::CreateChat:
+                    PrepareNewChatSession(clientId, dataStr);
+                    break;
+                case Utils::Action::AcceptCreateChat:
+                    HandleResponseForInvite(clientId, dataStr, true);
+                    break;
+                case Utils::Action::DeclineCreateChat:
+                    HandleResponseForInvite(clientId, dataStr, false);
+                    break;
+                case Utils::Action::AllChats:
+                    HandleAllChatsInfoRequest(clientId);
+                    break;
+                case Utils::Action::ClientChats:
+                    HandleClientChatsInfoRequest(clientId);
+                    break;
+                case Utils::Action::Invites:
+                    HandleClientPendingInvites(clientId);
+                    break;
+                case Utils::Action::ClientsByName:
+                    HandleGetClientsByName(clientId, dataStr);
+                    break;
+                default:
+                    std::cout << "Uknown action appeared\n";
+                    break;
+                }
             }
         }
         catch (const zmq::error_t& error)
