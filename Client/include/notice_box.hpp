@@ -25,6 +25,7 @@ namespace UI
 		void ProcessAllNotifications(const MessageView& messageView);
 
 	signals:
+		void FetchAllNotifications();
 		void InvitationProcessed(int notificationID, int chatId, bool isAccepted);
 
 	private:
