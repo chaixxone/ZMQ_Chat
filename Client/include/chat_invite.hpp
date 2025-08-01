@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QMessageBox>
 #include <QString>
+#include <nlohmann/json.hpp>
 
 #include <notifiable_interface.hpp>
 #include <message_view.hpp>
@@ -19,7 +20,7 @@ namespace UI
 	class ChatInvite : public INotifiable
 	{		
 	public:
-		explicit ChatInvite(const MessageView& messageView, QWidget* parent = nullptr);
+		explicit ChatInvite(const nlohmann::json& notificationPayload, QWidget* parent = nullptr);
 
 		void OnClick() override;
 

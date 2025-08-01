@@ -6,13 +6,12 @@ using namespace UI;
 
 Q_DECLARE_METATYPE(ChatInviteData*);
 
-ChatInvite::ChatInvite(const MessageView& messageView, QWidget* parent) :
+ChatInvite::ChatInvite(const nlohmann::json& notificationPayload, QWidget* parent) :
 	INotifiable(parent)
 {
-	nlohmann::json inviteData = nlohmann::json::parse(messageView.Content);
-	_author = QString::fromStdString(inviteData["author"].get<std::string>());
-	_chatId = inviteData["chat_id"].get<int>();
-	_notificationID = inviteData["notification_id"].get<int>();
+	_author         = QString::fromStdString(notificationPayload["author"].get<std::string>());
+	_chatId         = notificationPayload["chat_id"].get<int>();
+	_notificationID = notificationPayload["notification_id"].get<int>();
 
 	auto label = new QLabel("chat invite", this);
 }
