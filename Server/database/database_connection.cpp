@@ -362,7 +362,7 @@ std::vector<std::string> DatabaseConnection::GetClientsRegexp(const std::string&
 std::vector<nlohmann::json> DatabaseConnection::GetClientNotifications(const std::string& identity)
 {
 	auto clientNotificationsQuery = std::unique_ptr<sql::PreparedStatement>(
-		_connection->prepareStatement("SELECT * FROM notifications WHERE receiver_identity = ?")
+		_connection->prepareStatement("SELECT * FROM notifications WHERE receiver_identity = ? AND receiver_checked = FALSE")
 	);
 	clientNotificationsQuery->setString(1, identity);
 	std::unique_ptr<sql::ResultSet> clientNotificationsResult{ clientNotificationsQuery->executeQuery() };
