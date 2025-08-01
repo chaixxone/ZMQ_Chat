@@ -75,6 +75,9 @@ void Server::Run()
 
                 switch (actionEnum)
                 {
+                case Utils::Action::Logout:
+                    HandleLogout(clientId, sessionIDStr, deviceIDStr);
+                    break;
                 case Utils::Action::ChangeName:
                     HandleConnection(clientId, dataStr, deviceIDStr);
                     break;
