@@ -1,6 +1,5 @@
 #include "notice_box.hpp"
 #include <chat_invite.hpp>
-#include <notifiable_interface.hpp>
 
 #include <QPropertyAnimation>
 #include <QVBoxLayout>
@@ -84,12 +83,11 @@ void NoticeBox::SetupLayout(QLayout* layout)
 	contentAnimation->setEndValue(contentHeight);
 }
 
-void NoticeBox::ProcessNotification(const MessageView& messageView)
+INotifiable* NoticeBox::CreateNotification(Utils::Action notificationType, const nlohmann::json& notificationPayload)
 {
 	INotifiable* notice = nullptr;
-	nlohmann::json notificationPayload = nlohmann::json::parse(messageView.Content);
 
-	switch (messageView.Action)
+	switch (notificationType)
 	{
 	case Utils::Action::CreateChat:
 		notice = new ChatInvite(notificationPayload);
@@ -99,6 +97,14 @@ void NoticeBox::ProcessNotification(const MessageView& messageView)
 		});
 		break;
 	}
+
+	return notice;
+}
+
+void NoticeBox::ProcessNotification(const MessageView& messageView)
+{
+	nlohmann::json notificationPayload = nlohmann::json::parse(messageView.Content);
+	INotifiable* notice = CreateNotification(messageView.Action, notificationPayload);
 
 	if (notice)
 	{
@@ -118,18 +124,7 @@ void NoticeBox::ProcessNotification(const MessageView& messageView)
 
 void NoticeBox::ProcessNotificationIteration(Utils::Action notificationType, const nlohmann::json& notificationPayload)
 {
-	INotifiable* notice = nullptr;
-
-	switch (notificationType)
-	{
-	case Utils::Action::CreateChat:
-		notice = new ChatInvite(notificationPayload);
-		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
-			auto inviteData = qvariant_cast<ChatInviteData>(data);
-			emit InvitationProcessed(inviteData.NotificationID, inviteData.ChatId, inviteData.IsAccepted);
-		});
-		break;
-	}
+	INotifiable* notice = CreateNotification(notificationType, notificationPayload);
 
 	if (notice)
 	{

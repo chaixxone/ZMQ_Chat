@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 
 #include <message_view.hpp>
+#include <notifiable_interface.hpp>
 
 namespace UI
 {
@@ -35,6 +36,7 @@ namespace UI
 		int _animationDuration = 250;
 
 		void SetNoticeCountLabel();
+		INotifiable* CreateNotification(Utils::Action notificationType, const nlohmann::json& notificationPayload);
 		void ProcessNotificationIteration(Utils::Action notificationType, const nlohmann::json& notificationPayload);
 	};
 }
