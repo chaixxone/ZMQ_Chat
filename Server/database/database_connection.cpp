@@ -358,3 +358,28 @@ std::vector<std::string> DatabaseConnection::GetClientsRegexp(const std::string&
 
 	return clients;
 }
+
+std::vector<nlohmann::json> DatabaseConnection::GetClientNotifications(const std::string& identity)
+{
+	auto clientNotificationsQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement("SELECT * FROM notifications WHERE receiver_identity = ?")
+	);
+	clientNotificationsQuery->setString(1, identity);
+	std::unique_ptr<sql::ResultSet> clientNotificationsResult{ clientNotificationsQuery->executeQuery() };
+
+	std::vector<nlohmann::json> clientNotifications;
+
+	while (clientNotificationsResult->next())
+	{
+		nlohmann::json notificationPayload;
+		notificationPayload["notification_id"] = clientNotificationsResult->getInt("id");
+		notificationPayload["author"] = clientNotificationsResult->getString("sender_identity");
+		notificationPayload["notification_type"] = clientNotificationsResult->getString("notification_type");
+		notificationPayload["content"] = clientNotificationsResult->getString("content");
+		notificationPayload["chat_id"] = clientNotificationsResult->getInt("chat_id");
+
+		clientNotifications.push_back(notificationPayload);
+	}
+
+	return clientNotifications;
+}
