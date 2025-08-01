@@ -8,8 +8,12 @@ Server::Server(zmq::context_t& context, std::string binding, std::unique_ptr<Dat
     _context(context), 
     _socket(_context, zmq::socket_type::router), 
     _databaseConnection(std::move(dbConn)),
-    _running(true)
+    _running(true)    
 {
+    _nonSessionActions.insert(Utils::Action::Connect);
+    _nonSessionActions.insert(Utils::Action::Authorize);
+    _nonSessionActions.insert(Utils::Action::Register);
+
     char* zmqPublicKey = std::getenv("SERVER_PUBLIC_KEY");
     char* zmqSecretKey = std::getenv("SERVER_SECRET_KEY");
 
