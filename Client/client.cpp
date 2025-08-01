@@ -126,11 +126,14 @@ void Client::UpdateClientIDConfig(const std::string& pathToConfig, const std::st
 
 void Client::ChangeIdentity(const std::string& identity)
 {
-    _identity = identity;
-    UpdateClientIDConfig(_configFilePath, identity);
-    _socket.disconnect(_endpoint);
-    _socket.set(zmq::sockopt::routing_id, _identity);
-    _socket.connect(_endpoint);
+    if (_identity != identity)
+    {
+        _identity = identity;
+        UpdateClientIDConfig(_configFilePath, identity);
+        _socket.disconnect(_endpoint);
+        _socket.set(zmq::sockopt::routing_id, _identity);
+        _socket.connect(_endpoint);
+    }
 }
 
 std::string Client::GenerateTemporaryId()
