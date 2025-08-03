@@ -77,6 +77,11 @@ Client::Client(std::string endpoint,
     _receiver = std::thread(&Client::ReceiveMessage, this);
 }
 
+std::string Client::GetIdentity() const noexcept
+{
+    return _identity;
+}
+
 void Client::AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver)
 {
     _messageObserver = messageObserver;
