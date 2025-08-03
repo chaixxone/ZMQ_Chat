@@ -20,7 +20,7 @@ namespace UI
 		void CurrentChatChanged(int currentChat);
 
 	public slots:
-		void AddMessage(Message* message);
+		void AddMessage(Message* message, bool isCurrentClient);
 		void SetCurrentChat(const QString& chatIdStr) noexcept;
 
 	private:

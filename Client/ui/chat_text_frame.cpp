@@ -1,4 +1,5 @@
 #include <chat_text_frame.hpp>
+#include <message_item_widget_wrapper.hpp>
 
 using namespace UI;
 
@@ -13,12 +14,22 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 	setLayout(vMessagesLayout);
 }
 
-void ChatTextFrame::AddMessage(Message* message)
+void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 {
+	const double messageWidgetWidthRatio = 0.6;
+
 	int contentWidth = _messages->viewport()->width();
-	message->setFixedWidth(contentWidth);
+	message->setFixedWidth(contentWidth * messageWidgetWidthRatio);
+
+	auto messageWrapper = new MessageItemWidgetWrapper(message);
+
+	if (isCurrentClient)
+	{
+		messageWrapper->AlignRight();
+	}
+
 	auto messageItem = new QListWidgetItem(_messages);
-	_messages->setItemWidget(messageItem, message);
+	_messages->setItemWidget(messageItem, messageWrapper);
 	messageItem->setSizeHint(message->sizeHint());
 }
 

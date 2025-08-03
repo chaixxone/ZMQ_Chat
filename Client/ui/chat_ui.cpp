@@ -248,7 +248,7 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 				QString::fromStdString(messageView.Content),
 				chat
 			);
-			chat->AddMessage(message);
+			chat->AddMessage(message, messageView.Author == _client->GetIdentity());
 		}
 	});
 
