@@ -30,6 +30,11 @@ void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 	_messages->setItemWidget(messageItem, messageWrapper);
 	messageItem->setSizeHint(message->sizeHint());
 
+	ScrollOnAddMessage();
+}
+
+void ChatTextFrame::ScrollOnAddMessage()
+{
 	const int maximumShowDifference = 50;
 	QScrollBar* scrollBar = _messages->verticalScrollBar();
 

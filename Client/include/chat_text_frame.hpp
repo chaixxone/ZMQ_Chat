@@ -28,6 +28,8 @@ namespace UI
 		int _currentChat;
 		const int _spaceBetweenItems = 5;
 
+		void ScrollOnAddMessage();
+
 	private slots:
 		void RemoveMessage(size_t messageId);
 	};
