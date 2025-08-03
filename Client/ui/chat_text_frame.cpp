@@ -10,6 +10,8 @@ ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new Q
 	const int spaceBetweenItems = 5;
 	_messages->setSpacing(spaceBetweenItems);
 	_messages->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
+	_messages->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+
 	auto vMessagesLayout = new QVBoxLayout;
 	vMessagesLayout->addWidget(_messages);
 	vMessagesLayout->setContentsMargins(0, 0, 0, 0);
