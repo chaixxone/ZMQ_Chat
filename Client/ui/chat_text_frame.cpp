@@ -21,12 +21,7 @@ void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 	int contentWidth = _messages->viewport()->width();
 	message->setFixedWidth(contentWidth * messageWidgetWidthRatio);
 
-	auto messageWrapper = new MessageItemWidgetWrapper(message);
-
-	if (isCurrentClient)
-	{
-		messageWrapper->AlignRight();
-	}
+	auto messageWrapper = new MessageItemWidgetWrapper(message, isCurrentClient);
 
 	auto messageItem = new QListWidgetItem(_messages);
 	_messages->setItemWidget(messageItem, messageWrapper);
