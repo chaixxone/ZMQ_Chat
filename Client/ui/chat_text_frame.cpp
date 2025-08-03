@@ -38,7 +38,8 @@ void ChatTextFrame::RemoveMessage(size_t messageId)
 	{
 		int middle = (left + right) / 2;
 		QListWidgetItem* middleItem = _messages->item(middle);
-		size_t messageIdAtMiddle = static_cast<Message*>(_messages->itemWidget(middleItem))->GetId();
+		auto messageWrapper = static_cast<MessageItemWidgetWrapper*>(_messages->itemWidget(middleItem));
+		size_t messageIdAtMiddle = messageWrapper->GetMessage()->GetId();
 
 		if (messageId < messageIdAtMiddle)
 		{
