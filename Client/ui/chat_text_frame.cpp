@@ -30,6 +30,14 @@ void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 	auto messageItem = new QListWidgetItem(_messages);
 	_messages->setItemWidget(messageItem, messageWrapper);
 	messageItem->setSizeHint(message->sizeHint());
+
+	const int maximumShowDifference = 50;
+	QScrollBar* scrollBar = _messages->verticalScrollBar();
+
+	if (scrollBar->maximum() - scrollBar->value() <= maximumShowDifference + _spaceBetweenItems)
+	{
+		_messages->scrollToBottom();
+	}
 }
 
 void ChatTextFrame::RemoveMessage(size_t messageId)
