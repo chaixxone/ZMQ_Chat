@@ -7,8 +7,7 @@ Q_DECLARE_METATYPE(Message*)
 
 ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget), _currentChat(-1)
 {
-	const int spaceBetweenItems = 5;
-	_messages->setSpacing(spaceBetweenItems);
+	_messages->setSpacing(_spaceBetweenItems);
 	_messages->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 	_messages->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 
