@@ -26,6 +26,7 @@ namespace UI
 	private:
 		QListWidget* _messages;
 		int _currentChat;
+		const int _spaceBetweenItems = 5;
 
 	private slots:
 		void RemoveMessage(size_t messageId);
