@@ -4,27 +4,25 @@
 
 using namespace UI;
 
-MessageItemWidgetWrapper::MessageItemWidgetWrapper(Message* message, QWidget* parent) :
+MessageItemWidgetWrapper::MessageItemWidgetWrapper(Message* message, bool isCurrentClient, QWidget* parent) :
 	QWidget(parent),
 	_message(message)
 {
+	auto layout = new QHBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+
+	if (isCurrentClient)
+	{
+		layout->addStretch();
+		layout->addWidget(_message, 0, Qt::AlignRight);
+	}
+	else
+	{
+		layout->addWidget(_message, 0, Qt::AlignLeft);
+		layout->addStretch();
+	}
+
 	setContentsMargins(0, 0, 0, 0);
 }
 
-MessageItemWidgetWrapper::~MessageItemWidgetWrapper()
-{
-	if (_message && _message->parent() == nullptr)
-	{
-		delete _message;
-	}
-}
-
 Message* MessageItemWidgetWrapper::GetMessage() const { return _message; }
-
-void MessageItemWidgetWrapper::AlignRight()
-{
-	auto layout = new QHBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addStretch();
-	layout->addWidget(_message, 0, Qt::AlignRight);
-}

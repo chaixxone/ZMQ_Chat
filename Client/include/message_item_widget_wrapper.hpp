@@ -9,13 +9,9 @@ namespace UI
 	class MessageItemWidgetWrapper : public QWidget
 	{
 	public:
-		explicit MessageItemWidgetWrapper(Message* message, QWidget* parent = nullptr);
-
-		~MessageItemWidgetWrapper();
+		explicit MessageItemWidgetWrapper(Message* message, bool isCurrentClient, QWidget* parent = nullptr);
 
 		Message* GetMessage() const;
-
-		void AlignRight();
 
 	private:
 		Message* _message;
