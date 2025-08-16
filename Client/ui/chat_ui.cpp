@@ -1,5 +1,4 @@
 #include <chat_ui.hpp>
-#include <qt_helper_window.hpp>
 #include <chat_invite.hpp>
 #include <nlohmann/json.hpp>
 
@@ -200,10 +199,10 @@ void ChatUI::SetupMainPage()
 {
 	QLayout* vSidePanelLayout = SetupSidePanel();
 
-	auto chat = new ChatTextFrame;
+	chat = new ChatTextFrame;
 	chat->setObjectName("chat_frame");
 
-	auto messageTextBar = new ChatTextLine(300, 25);
+	messageTextBar = new ChatTextLine(300, 25);
 	messageTextBar->setObjectName("text_bar");
 
 	chat->hide();
@@ -232,17 +231,17 @@ void ChatUI::SetupMainPage()
 
 QLayout* ChatUI::SetupSidePanel()
 {
-	auto nameLineEdit = new QLineEdit;
+	nameLineEdit = new QLineEdit;
 	nameLineEdit->setObjectName("name_line");
 
-	auto userChatIdComboBox = new PopUpSignalEmittingQComboBox; // TODO change type in the future (if needed)
+	userChatIdComboBox = new PopUpSignalEmittingQComboBox; // TODO change type in the future (if needed)
 	userChatIdComboBox->setObjectName("user_chats");
 	userChatIdComboBox->addItem("No chat");
 	
-	auto createChatPushButton = new QPushButton("Create chat");
+	createChatPushButton = new QPushButton("Create chat");
 	createChatPushButton->setObjectName("create_chat_button");
 
-	auto createChatHelperWindow = new HelperWindow(this);
+	createChatHelperWindow = new HelperWindow(this);
 	createChatHelperWindow->setObjectName("create_chat_window");
 	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
 	createChatHelperWindow->hide();
@@ -264,37 +263,28 @@ QLayout* ChatUI::SetupSidePanel()
 
 void ChatUI::ConnectAllSignals()
 {
-	auto nameLineEdit = findChild<QLineEdit*>("name_line");
 	connect(_messageObserver.get(), &QtMessageObserver::NewClientName, nameLineEdit, &QLineEdit::setText);
-	connect(nameLineEdit, &QLineEdit::returnPressed, [this, nameLineEdit]() {
+	connect(nameLineEdit, &QLineEdit::returnPressed, [this]() {
 		std::string desiredIdentity = nameLineEdit->text().toStdString();
 		_client->RequestChangeIdentity(desiredIdentity);
 	});
 
-	auto chat = findChild<ChatTextFrame*>("chat_frame");
-	auto messageTextBar = findChild<ChatTextLine*>("text_bar");
-	auto userChatIdComboBox = findChild<PopUpSignalEmittingQComboBox*>("user_chats");
-
 	ConnectSignalsCreateChat();
-	ConnectSignalsUserChats(chat, messageTextBar, userChatIdComboBox);
-	ConnectChatMessageSignals(chat, messageTextBar);
+	ConnectSignalsUserChats();
+	ConnectChatMessageSignals();
 	ConnectNoticeBoxSignals();
 }
 
 void ChatUI::ConnectSignalsCreateChat()
 {
-	auto createChatPushButton = findChild<QPushButton*>("create_chat_button");
-	auto createChatHelperWindow = findChild<HelperWindow*>("create_chat_window");
-
 	connect(createChatPushButton, &QPushButton::clicked, createChatHelperWindow, &QWidget::show);
-	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this, createChatHelperWindow](const QString& name) {
+	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this](const QString& name) {
 		if (!createChatHelperWindow->IsHidden())
 		{
 			_client->GetClientsByName(name.toStdString());
 		}
 	});
-	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, createChatHelperWindow,
-		[createChatHelperWindow](const std::string& clientsStr) -> void
+	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, createChatHelperWindow, [this](const std::string& clientsStr)
 	{
 		json clientsNamesData = json::parse(clientsStr);
 
@@ -322,18 +312,18 @@ void ChatUI::ConnectSignalsCreateChat()
 		createChatHelperWindow->AddItems(clients);
 		createChatHelperWindow->ShowClientList();
 	});
-	connect(createChatHelperWindow, &HelperWindow::ConfirmClicked, createChatHelperWindow, [this, createChatHelperWindow]() {
+	connect(createChatHelperWindow, &HelperWindow::ConfirmClicked, createChatHelperWindow, [this]() {
 		_client->RequestToCreateChat(createChatHelperWindow->GetChosenClientsString());
 		createChatHelperWindow->hide();
 	});
 }
 
-void ChatUI::ConnectSignalsUserChats(ChatTextFrame* chat, ChatTextLine* messageTextBar, PopUpSignalEmittingQComboBox* userChatIdComboBox)
+void ChatUI::ConnectSignalsUserChats()
 {
 	connect(userChatIdComboBox, &PopUpSignalEmittingQComboBox::PoppedUp, [this]() {
 		_client->GetClientChatIdsStr();
 	});
-	connect(userChatIdComboBox, &QComboBox::currentTextChanged, chat, [userChatIdComboBox, messageTextBar, chat](const QString& text) {
+	connect(userChatIdComboBox, &QComboBox::currentTextChanged, chat, [this](const QString& text) {
 		if (userChatIdComboBox->findText(text) == 0)
 		{
 			chat->hide();
@@ -348,7 +338,7 @@ void ChatUI::ConnectSignalsUserChats(ChatTextFrame* chat, ChatTextLine* messageT
 			// TODO: cache chats messages and update cache on signal, ask for messages in next chat ID if no cache
 		}
 	});
-	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userChatIdComboBox, [userChatIdComboBox](const MessageView& messageData) {
+	connect(_messageObserver.get(), &QtMessageObserver::ClientChats, userChatIdComboBox, [this](const MessageView& messageData) {
 		try
 		{
 			json jsonMessageData = json::parse(messageData.Content);
@@ -371,9 +361,9 @@ void ChatUI::ConnectSignalsUserChats(ChatTextFrame* chat, ChatTextLine* messageT
 	});
 }
 
-void ChatUI::ConnectChatMessageSignals(ChatTextFrame* chat, ChatTextLine* messageTextBar)
+void ChatUI::ConnectChatMessageSignals()
 {
-	connect(_messageObserver.get(), &QtMessageObserver::IncomingMessage, chat, [this, chat](const MessageView& messageView) {
+	connect(_messageObserver.get(), &QtMessageObserver::IncomingMessage, chat, [this](const MessageView& messageView) {
 		if (chat->GetCurrentChat() == messageView.ChatID)
 		{
 			auto message = new Message(
@@ -386,7 +376,7 @@ void ChatUI::ConnectChatMessageSignals(ChatTextFrame* chat, ChatTextLine* messag
 		}
 	});
 
-	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
+	connect(messageTextBar, &ChatTextLine::SendedText, [this](const QString& text) {
 		std::string stdText = text.toStdString();
 		_client->SendMessageToChat(stdText, chat->GetCurrentChat());
 	});

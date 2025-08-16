@@ -1,10 +1,17 @@
 #pragma once
 
-#include <QtWidgets>
+#include <QMainWindow>
+#include <QWidget>
+#include <QStackedWidget>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QLayout>
+
 #include <client.hpp>
 #include <qt_message_observer.hpp>
 #include <chat_text_frame.hpp>
 #include <chat_text_line.hpp>
+#include <qt_helper_window.hpp>
 #include <popup_signal_emitting_q_combo_box.hpp>
 #include <notice_box.hpp>
 
@@ -24,6 +31,16 @@ namespace UI
 		QWidget* _loginPage;
 		QWidget* _mainPage;
 		NoticeBox* _noticeBox;
+
+		ChatTextFrame* chat;
+		ChatTextLine* messageTextBar;
+
+		QLineEdit* nameLineEdit;
+		PopUpSignalEmittingQComboBox* userChatIdComboBox;
+
+		QPushButton* createChatPushButton;
+		HelperWindow* createChatHelperWindow;
+
 		std::shared_ptr<Client> _client;
 		std::shared_ptr<QtMessageObserver> _messageObserver;
 		int _lineEditsMaxWidth = 300;
@@ -40,11 +57,11 @@ namespace UI
 
 		void ConnectSignalsCreateChat();
 
-		void ConnectSignalsUserChats(ChatTextFrame* chat, ChatTextLine* messageTextBar, PopUpSignalEmittingQComboBox* userChatIdComboBox);
+		void ConnectSignalsUserChats();
 
 		void ConnectAllSignals();
 
-		void ConnectChatMessageSignals(ChatTextFrame* chat, ChatTextLine* messageTextBar);
+		void ConnectChatMessageSignals();
 
 		void ConnectNoticeBoxSignals();
 	};
