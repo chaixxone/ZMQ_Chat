@@ -32,14 +32,14 @@ namespace UI
 		QWidget* _mainPage;
 		NoticeBox* _noticeBox;
 
-		ChatTextFrame* chat;
-		ChatTextLine* messageTextBar;
+		ChatTextFrame* _chat;
+		ChatTextLine* _messageTextBar;
 
-		QLineEdit* nameLineEdit;
-		PopUpSignalEmittingQComboBox* userChatIdComboBox;
+		QLineEdit* _nameLineEdit;
+		PopUpSignalEmittingQComboBox* _userChatIdComboBox;
 
-		QPushButton* createChatPushButton;
-		HelperWindow* createChatHelperWindow;
+		QPushButton* _createChatPushButton;
+		HelperWindow* _createChatHelperWindow;
 
 		std::shared_ptr<Client> _client;
 		std::shared_ptr<QtMessageObserver> _messageObserver;
