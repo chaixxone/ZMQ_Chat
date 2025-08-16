@@ -1,8 +1,5 @@
 #include <chat_ui.hpp>
 #include <qt_helper_window.hpp>
-#include <chat_text_frame.hpp>
-#include <chat_text_line.hpp>
-#include <popup_signal_emitting_q_combo_box.hpp>
 #include <chat_invite.hpp>
 #include <nlohmann/json.hpp>
 
@@ -31,22 +28,52 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	_pages->addWidget(_mainPage);
 	_pages->addWidget(_registerPage);
 	_pages->setCurrentIndex(Pages::LoginPage);
-	setCentralWidget(_pages);
+	setCentralWidget(_pages);	
 
-	constexpr int lineEditsMaxWidth = 300;
+	SetupRegisterPage();
+	SetupLoginPage();
+	SetupMainPage();
 
-	// register page
+	connect(_messageObserver.get(), &QtMessageObserver::AlreadyAuthorized, _pages, [this]() {
+		_pages->setCurrentIndex(Pages::MainPage);
+	});
+
+	connect(_messageObserver.get(), &QtMessageObserver::NotAuthorized, _pages, [this](const MessageView& message) {
+		_pages->setCurrentIndex(Pages::LoginPage);
+
+		auto messageBox = new QMessageBox(this);
+		messageBox->setWindowTitle("Not authorized");
+		messageBox->setText(QString::fromStdString(message.Content));
+		// TODO: position message box on top of the window
+		messageBox->show();
+		QPoint chatUITopLeft = this->geometry().topLeft();
+		int x = chatUITopLeft.x() + (this->width() - messageBox->width()) / 2;
+		int y = chatUITopLeft.y();
+		messageBox->move(x, y);
+
+		const int showStatusBoxDuration = 1500; // ms
+		QTimer::singleShot(showStatusBoxDuration, messageBox, [messageBox]() {
+			messageBox->close();
+			messageBox->deleteLater();
+		});
+	});
+}
+
+ChatUI::~ChatUI() {}
+
+void ChatUI::SetupRegisterPage()
+{
 	auto registerLoginLineEdit = new QLineEdit;
-	registerLoginLineEdit->setMaximumWidth(lineEditsMaxWidth);
-	registerLoginLineEdit->setPlaceholderText("Enter login");	
+	registerLoginLineEdit->setMaximumWidth(_lineEditsMaxWidth);
+	registerLoginLineEdit->setPlaceholderText("Enter login");
 
 	auto registerPasswordLineEdit = new QLineEdit;
-	registerPasswordLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerPasswordLineEdit->setMaximumWidth(_lineEditsMaxWidth);
 	registerPasswordLineEdit->setPlaceholderText("Enter password");
 	registerPasswordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
 	auto registerPasswordRepeatLineEdit = new QLineEdit;
-	registerPasswordRepeatLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	registerPasswordRepeatLineEdit->setMaximumWidth(_lineEditsMaxWidth);
 	registerPasswordRepeatLineEdit->setPlaceholderText("Repeat password");
 	registerPasswordRepeatLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
@@ -79,39 +106,42 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	connect(registerPasswordLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
 	connect(registerPasswordRepeatLineEdit, &QLineEdit::returnPressed, this, parseDataFromRegisterInput);
 
-	connect(_messageObserver.get(), &QtMessageObserver::Register, this, [this](const MessageView& message) {
-		json registerStatus = json::parse(message.Content);
-		bool isRegistered = registerStatus["is_registered"].get<bool>();
+	connect(_messageObserver.get(), &QtMessageObserver::Register, this, &ChatUI::OnRegisterAction);
+}
 
-		// TODO take login and password and paste them into login page inputs
+void ChatUI::OnRegisterAction(const MessageView& message)
+{
+	json registerStatus = json::parse(message.Content);
+	bool isRegistered = registerStatus["is_registered"].get<bool>();
 
-		int nextPageIndex = isRegistered ? Pages::LoginPage : Pages::RegisterPage;
+	// TODO take login and password and paste them into login page inputs
 
-		_pages->setCurrentIndex(nextPageIndex);
+	int nextPageIndex = isRegistered ? Pages::LoginPage : Pages::RegisterPage;
 
-		std::string registerStatusMessage = registerStatus["message"].get<std::string>();
-		auto registerStatusMessageBox = new QMessageBox(this);
-		registerStatusMessageBox->setWindowTitle("Authorize status");
-		registerStatusMessageBox->setText(QString::fromStdString(registerStatusMessage));
-		// TODO: position message box on top of the window
-		registerStatusMessageBox->show();
+	_pages->setCurrentIndex(nextPageIndex);
 
-		const int showStatusBoxDuration = 1500; // ms
-		QTimer::singleShot(showStatusBoxDuration, registerStatusMessageBox, [registerStatusMessageBox]() {
-			registerStatusMessageBox->close();
-			registerStatusMessageBox->deleteLater();
-		});
+	std::string registerStatusMessage = registerStatus["message"].get<std::string>();
+	auto registerStatusMessageBox = new QMessageBox(this);
+	registerStatusMessageBox->setWindowTitle("Authorize status");
+	registerStatusMessageBox->setText(QString::fromStdString(registerStatusMessage));
+	// TODO: position message box on top of the window
+	registerStatusMessageBox->show();
+
+	const int showStatusBoxDuration = 1500; // ms
+	QTimer::singleShot(showStatusBoxDuration, registerStatusMessageBox, [registerStatusMessageBox]() {
+		registerStatusMessageBox->close();
+		registerStatusMessageBox->deleteLater();
 	});
-	// ------------------------------------------------
+}
 
-	// login page
-
+void ChatUI::SetupLoginPage()
+{
 	auto loginLineEdit = new QLineEdit;
-	loginLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	loginLineEdit->setMaximumWidth(_lineEditsMaxWidth);
 	loginLineEdit->setPlaceholderText("Enter login");
 
 	auto passwordLineEdit = new QLineEdit;
-	passwordLineEdit->setMaximumWidth(lineEditsMaxWidth);
+	passwordLineEdit->setMaximumWidth(_lineEditsMaxWidth);
 	passwordLineEdit->setPlaceholderText("Enter password");
 	passwordLineEdit->setEchoMode(QLineEdit::EchoMode::Password);
 
@@ -134,92 +164,51 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 		}
 	};
 
-	connect(loginLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
-	connect(passwordLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
-
-	connect(_messageObserver.get(), &QtMessageObserver::Authorize, this, [this](const MessageView& message) {
-		json authorizeStatus = json::parse(message.Content);
-
-		bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
-		int nextPageIndex = isAuthorized ? Pages::MainPage : Pages::LoginPage;
-		_pages->setCurrentIndex(nextPageIndex);
-		
-		std::string authorizeStatusMessage = authorizeStatus["message"].get<std::string>();		
-		auto authorizeStatusMessageBox = new QMessageBox(this);
-		authorizeStatusMessageBox->setWindowTitle("Authorize status");
-		authorizeStatusMessageBox->setText(QString::fromStdString(authorizeStatusMessage));
-		// TODO: position message box on top of the window
-		authorizeStatusMessageBox->show();
-
-		const int showStatusBoxDuration = 1500; // ms
-		QTimer::singleShot(showStatusBoxDuration, authorizeStatusMessageBox, [authorizeStatusMessageBox]() {
-			authorizeStatusMessageBox->close();
-			authorizeStatusMessageBox->deleteLater();
-		});
-	});
-
 	connect(toRegisterButton, &QPushButton::clicked, _pages, [this]() {
 		_pages->setCurrentIndex(Pages::RegisterPage);
 	});
 
-	connect(_messageObserver.get(), &QtMessageObserver::AlreadyAuthorized, _pages, [this]() {
-		_pages->setCurrentIndex(Pages::MainPage);
+	connect(loginLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
+	connect(passwordLineEdit, &QLineEdit::returnPressed, this, parseDataFromInput);
+
+	connect(_messageObserver.get(), &QtMessageObserver::Authorize, this, &ChatUI::OnAuthorizeAction);
+}
+
+void ChatUI::OnAuthorizeAction(const MessageView& message)
+{
+	json authorizeStatus = json::parse(message.Content);
+
+	bool isAuthorized = authorizeStatus["is_authorized"].get<bool>();
+	int nextPageIndex = isAuthorized ? Pages::MainPage : Pages::LoginPage;
+	_pages->setCurrentIndex(nextPageIndex);
+
+	std::string authorizeStatusMessage = authorizeStatus["message"].get<std::string>();
+	auto authorizeStatusMessageBox = new QMessageBox(this);
+	authorizeStatusMessageBox->setWindowTitle("Authorize status");
+	authorizeStatusMessageBox->setText(QString::fromStdString(authorizeStatusMessage));
+	// TODO: position message box on top of the window
+	authorizeStatusMessageBox->show();
+
+	const int showStatusBoxDuration = 1500; // ms
+	QTimer::singleShot(showStatusBoxDuration, authorizeStatusMessageBox, [authorizeStatusMessageBox]() {
+		authorizeStatusMessageBox->close();
+		authorizeStatusMessageBox->deleteLater();
 	});
+}
 
-	connect(_messageObserver.get(), &QtMessageObserver::NotAuthorized, _pages, [this](const MessageView& message) {
-		_pages->setCurrentIndex(Pages::LoginPage);
+void ChatUI::SetupMainPage()
+{
+	QLayout* vSidePanelLayout = SetupSidePanel();
 
-		auto messageBox = new QMessageBox(this);
-		messageBox->setWindowTitle("Not authorized");
-		messageBox->setText(QString::fromStdString(message.Content));
-		// TODO: position message box on top of the window
-		messageBox->show();
-		QPoint chatUITopLeft = this->geometry().topLeft();
-		int x = chatUITopLeft.x() + (this->width() - messageBox->width()) / 2;
-		int y = chatUITopLeft.y();
-		messageBox->move(x, y);
-
-		const int showStatusBoxDuration = 1500; // ms
-		QTimer::singleShot(showStatusBoxDuration, messageBox, [messageBox]() {
-			messageBox->close();
-			messageBox->deleteLater();
-		});
-	});
-
-	// -----------------------------------
-	// left side panel widgets
-	auto nameLineEdit = new QLineEdit;
-	auto userComboBox = new QComboBox;
-	auto chatIdComboBox = new QComboBox;
-	auto userChatIdComboBox = new PopUpSignalEmittingQComboBox; // TODO change type in the future (if needed)
-	userChatIdComboBox->addItem("No chat");
-	auto createChatPushButton = new QPushButton("Create chat");
-	auto createChatHelperWindow = new HelperWindow(this);
-	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
-	createChatHelperWindow->hide();
-
-	auto logutButton = new QPushButton("Logout");
-	connect(logutButton, &QPushButton::clicked, this, [this]() { _client->RequestLogout(); });
-
-	auto vSidePanelLayout = new QVBoxLayout;
-	vSidePanelLayout->addWidget(nameLineEdit);
-	vSidePanelLayout->addWidget(new QLabel("All users"));
-	vSidePanelLayout->addWidget(userComboBox);
-	vSidePanelLayout->addWidget(new QLabel("All chats"));
-	vSidePanelLayout->addWidget(chatIdComboBox);
-	vSidePanelLayout->addWidget(new QLabel("Your chats"));
-	vSidePanelLayout->addWidget(userChatIdComboBox);
-	vSidePanelLayout->addWidget(_noticeBox);
-	vSidePanelLayout->addWidget(createChatPushButton);
-	vSidePanelLayout->addStretch();
-	vSidePanelLayout->addWidget(logutButton, 0, Qt::AlignLeft);
-
-	// main space
 	auto chat = new ChatTextFrame;
+	chat->setObjectName("chat_frame");
+
 	auto messageTextBar = new ChatTextLine(300, 25);
+	messageTextBar->setObjectName("text_bar");
+
 	chat->hide();
 	messageTextBar->hide();
-	
+
 	auto vMainSpaceLayout = new QVBoxLayout;
 	vMainSpaceLayout->addWidget(chat, 0);
 	vMainSpaceLayout->addWidget(messageTextBar, 0);
@@ -238,31 +227,115 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 
 	_mainPage->setLayout(hLayoutMainPage);
 
-	// TODO: connect widgets
-	connect(_messageObserver.get(), &QtMessageObserver::IncomingMessage, chat, [this, chat](const MessageView& messageView) {
-		if (chat->GetCurrentChat() == messageView.ChatID)
-		{
-			auto message = new Message(
-				messageView.ID.value(),
-				QString::fromStdString(messageView.Author),
-				QString::fromStdString(messageView.Content),
-				chat
-			);
-			chat->AddMessage(message, messageView.Author == _client->GetIdentity());
-		}
-	});
+	ConnectAllSignals();
+}
 
+QLayout* ChatUI::SetupSidePanel()
+{
+	auto nameLineEdit = new QLineEdit;
+	nameLineEdit->setObjectName("name_line");
+
+	auto userChatIdComboBox = new PopUpSignalEmittingQComboBox; // TODO change type in the future (if needed)
+	userChatIdComboBox->setObjectName("user_chats");
+	userChatIdComboBox->addItem("No chat");
+	
+	auto createChatPushButton = new QPushButton("Create chat");
+	createChatPushButton->setObjectName("create_chat_button");
+
+	auto createChatHelperWindow = new HelperWindow(this);
+	createChatHelperWindow->setObjectName("create_chat_window");
+	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
+	createChatHelperWindow->hide();
+
+	auto logutButton = new QPushButton("Logout");
+	connect(logutButton, &QPushButton::clicked, this, [this]() { _client->RequestLogout(); });
+
+	auto vSidePanelLayout = new QVBoxLayout;
+	vSidePanelLayout->addWidget(nameLineEdit);
+	vSidePanelLayout->addWidget(new QLabel("Your chats"));
+	vSidePanelLayout->addWidget(userChatIdComboBox);
+	vSidePanelLayout->addWidget(_noticeBox);
+	vSidePanelLayout->addWidget(createChatPushButton);
+	vSidePanelLayout->addStretch();
+	vSidePanelLayout->addWidget(logutButton, 0, Qt::AlignLeft);
+
+	return vSidePanelLayout;
+}
+
+void ChatUI::ConnectAllSignals()
+{
+	auto nameLineEdit = findChild<QLineEdit*>("name_line");
 	connect(_messageObserver.get(), &QtMessageObserver::NewClientName, nameLineEdit, &QLineEdit::setText);
 	connect(nameLineEdit, &QLineEdit::returnPressed, [this, nameLineEdit]() {
 		std::string desiredIdentity = nameLineEdit->text().toStdString();
 		_client->RequestChangeIdentity(desiredIdentity);
 	});
+
+	auto chat = findChild<ChatTextFrame*>("chat_frame");
+	auto messageTextBar = findChild<ChatTextLine*>("text_bar");
+	auto userChatIdComboBox = findChild<PopUpSignalEmittingQComboBox*>("user_chats");
+
+	ConnectSignalsCreateChat();
+	ConnectSignalsUserChats(chat, messageTextBar, userChatIdComboBox);
+	ConnectChatMessageSignals(chat, messageTextBar);
+	ConnectNoticeBoxSignals();
+}
+
+void ChatUI::ConnectSignalsCreateChat()
+{
+	auto createChatPushButton = findChild<QPushButton*>("create_chat_button");
+	auto createChatHelperWindow = findChild<HelperWindow*>("create_chat_window");
+
+	connect(createChatPushButton, &QPushButton::clicked, createChatHelperWindow, &QWidget::show);
+	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this, createChatHelperWindow](const QString& name) {
+		if (!createChatHelperWindow->IsHidden())
+		{
+			_client->GetClientsByName(name.toStdString());
+		}
+	});
+	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, createChatHelperWindow,
+		[createChatHelperWindow](const std::string& clientsStr) -> void
+	{
+		json clientsNamesData = json::parse(clientsStr);
+
+		if (clientsNamesData.empty())
+		{
+			createChatHelperWindow->HideClientList();
+			return;
+		}
+
+		QStringList clients;
+
+		try
+		{
+			for (const auto& client : clientsNamesData)
+			{
+				clients.push_back(QString::fromStdString(client.get<std::string>()));
+			}
+		}
+		catch (const json::exception& e)
+		{
+			qWarning() << "Unable to parse json and create QStringList\n" << e.what();
+			return;
+		}
+
+		createChatHelperWindow->AddItems(clients);
+		createChatHelperWindow->ShowClientList();
+	});
+	connect(createChatHelperWindow, &HelperWindow::ConfirmClicked, createChatHelperWindow, [this, createChatHelperWindow]() {
+		_client->RequestToCreateChat(createChatHelperWindow->GetChosenClientsString());
+		createChatHelperWindow->hide();
+	});
+}
+
+void ChatUI::ConnectSignalsUserChats(ChatTextFrame* chat, ChatTextLine* messageTextBar, PopUpSignalEmittingQComboBox* userChatIdComboBox)
+{
 	connect(userChatIdComboBox, &PopUpSignalEmittingQComboBox::PoppedUp, [this]() {
 		_client->GetClientChatIdsStr();
 	});
 	connect(userChatIdComboBox, &QComboBox::currentTextChanged, chat, [userChatIdComboBox, messageTextBar, chat](const QString& text) {
 		if (userChatIdComboBox->findText(text) == 0)
-		{ 
+		{
 			chat->hide();
 			messageTextBar->hide();
 		}
@@ -296,59 +369,21 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 			return;
 		}
 	});
-	
-	connect(createChatPushButton, &QPushButton::clicked, createChatHelperWindow, &QWidget::show);
-	connect(createChatHelperWindow, &HelperWindow::TextChanged, [this, createChatHelperWindow](const QString& name) {
-		if (!createChatHelperWindow->IsHidden())
+}
+
+void ChatUI::ConnectChatMessageSignals(ChatTextFrame* chat, ChatTextLine* messageTextBar)
+{
+	connect(_messageObserver.get(), &QtMessageObserver::IncomingMessage, chat, [this, chat](const MessageView& messageView) {
+		if (chat->GetCurrentChat() == messageView.ChatID)
 		{
-			_client->GetClientsByName(name.toStdString());
+			auto message = new Message(
+				messageView.ID.value(),
+				QString::fromStdString(messageView.Author),
+				QString::fromStdString(messageView.Content),
+				chat
+			);
+			chat->AddMessage(message, messageView.Author == _client->GetIdentity());
 		}
-	});
-	connect(_messageObserver.get(), &QtMessageObserver::ClientsByName, createChatHelperWindow, 
-	[createChatHelperWindow](const std::string& clientsStr) -> void
-	{
-		json clientsNamesData = json::parse(clientsStr);
-
-		if (clientsNamesData.empty())
-		{
-			createChatHelperWindow->HideClientList();
-			return;
-		}
-
-		QStringList clients;
-
-		try
-		{
-			for (const auto& client : clientsNamesData)
-			{
-				clients.push_back(QString::fromStdString(client.get<std::string>()));
-			}			
-		}
-		catch (const json::exception& e)
-		{
-			qWarning() << "Unable to parse json and create QStringList\n" << e.what();
-			return;
-		}
-
-		createChatHelperWindow->AddItems(clients);
-		createChatHelperWindow->ShowClientList();
-	});
-	connect(createChatHelperWindow, &HelperWindow::ConfirmClicked, createChatHelperWindow, [this, createChatHelperWindow]() {
-		_client->RequestToCreateChat(createChatHelperWindow->GetChosenClientsString());
-		createChatHelperWindow->hide();
-	});
-
-	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
-		_noticeBox->ProcessNotification(messageView);
-	});
-	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int notificationID, int chatId, bool isAccepted) {
-		_client->ReplyChatInvite(chatId, notificationID, isAccepted);
-	});
-	connect(_noticeBox, &NoticeBox::FetchAllNotifications, this, [this]() { 
-		_client->GetNotifications(); 
-	});
-	connect(_messageObserver.get(), &QtMessageObserver::Notifications, _noticeBox, [this](const MessageView& messageView) {
-		_noticeBox->ProcessAllNotifications(messageView);
 	});
 
 	connect(messageTextBar, &ChatTextLine::SendedText, [this, chat](const QString& text) {
@@ -357,4 +392,18 @@ ChatUI::ChatUI(std::shared_ptr<Client> client, std::shared_ptr<QtMessageObserver
 	});
 }
 
-ChatUI::~ChatUI() {}
+void ChatUI::ConnectNoticeBoxSignals()
+{
+	connect(_messageObserver.get(), &QtMessageObserver::CreateChat, _noticeBox, [this](const MessageView& messageView) {
+		_noticeBox->ProcessNotification(messageView);
+	});
+	connect(_noticeBox, &NoticeBox::InvitationProcessed, [this](int notificationID, int chatId, bool isAccepted) {
+		_client->ReplyChatInvite(chatId, notificationID, isAccepted);
+	});
+	connect(_noticeBox, &NoticeBox::FetchAllNotifications, this, [this]() {
+		_client->GetNotifications();
+	});
+	connect(_messageObserver.get(), &QtMessageObserver::Notifications, _noticeBox, [this](const MessageView& messageView) {
+		_noticeBox->ProcessAllNotifications(messageView);
+	});
+}

@@ -3,6 +3,9 @@
 #include <QtWidgets>
 #include <client.hpp>
 #include <qt_message_observer.hpp>
+#include <chat_text_frame.hpp>
+#include <chat_text_line.hpp>
+#include <popup_signal_emitting_q_combo_box.hpp>
 #include <notice_box.hpp>
 
 namespace UI
@@ -23,5 +26,26 @@ namespace UI
 		NoticeBox* _noticeBox;
 		std::shared_ptr<Client> _client;
 		std::shared_ptr<QtMessageObserver> _messageObserver;
+		int _lineEditsMaxWidth = 300;
+
+		void SetupRegisterPage();
+		void OnRegisterAction(const MessageView& message);
+
+		void SetupLoginPage();
+		void OnAuthorizeAction(const MessageView& message);
+
+		void SetupMainPage();
+
+		QLayout* SetupSidePanel();
+
+		void ConnectSignalsCreateChat();
+
+		void ConnectSignalsUserChats(ChatTextFrame* chat, ChatTextLine* messageTextBar, PopUpSignalEmittingQComboBox* userChatIdComboBox);
+
+		void ConnectAllSignals();
+
+		void ConnectChatMessageSignals(ChatTextFrame* chat, ChatTextLine* messageTextBar);
+
+		void ConnectNoticeBoxSignals();
 	};
 }
