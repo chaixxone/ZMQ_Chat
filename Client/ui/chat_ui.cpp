@@ -247,8 +247,8 @@ QLayout* ChatUI::SetupSidePanel()
 	createChatHelperWindow->SetPlaceholderTextLineEdit("Enter user name to invite in a new chat");
 	createChatHelperWindow->hide();
 
-	auto logutButton = new QPushButton("Logout");
-	connect(logutButton, &QPushButton::clicked, this, [this]() { _client->RequestLogout(); });
+	auto logoutButton = new QPushButton("Logout");
+	connect(logoutButton, &QPushButton::clicked, this, [this]() { _client->RequestLogout(); });
 
 	auto vSidePanelLayout = new QVBoxLayout;
 	vSidePanelLayout->addWidget(nameLineEdit);
@@ -257,7 +257,7 @@ QLayout* ChatUI::SetupSidePanel()
 	vSidePanelLayout->addWidget(_noticeBox);
 	vSidePanelLayout->addWidget(createChatPushButton);
 	vSidePanelLayout->addStretch();
-	vSidePanelLayout->addWidget(logutButton, 0, Qt::AlignLeft);
+	vSidePanelLayout->addWidget(logoutButton, 0, Qt::AlignLeft);
 
 	return vSidePanelLayout;
 }
