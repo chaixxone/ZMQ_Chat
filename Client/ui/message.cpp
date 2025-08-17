@@ -17,6 +17,10 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	authorLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	authorLabel->adjustSize();
 	authorLabel->setObjectName("Author Label");
+
+	QFont biggestFont("Jetbrains Mono", 14);
+	int biggestFontSize = biggestFont.pointSize();
+	authorLabel->setMaximumHeight(biggestFontSize + _infoMargin);
 	messageHeadersLayout->addWidget(authorLabel);
 
 	auto mainLayout = new QVBoxLayout;
@@ -28,8 +32,13 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	QTextDocument* doc = _content->document();
 	int documentWidth = _content->viewport()->width();
 	doc->setTextWidth(documentWidth);
+	
+	QFont defaultFont = doc->defaultFont();
+	int defaultFontSize = defaultFont.pointSize();
 	int documentHeight = doc->size().height();
-	_content->setFixedHeight(documentHeight);
+	int maximumDocumentHeight = documentHeight + documentHeight * biggestFontSize / defaultFontSize;
+
+	_content->setMaximumHeight(maximumDocumentHeight);
 	adjustSize();
 }
 
@@ -47,15 +56,13 @@ QString Message::GetContent() const noexcept
 
 QSize Message::sizeHint() const
 {
-	const int infoMargin = 20;
-
 	QTextDocument* doc = _content->document();
 	auto firstInfoHeader = findChild<QLabel*>("Author Label");
 
 	int headersHeight = firstInfoHeader->height();
 	int contentWidth = _content->viewport()->width();
 	int documentHeight = doc->size().height();
-	int totalHeight = documentHeight + headersHeight + infoMargin;
+	int totalHeight = documentHeight + headersHeight + _infoMargin;
 
 	return QSize{ contentWidth, totalHeight };
 }

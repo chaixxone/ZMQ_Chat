@@ -28,5 +28,6 @@ namespace UI
 		const size_t _id;
 		QString _author;
 		QTextEdit* _content;
+		const int _infoMargin = 20;
 	};
 }
