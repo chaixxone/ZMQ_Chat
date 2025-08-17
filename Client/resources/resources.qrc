@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>styles/message.qss</file>
+        <file>styles/chat_ui.qss</file>
     </qresource>
 </RCC>
