@@ -9,7 +9,7 @@ Q_DECLARE_METATYPE(Message*)
 
 ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget), _currentChat(-1)
 {
-	_messages->setItemDelegate(new NoHoverDelegate);
+	_messages->setItemDelegate(new NoHoverDelegate(_messages));
 	_messages->setSpacing(_spaceBetweenItems);
 	_messages->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 	_messages->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
@@ -31,7 +31,7 @@ void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 	setStyleFromFile(messageWrapper, ":/styles/message.qss");
 
 	auto messageItem = new QListWidgetItem(_messages);
-	messageItem->setFlags(messageItem->flags() & ~Qt::ItemIsSelectable);
+	messageItem->setFlags(messageItem->flags() & ~Qt::ItemIsSelectable);	
 	_messages->setItemWidget(messageItem, messageWrapper);
 	messageItem->setSizeHint(message->sizeHint());
 
