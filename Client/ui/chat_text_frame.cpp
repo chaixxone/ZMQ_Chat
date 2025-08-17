@@ -1,5 +1,6 @@
 #include <chat_text_frame.hpp>
 #include <message_item_widget_wrapper.hpp>
+#include <style_from_file.hpp>
 
 using namespace UI;
 
@@ -25,6 +26,7 @@ void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 	message->setFixedWidth(contentWidth * messageWidgetWidthRatio);
 
 	auto messageWrapper = new MessageItemWidgetWrapper(message, isCurrentClient);
+	setStyleFromFile(messageWrapper, ":/styles/message.qss");
 
 	auto messageItem = new QListWidgetItem(_messages);
 	_messages->setItemWidget(messageItem, messageWrapper);
