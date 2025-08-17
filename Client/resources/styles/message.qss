@@ -1,13 +1,13 @@
-Message {
+UI--Message {
 	color: white;
 	border: none;
 	border-radius: 5px;
 }
 
-Message#current_user {
+UI--Message#current_user {
 	background-color: #0000FF;
 }
 
-Message#other_user {
+UI--Message#other_user {
 	background-color: #7B68EE;
 }
