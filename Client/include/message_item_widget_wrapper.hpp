@@ -8,6 +8,8 @@ namespace UI
 {
 	class MessageItemWidgetWrapper : public QWidget
 	{
+		Q_OBJECT
+
 	public:
 		explicit MessageItemWidgetWrapper(Message* message, bool isCurrentClient, QWidget* parent = nullptr);
 
