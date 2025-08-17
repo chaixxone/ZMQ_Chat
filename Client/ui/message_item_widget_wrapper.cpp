@@ -15,13 +15,13 @@ MessageItemWidgetWrapper::MessageItemWidgetWrapper(Message* message, bool isCurr
 	{
 		layout->addStretch();
 		layout->addWidget(_message, 0, Qt::AlignRight);
-		_message->setObjectName("current_user");
+		setObjectName("current_user");
 	}
 	else
 	{
 		layout->addWidget(_message, 0, Qt::AlignLeft);
 		layout->addStretch();
-		_message->setObjectName("other_user");
+		setObjectName("other_user");
 	}
 
 	setContentsMargins(0, 0, 0, 0);
