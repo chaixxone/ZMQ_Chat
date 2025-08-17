@@ -1,6 +1,7 @@
 #include <chat_text_frame.hpp>
 #include <message_item_widget_wrapper.hpp>
 #include <style_from_file.hpp>
+#include <no_hover_delegate.hpp>
 
 using namespace UI;
 
@@ -8,6 +9,7 @@ Q_DECLARE_METATYPE(Message*)
 
 ChatTextFrame::ChatTextFrame(QWidget* parent) : QWidget(parent), _messages(new QListWidget), _currentChat(-1)
 {
+	_messages->setItemDelegate(new NoHoverDelegate);
 	_messages->setSpacing(_spaceBetweenItems);
 	_messages->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 	_messages->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
