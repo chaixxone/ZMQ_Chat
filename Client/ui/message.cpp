@@ -30,7 +30,6 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	int documentHeight = doc->size().height();
 	_content->setFixedHeight(documentHeight);
 	adjustSize();
-	setStyleSheet("border: none; border-radius: 5px; background-color: #E8E8E8;");
 }
 
 Message::~Message() {}
