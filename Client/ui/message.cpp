@@ -60,3 +60,13 @@ QSize Message::sizeHint() const
 
 	return QSize{ contentWidth, totalHeight };
 }
+
+void Message::paintEvent(QPaintEvent* event)
+{
+	QStyleOption opt;
+	opt.initFrom(this);
+	QPainter painter{ this };
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
+	QWidget::paintEvent(event);
+}

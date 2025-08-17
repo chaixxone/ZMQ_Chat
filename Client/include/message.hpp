@@ -21,6 +21,9 @@ namespace UI
 	public slots:
 		void EditText() {}
 
+	protected:
+		virtual void paintEvent(QPaintEvent* event) override;
+
 	private:
 		const size_t _id;
 		QString _author;
