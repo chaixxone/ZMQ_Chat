@@ -1,5 +1,7 @@
 #include <message.hpp>
 
+#include <QFile>
+
 using namespace UI;
 
 Message::Message(size_t id, QString author, QString text, QWidget* parent) :
@@ -57,4 +59,19 @@ QSize Message::sizeHint() const
 	int totalHeight = documentHeight + headersHeight + infoMargin;
 
 	return QSize{ contentWidth, totalHeight };
+}
+
+void Message::SetStyleFromFile(const QString& path)
+{
+	QFile styleFile(path);
+
+	if (!styleFile.open(QFile::ReadOnly | QFile::Text))
+	{
+		qWarning("Cannot open file %s for reading: %s", qPrintable(styleFile.fileName()), qPrintable(styleFile.errorString()));
+		return;
+	}
+
+	QTextStream textStream(&styleFile);
+	QString styleSheet = textStream.readAll();
+	setStyleSheet(styleSheet);
 }

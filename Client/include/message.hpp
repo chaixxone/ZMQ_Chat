@@ -16,6 +16,8 @@ namespace UI
 
 		QSize sizeHint() const override;
 
+		void SetStyleFromFile(const QString& path);
+
 	public slots:
 		void EditText() {}
 
