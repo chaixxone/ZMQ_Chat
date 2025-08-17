@@ -6,6 +6,8 @@ namespace UI
 {
 	class Message : public QWidget
 	{
+		Q_OBJECT
+
 	public:
 		explicit Message(size_t id, QString author, QString text, QWidget* parent = nullptr);
 		~Message();
