@@ -1,4 +1,4 @@
-UI--MessageItemWidgetWrapper UI--Message * {
+UI--MessageItemWidgetWrapper * {
 	color: white;
 	border: none;
 }
@@ -8,10 +8,10 @@ UI--MessageItemWidgetWrapper UI--Message {
 	border-radius: 5px;
 }
 
-UI--MessageItemWidgetWrapper#current_user UI--Message {
+UI--MessageItemWidgetWrapper#current_user * {
 	background-color: #0000FF;
 }
 
-UI--MessageItemWidgetWrapper#other_user UI--Message {
+UI--MessageItemWidgetWrapper#other_user * {
 	background-color: #7B68EE;
 }
