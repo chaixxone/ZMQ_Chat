@@ -10,6 +10,7 @@
 #include <client.hpp>
 #include <qt_message_observer.hpp>
 #include <utils/helpers.hpp>
+#include <style_from_file.hpp>
 
 #define UI_TESTING_NO_CLIENT 1
 
@@ -124,6 +125,7 @@ int main(int argc, char** argv)
     auto messageObserver = std::make_shared<QtMessageObserver>();
     messageObserver->Subscribe(client);
     UI::ChatUI chat{ client, messageObserver };
+    UI::setStyleFromFile(&chat, ":/styles/chat_ui.qss");
     chat.resize(1280, 720);
     chat.show();
 
