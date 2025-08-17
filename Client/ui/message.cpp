@@ -10,7 +10,6 @@ Message::Message(size_t id, QString author, QString text, QWidget* parent) :
 	_content->setReadOnly(true);
 	_content->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_content->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	_content->setStyleSheet("border: none; background: transparent;");
 	_content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	auto messageHeadersLayout = new QHBoxLayout;
