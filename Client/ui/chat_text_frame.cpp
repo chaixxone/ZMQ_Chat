@@ -29,6 +29,7 @@ void ChatTextFrame::AddMessage(Message* message, bool isCurrentClient)
 	setStyleFromFile(messageWrapper, ":/styles/message.qss");
 
 	auto messageItem = new QListWidgetItem(_messages);
+	messageItem->setFlags(messageItem->flags() & ~Qt::ItemIsSelectable);
 	_messages->setItemWidget(messageItem, messageWrapper);
 	messageItem->setSizeHint(message->sizeHint());
 
