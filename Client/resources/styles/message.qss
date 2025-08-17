@@ -9,7 +9,7 @@ UI--MessageItemWidgetWrapper UI--Message {
 }
 
 UI--MessageItemWidgetWrapper#current_user * {
-	background-color: #0000FF;
+	background-color: #6495ED;
 }
 
 UI--MessageItemWidgetWrapper#other_user * {
