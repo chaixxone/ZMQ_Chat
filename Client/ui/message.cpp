@@ -60,18 +60,3 @@ QSize Message::sizeHint() const
 
 	return QSize{ contentWidth, totalHeight };
 }
-
-void Message::SetStyleFromFile(const QString& path)
-{
-	QFile styleFile(path);
-
-	if (!styleFile.open(QFile::ReadOnly | QFile::Text))
-	{
-		qWarning("Cannot open file %s for reading: %s", qPrintable(styleFile.fileName()), qPrintable(styleFile.errorString()));
-		return;
-	}
-
-	QTextStream textStream(&styleFile);
-	QString styleSheet = textStream.readAll();
-	setStyleSheet(styleSheet);
-}
