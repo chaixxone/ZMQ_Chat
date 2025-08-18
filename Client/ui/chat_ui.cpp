@@ -1,6 +1,7 @@
 #include <chat_ui.hpp>
 #include <chat_invite.hpp>
 #include <nlohmann/json.hpp>
+#include <style_from_file.hpp>
 
 using json = nlohmann::json;
 
@@ -203,6 +204,7 @@ void ChatUI::SetupMainPage()
 	_chat->setObjectName("chat_frame");
 
 	_messageTextBar = new ChatTextLine(300, 25);
+	setStyleFromFile(_messageTextBar, ":/styles/text_bar.qss");
 	_messageTextBar->setObjectName("text_bar");
 
 	_chat->hide();
