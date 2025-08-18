@@ -248,7 +248,8 @@ void Client::SendMessageToChat(const std::string& messageStr, int chatIdInt)
 
 void Client::RequestToCreateChat(const std::string& clients)
 {
-    std::cout << "I am requesting: " << clients << ", to create chat\n";
+    std::string loggedMessage = "I am requesting : " + clients + ", to create chat";
+    Logger::Log(loggedMessage);
     SendRequest(clients, Utils::Action::CreateChat, -1);
 }
 
@@ -310,22 +311,30 @@ void Client::ReceiveMessage()
                 break;
             }
             case Utils::Action::CreateChat:
-                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdInt << '\n';
+            {
+                std::string chatInviteMessage = std::format("[{}] I am invited to chat {}", _identity, chatIdInt);
+                Logger::Log(chatInviteMessage);
+
                 _hasRequestToChat = true;
                 _pendingChatId = chatIdInt;
-                std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
+
+                std::string replyPrompt = std::format("[Server] Do you wish to create chat with {}? (y/n)", dataStr);
+                Logger::Log(replyPrompt);
+
                 break;
+            }
             case Utils::Action::NewChat:
+            {
                 _chatId = std::stoi(dataStr);
-                std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
+                std::string inChatMessage = std::format("[Server] Now you are in chat with id={}", dataStr);
+                Logger::Log(inChatMessage);
                 break;
-            case Utils::Action::IncomingMessage:
-                break;
+            }
             case Utils::Action::NewClientName:
                 ChangeIdentity(dataStr);
                 break;
-            default:
-                std::cout << "Error: unknown action!\n";
+            case Utils::Action::Unknown:
+                Logger::LogError("Error: unknown action!", "client actions");
                 break;
             }
         }
