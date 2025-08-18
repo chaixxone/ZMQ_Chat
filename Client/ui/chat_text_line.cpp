@@ -2,6 +2,7 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QAbstractTextDocumentLayout>
+#include <logger.hpp>
 
 UI::ChatTextLine::ChatTextLine(int maxWidth, int height, QWidget* parent) :
 	QTextEdit(parent), 
@@ -31,6 +32,8 @@ void UI::ChatTextLine::AdjustHeight()
 
 	int documentHeight = document()->documentLayout()->documentSize().height();
 	int lines = documentHeight / fontHeight;
+	Logger::LogDebug(std::to_string(lines), "lines");
+
 	int heightMultiplier = qMin(lines, m_maxVisibleLines);
 	setMaximumHeight(m_height * heightMultiplier);
 }
