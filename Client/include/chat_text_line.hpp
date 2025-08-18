@@ -1,5 +1,6 @@
 #pragma once
 #include <QTextEdit>
+#include <QTimer>
 
 namespace UI
 {
@@ -18,11 +19,16 @@ namespace UI
 		void keyPressEvent(QKeyEvent* event) override;
 		void paintEvent(QPaintEvent* event) override;
 
-	private:		
+	private:				
 		QColor m_cursorColor;
+		QTimer* m_cursorBlinkTimer;
+		const int m_cursorBlinkDuration = 500;
+
 		int m_maxWidth;
 		int m_height;
 		static const int m_maxVisibleLines = 5;
+
+		bool m_isCursorHidden;
 
 	signals:
 		void SendedText(const QString& text);
