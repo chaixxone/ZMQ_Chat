@@ -4,9 +4,12 @@
 
 using namespace UI;
 
-Message::Message(size_t id, QString author, QString text, QWidget* parent) :
-	QWidget(parent), _id(id), _author(std::move(author)), _content(new QTextEdit(std::move(text)))
+Message::Message(size_t id, QString author, QString&& text, QWidget* parent) :
+	QWidget(parent), _id(id), _author(std::move(author))
 {
+	text.replace("\n", "<br>");
+	_content = new QTextEdit(std::move(text));
+
 	_content->setReadOnly(true);
 	_content->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_content->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

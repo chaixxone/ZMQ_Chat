@@ -9,7 +9,7 @@ namespace UI
 		Q_OBJECT
 
 	public:
-		explicit Message(size_t id, QString author, QString text, QWidget* parent = nullptr);
+		explicit Message(size_t id, QString author, QString&& text, QWidget* parent = nullptr);
 		~Message();
 
 		size_t GetId() const noexcept;
