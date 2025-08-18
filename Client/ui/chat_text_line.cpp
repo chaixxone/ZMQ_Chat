@@ -1,5 +1,6 @@
 #include "chat_text_line.hpp"
 #include <QKeyEvent>
+#include <QPainter>
 
 UI::ChatTextLine::ChatTextLine(int maxWidth, int height, QWidget* parent) :
 	QTextEdit(parent), m_maxWidth(maxWidth), m_height(height)
@@ -34,4 +35,30 @@ void UI::ChatTextLine::keyPressEvent(QKeyEvent* event)
 			return;
 		}
 	}
+}
+
+QColor UI::ChatTextLine::GetCursorColor() const
+{
+	return m_cursorColor;
+}
+
+void UI::ChatTextLine::SetCursorColor(QColor color)
+{
+	m_cursorColor = color;
+}
+
+void UI::ChatTextLine::paintEvent(QPaintEvent* event)
+{
+	QTextEdit::paintEvent(event);
+
+	if (textCursor().hasSelection())
+	{
+		return;
+	}
+
+	QPainter painter{ viewport() };
+	QPen pen = painter.pen();
+	pen.setColor(m_cursorColor);
+	painter.setPen(pen);
+	painter.drawRect(cursorRect());
 }
