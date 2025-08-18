@@ -1,0 +1,7 @@
+UI--ChatTextLine {
+    border: none;
+    border-radius: 5px;
+    color: deepskyblue;
+    qproperty-cursorColor: deepskyblue;
+    background-color: peachpuff;
+}
