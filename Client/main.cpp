@@ -127,6 +127,7 @@ int main(int argc, char** argv)
     chat.resize(1280, 720);
     chat.show();
 
+#ifdef WITH_CONSOLE
     std::thread clientConsoleInputThread(processClientConsoleInput, client);
     QObject::connect(QApplication::instance(), &QApplication::aboutToQuit, [&clientConsoleInputThread, threadAlivePtr = &alive]() {
         *threadAlivePtr = false;
@@ -136,6 +137,7 @@ int main(int argc, char** argv)
             clientConsoleInputThread.join();
         }
     });
+#endif
 
     return app.exec();
 }
