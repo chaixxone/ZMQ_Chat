@@ -9,6 +9,8 @@ UI::ChatTextLine::ChatTextLine(int maxWidth, int height, QWidget* parent) :
 	m_height(height), 
 	m_isCursorHidden(false)
 {
+	setCursorWidth(0);
+
 	setMaximumWidth(m_maxWidth);
 	setMaximumHeight(m_height);
 	setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
