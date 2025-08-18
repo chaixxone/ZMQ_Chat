@@ -24,8 +24,6 @@ void UI::ChatTextLine::keyPressEvent(QKeyEvent* event)
 
 	if (event->key() == Qt::Key::Key_Return && (event->modifiers() & Qt::KeyboardModifier::ControlModifier))
 	{
-		qDebug() << "ctrl + enter";
-
 		QString text = document()->toPlainText().trimmed();
 
 		if (!text.isEmpty())
