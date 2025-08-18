@@ -6,6 +6,7 @@ UI::ChatTextLine::ChatTextLine(int maxWidth, int height, QWidget* parent) :
 {
 	setMaximumWidth(m_maxWidth);
 	setMaximumHeight(m_height);
+	setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 
 	setContentsMargins(3, 3, 3, 3);
 	connect(this, &QTextEdit::textChanged, this, &ChatTextLine::AdjustHeight);
