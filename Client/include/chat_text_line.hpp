@@ -8,14 +8,14 @@ namespace UI
 		Q_OBJECT
 
 	public:
-		explicit ChatTextLine(int maxWidth, int minHeight, QWidget* parent = nullptr);
+		explicit ChatTextLine(int maxWidth, int height, QWidget* parent = nullptr);
 
 	protected:
 		void keyPressEvent(QKeyEvent* event) override;
 
 	private:
 		int m_maxWidth;
-		int m_minHeight;
+		int m_height;
 		static const int m_maxVisibleLines = 5;
 
 	signals:

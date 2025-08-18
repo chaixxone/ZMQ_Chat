@@ -1,10 +1,12 @@
 #include "chat_text_line.hpp"
 #include <QKeyEvent>
 
-UI::ChatTextLine::ChatTextLine(int maxWidth, int minHeight, QWidget* parent) :
-	QTextEdit(parent), m_maxWidth(maxWidth), m_minHeight(minHeight)
+UI::ChatTextLine::ChatTextLine(int maxWidth, int height, QWidget* parent) :
+	QTextEdit(parent), m_maxWidth(maxWidth), m_height(height)
 {
-	resize(m_maxWidth, m_minHeight);
+	setMaximumWidth(m_maxWidth);
+	setMaximumHeight(m_height);
+
 	setContentsMargins(3, 3, 3, 3);
 	connect(this, &QTextEdit::textChanged, this, &ChatTextLine::AdjustHeight);
 }
@@ -13,7 +15,7 @@ void UI::ChatTextLine::AdjustHeight()
 {
 	int lines = document()->lineCount();
 	int heightMultiplier = qMin(lines, m_maxVisibleLines);
-	resize(m_maxWidth, m_minHeight * heightMultiplier);
+	setMaximumHeight(m_height * heightMultiplier);
 }
 
 void UI::ChatTextLine::keyPressEvent(QKeyEvent* event)
