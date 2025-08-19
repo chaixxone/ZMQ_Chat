@@ -20,9 +20,10 @@ private:
         const std::unordered_set<std::string>& clients,
         const std::string& messageIdStr,
         const std::string& authorStr,
-        int chatIdInt
+        int chatIdInt,
+        int messageFlagsInt = 0
     );
-    void MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId);
+    void MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId, int messageFlagsInt = 0);
     std::unordered_set<std::string> ParseClients(const std::string& clients, const std::string& creator);
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId);
     void PrepareNewChatSession(const std::string& clientId, const std::string& dataStr);
@@ -44,6 +45,7 @@ private:
 
     enum ChatMessageFlags 
     {
+        NoFlags,
         Reply,
         Emotion
     };
