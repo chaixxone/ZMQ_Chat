@@ -18,27 +18,46 @@ public:
     std::string GetIdentity() const noexcept;
 
     void RequestRegister(const std::string identity, const std::string& password, const std::string& passwordRepeat);
+
     void RequestAuthorize(const std::string& identity, const std::string& password);
+
     void RequestLogout();
+
     void RequestToCreateChat(const std::string& clients) override;
+
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
+
     bool HasRequestToChat() const;
+
     void ReplyChatInvite(int chatId, int notificationID, bool isAccepted);
+
     void RequestChangeIdentity(const std::string& desiredIdentity);
+
     std::optional<MessageView> TryGetMessage() override;
+
     int GetChatId() const noexcept;
+
     void GetClientChatIdsStr();
+
     void AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver) override;
+
     void GetClientsByName(const std::string& name);
+
     void GetNotifications();
 
 private:
     void SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt);
+
     void ReceiveMessage();
+
     static std::string GenerateTemporaryId();
+
     static void UpdateSessionID(const std::string sessionID, const std::string& pathToConfig);
+
     static std::string ReadSessionID(const std::string& pathToConfig);
+
     void ChangeIdentity(const std::string& identity);
+
     static void UpdateClientIDConfig(const std::string& pathToConfig, const std::string& identity);
 
     zmq::context_t _context;
