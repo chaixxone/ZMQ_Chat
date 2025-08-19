@@ -11,6 +11,7 @@ namespace UI
 	{
 		QString Author;
 		size_t MessageID;
+		int NotificationID;
 		int ChatID;
 	};
 
@@ -28,5 +29,6 @@ namespace UI
 		QString _author;
 		size_t _messageID;
 		int _chatID;
+		int _notificationID;
 	};
 }
