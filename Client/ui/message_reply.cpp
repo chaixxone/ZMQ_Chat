@@ -19,9 +19,5 @@ void MessageReply::OnClick()
 {
 	MessageReplyData replyData{ std::move(_author), _messageID, _chatID, _notificationID };
 	emit NotificationProcessed(Notifications::MessageReply, QVariant::fromValue(replyData));
-}
-
-void MessageReply::ReplyChecked()
-{
 	emit NotificationWatched(Notifications::MessageReply);
 }

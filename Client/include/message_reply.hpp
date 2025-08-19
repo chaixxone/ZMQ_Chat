@@ -22,9 +22,6 @@ namespace UI
 
 		void OnClick() override;
 
-	public slots:
-		void ReplyChecked();
-
 	private:
 		QString _author;
 		size_t _messageID;
