@@ -21,7 +21,8 @@ namespace Utils
         {"all_chats", Action::AllChats},
         {"client_chats", Action::ClientChats},
         {"notifications", Action::Notifications},
-        {"clients_by_name", Action::ClientsByName}
+        {"clients_by_name", Action::ClientsByName},
+        {"message_reply", Action::MessageReply}
     };
 
     Action stringToAction(const std::string& actionStr)
