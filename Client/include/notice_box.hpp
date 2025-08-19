@@ -27,6 +27,7 @@ namespace UI
 	signals:
 		void FetchAllNotifications();
 		void InvitationProcessed(int notificationID, int chatId, bool isAccepted);
+		void ReplyChecked(int notificationID, int chatId, int repliedMessageId);
 
 	private:
 		QListWidget* _notices;
