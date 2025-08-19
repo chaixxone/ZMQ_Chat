@@ -5,12 +5,12 @@ using namespace UI;
 
 Q_DECLARE_METATYPE(MessageReplyData*);
 
-MessageReply::MessageReply(const MessageView& messageView, QWidget* parent) : 
-	INotifiable(parent),
-	_author(QString::fromStdString(messageView.Author)),
-	_messageID(messageView.ID.value()),
-	_chatID(messageView.ChatID)
+MessageReply::MessageReply(const nlohmann::json& notificationPayload, QWidget* parent) : 
+	INotifiable(parent)	
 {
+	_author		= QString::fromStdString(notificationPayload["author"].get<std::string>());
+	_messageID	= notificationPayload["replied_message_id"].get<size_t>();
+	_chatID		= notificationPayload["chat_id"].get<int>();
 	auto noticeBoxContentLabel = new QLabel(_author + " replied on your message");
 }
 

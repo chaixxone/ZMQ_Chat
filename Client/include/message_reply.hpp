@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <notifiable_interface.hpp>
 #include <message_view.hpp>
 
@@ -15,7 +17,7 @@ namespace UI
 	class MessageReply : public INotifiable
 	{
 	public:
-		explicit MessageReply(const MessageView& messageView, QWidget* parent = nullptr);
+		explicit MessageReply(const nlohmann::json& notificationPayload, QWidget* parent = nullptr);
 
 		void OnClick() override;
 
