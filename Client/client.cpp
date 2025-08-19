@@ -8,6 +8,7 @@
 
 #include <utils/client_actions.hpp>
 #include <utils/helpers.hpp>
+#include <logger.hpp>
 
 using json = nlohmann::json;
 
