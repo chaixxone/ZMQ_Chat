@@ -1,0 +1,17 @@
+UI--MessageItemWidgetWrapper * {
+	color: white;
+	border: none;
+}
+
+UI--MessageItemWidgetWrapper UI--Message {
+	border: none;
+	border-radius: 5px;
+}
+
+UI--MessageItemWidgetWrapper#current_user * {
+	background-color: #6495ED;
+}
+
+UI--MessageItemWidgetWrapper#other_user * {
+	background-color: #7B68EE;
+}

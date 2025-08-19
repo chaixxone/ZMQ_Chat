@@ -10,8 +10,7 @@
 #include <client.hpp>
 #include <qt_message_observer.hpp>
 #include <utils/helpers.hpp>
-
-#define UI_TESTING_NO_CLIENT 1
+#include <style_from_file.hpp>
 
 namespace
 {
@@ -124,20 +123,9 @@ int main(int argc, char** argv)
     auto messageObserver = std::make_shared<QtMessageObserver>();
     messageObserver->Subscribe(client);
     UI::ChatUI chat{ client, messageObserver };
+    UI::setStyleFromFile(&chat, ":/styles/chat_ui.qss");
     chat.resize(1280, 720);
     chat.show();
-
-#ifdef WITH_CONSOLE
-    std::thread clientConsoleInputThread(processClientConsoleInput, client);
-    QObject::connect(QApplication::instance(), &QApplication::aboutToQuit, [&clientConsoleInputThread, threadAlivePtr = &alive]() {
-        *threadAlivePtr = false;
-
-        if (clientConsoleInputThread.joinable())
-        {
-            clientConsoleInputThread.join();
-        }
-    });
-#endif
 
     return app.exec();
 }

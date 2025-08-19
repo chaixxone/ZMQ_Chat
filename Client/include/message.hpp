@@ -6,8 +6,10 @@ namespace UI
 {
 	class Message : public QWidget
 	{
+		Q_OBJECT
+
 	public:
-		explicit Message(size_t id, QString author, QString text, QWidget* parent = nullptr);
+		explicit Message(size_t id, QString author, QString&& text, QWidget* parent = nullptr);
 		~Message();
 
 		size_t GetId() const noexcept;
@@ -19,9 +21,13 @@ namespace UI
 	public slots:
 		void EditText() {}
 
+	protected:
+		virtual void paintEvent(QPaintEvent* event) override;
+
 	private:
 		const size_t _id;
 		QString _author;
 		QTextEdit* _content;
+		const int _infoMargin = 20;
 	};
 }

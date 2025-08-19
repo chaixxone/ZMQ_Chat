@@ -67,7 +67,7 @@ void Server::Run()
             }
             else
             {
-                if (_databaseConnection->DoesSessionExist(clientId, deviceIDStr, sessionIDStr))
+                if (!_databaseConnection->DoesSessionExist(clientId, deviceIDStr, sessionIDStr))
                 {
                     MessageDispatch(Utils::Action::NotAuthorized, "Error: you're not allowed to do anything without logging in", clientId);
                     continue;

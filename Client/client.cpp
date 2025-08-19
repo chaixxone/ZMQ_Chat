@@ -8,6 +8,7 @@
 
 #include <utils/client_actions.hpp>
 #include <utils/helpers.hpp>
+#include <logger.hpp>
 
 using json = nlohmann::json;
 
@@ -75,6 +76,11 @@ Client::Client(std::string endpoint,
     SendRequest(desiredIdentity, Utils::Action::Connect, -1);
 
     _receiver = std::thread(&Client::ReceiveMessage, this);
+}
+
+std::string Client::GetIdentity() const noexcept
+{
+    return _identity;
 }
 
 void Client::AttachMessageObserver(std::shared_ptr<IMessageObserver> messageObserver)

@@ -20,12 +20,15 @@ namespace UI
 		void CurrentChatChanged(int currentChat);
 
 	public slots:
-		void AddMessage(Message* message);
+		void AddMessage(Message* message, bool isCurrentClient);
 		void SetCurrentChat(const QString& chatIdStr) noexcept;
 
 	private:
 		QListWidget* _messages;
 		int _currentChat;
+		const int _spaceBetweenItems = 5;
+
+		void ScrollOnAddMessage();
 
 	private slots:
 		void RemoveMessage(size_t messageId);

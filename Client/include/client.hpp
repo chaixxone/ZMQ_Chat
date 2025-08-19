@@ -15,6 +15,8 @@ public:
         const std::string& pathToConfigFile
     );
     ~Client();
+    std::string GetIdentity() const noexcept;
+
     void RequestRegister(const std::string identity, const std::string& password, const std::string& passwordRepeat);
     void RequestAuthorize(const std::string& identity, const std::string& password);
     void RequestLogout();
