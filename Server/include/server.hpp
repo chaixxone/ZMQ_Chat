@@ -41,4 +41,10 @@ private:
     std::unordered_set<Utils::Action> _nonSessionActions;
     std::unique_ptr<DatabaseConnection> _databaseConnection;
     bool _running;
+
+    enum ChatMessageFlags 
+    {
+        Reply,
+        Emotion
+    };
 };
