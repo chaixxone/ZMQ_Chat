@@ -1,5 +1,3 @@
-#include <qdebug.h>
-
 #include <qt_message_observer.hpp>
 
 QtMessageObserver::QtMessageObserver()
@@ -24,7 +22,6 @@ void QtMessageObserver::Update()
 	{
 		std::shared_ptr<IClientMessageSubject> client = _client.lock();
 		std::optional<MessageView> message = client->TryGetMessage();
-		qDebug() << message->ChatID << '\t' << message->ID << '\t' << message->Author << '\t' << message->Content;
 
 		MessageView& messageData = message.value();
 
