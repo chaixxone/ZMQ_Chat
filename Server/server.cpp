@@ -327,7 +327,7 @@ void Server::AskClients(int pendingInvitesChatId, const std::string& creator, co
     }
 }
 
-void Server::MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId)
+void Server::MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId, int messageFlagsInt)
 {
     const std::string defaultChatId = "-1";
     zmq::message_t clientIdFrame(clientId);
@@ -338,13 +338,15 @@ void Server::MessageDispatch(Utils::Action action, const std::string& message, c
     zmq::message_t author(0);
 
     zmq::message_t chatId(defaultChatId);
+    zmq::message_t messageFlags(std::to_string(messageFlagsInt));
 
     _socket.send(clientIdFrame, zmq::send_flags::sndmore);
     _socket.send(actionFrame, zmq::send_flags::sndmore);
     _socket.send(data, zmq::send_flags::sndmore);
     _socket.send(messageId, zmq::send_flags::sndmore);
     _socket.send(author, zmq::send_flags::sndmore);
-    _socket.send(chatId, zmq::send_flags::none);
+    _socket.send(chatId, zmq::send_flags::sndmore);
+    _socket.send(messageFlags, zmq::send_flags::none);
 }
 
 void Server::MessageDispatch(
@@ -353,7 +355,8 @@ void Server::MessageDispatch(
     const std::unordered_set<std::string>& clients,
     const std::string& messageIdStr,
     const std::string& authorStr,
-    int chatIdInt
+    int chatIdInt,
+    int messageFlagsInt
 )
 {
     for (const auto& client : clients)
@@ -364,13 +367,15 @@ void Server::MessageDispatch(
         zmq::message_t messageId(messageIdStr);
         zmq::message_t author(authorStr);
         zmq::message_t chatId(std::to_string(chatIdInt));
+        zmq::message_t messageFlags(std::to_string(messageFlagsInt));
 
         _socket.send(clientId, zmq::send_flags::sndmore);
         _socket.send(actionFrame, zmq::send_flags::sndmore);
         _socket.send(data, zmq::send_flags::sndmore);
         _socket.send(messageId, zmq::send_flags::sndmore);
         _socket.send(author, zmq::send_flags::sndmore);
-        _socket.send(chatId, zmq::send_flags::none);
+        _socket.send(chatId, zmq::send_flags::sndmore);
+        _socket.send(messageFlags, zmq::send_flags::none);
     }
 }
 
