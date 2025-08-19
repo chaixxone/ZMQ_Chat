@@ -12,8 +12,6 @@
 #include <utils/helpers.hpp>
 #include <style_from_file.hpp>
 
-#define UI_TESTING_NO_CLIENT 1
-
 namespace
 {
     bool alive = true;
