@@ -27,10 +27,6 @@ public:
 
     void SendMessageToChat(const std::string& messageStr, int chatIdInt) override;
 
-    bool HasRequestToChat() const;
-
-    void ReplyChatInvite(int chatId, int notificationID, bool isAccepted);
-
     void RequestChangeIdentity(const std::string& desiredIdentity);
 
     std::optional<MessageView> TryGetMessage() override;
@@ -43,6 +39,8 @@ public:
 
     void GetClientsByName(const std::string& name);
 
+    bool HasRequestToChat() const;
+    void ReplyChatInvite(int chatId, int notificationID, bool isAccepted);
     void GetNotifications();
 
 private:
