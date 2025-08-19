@@ -41,12 +41,5 @@ private:
     zmq::socket_t _socket;
     std::unordered_set<Utils::Action> _nonSessionActions;
     std::unique_ptr<DatabaseConnection> _databaseConnection;
-    bool _running;
-
-    enum ChatMessageFlags 
-    {
-        NoFlags,
-        Reply,
-        Emotion
-    };
+    bool _running;    
 };
