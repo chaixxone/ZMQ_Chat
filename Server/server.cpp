@@ -103,6 +103,22 @@ void Server::Run()
                 case Utils::Action::MessageReply:
                     HandleMessageReply(clientId, dataStr, chatIdNumber);
                     break;
+                case Utils::Action::NotificationChecked:
+                {
+                    int notificationID = -1;
+                    try
+                    {
+                        notificationID = std::stoi(dataStr);
+                    }
+                    catch (const std::invalid_argument& e)
+                    {
+                        std::cerr << "Couldn't parse notification ID at NotificationChecked\n";
+                        return;
+                    }
+
+                    NotificationChecked(notificationID);
+                    break;
+                }
                 case Utils::Action::ClientsByName:
                     HandleGetClientsByName(clientId, dataStr);
                     break;
