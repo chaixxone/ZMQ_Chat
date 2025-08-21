@@ -22,6 +22,8 @@ namespace Utils
         AllChats,
         ClientChats,
         Notifications,
+        NotificationChecked,
+        MessageReply,
         ClientsByName,
         Unknown
     };

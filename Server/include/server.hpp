@@ -20,9 +20,10 @@ private:
         const std::unordered_set<std::string>& clients,
         const std::string& messageIdStr,
         const std::string& authorStr,
-        int chatIdInt
+        int chatIdInt,
+        int messageFlagsInt = 0
     );
-    void MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId);
+    void MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId, int messageFlagsInt = 0);
     std::unordered_set<std::string> ParseClients(const std::string& clients, const std::string& creator);
     void HandleSendMessage(const std::string& clientId, const std::string& dataStr, int chatId);
     void PrepareNewChatSession(const std::string& clientId, const std::string& dataStr);
@@ -34,10 +35,12 @@ private:
     void HandleClientChatsInfoRequest(const std::string& clientId);
     void HandleGetClientsByName(const std::string& clientId, const std::string& name);
     void HandleClientNotifications(const std::string& clientId);
+    void HandleMessageReply(const std::string& clientId, const std::string& dataStr, int chatId);
+    void NotificationChecked(int notificationId);
 
     zmq::context_t& _context;
     zmq::socket_t _socket;
     std::unordered_set<Utils::Action> _nonSessionActions;
     std::unique_ptr<DatabaseConnection> _databaseConnection;
-    bool _running;
+    bool _running;    
 };

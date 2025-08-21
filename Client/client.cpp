@@ -278,11 +278,13 @@ void Client::ReceiveMessage()
         zmq::message_t messageId;
         zmq::message_t author;
         zmq::message_t chatId;
+        zmq::message_t chatMessageFlags;
         bool messageReceivedResult = _socket.recv(action, zmq::recv_flags::dontwait)
             && _socket.recv(data, zmq::recv_flags::dontwait)
             && _socket.recv(messageId, zmq::recv_flags::dontwait)
             && _socket.recv(author, zmq::recv_flags::dontwait)
-            && _socket.recv(chatId, zmq::recv_flags::dontwait);
+            && _socket.recv(chatId, zmq::recv_flags::dontwait)
+            && _socket.recv(chatMessageFlags, zmq::recv_flags::dontwait);
 
         if (messageReceivedResult)
         {
@@ -294,7 +296,8 @@ void Client::ReceiveMessage()
             Utils::Action actionEnum = Utils::stringToAction(actionStr);
             int chatIdInt = std::stoi(chatId.to_string());
             std::optional<size_t> messageId = messageIdStr.empty() ? std::nullopt : std::optional(std::stoull(messageIdStr));
-            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageId, chatIdInt, actionEnum });
+            Utils::ChatMessageFlags flags = static_cast<Utils::ChatMessageFlags>(std::stoi(chatMessageFlags.to_string()));
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageId, chatIdInt, actionEnum, flags });
 
             if (_messageObserver)
             {
@@ -378,4 +381,10 @@ void Client::GetClientsByName(const std::string& name)
 void Client::GetNotifications()
 {
     SendRequest("", Utils::Action::Notifications, -1);
+}
+
+void Client::ReplyToMessage(int chatId, size_t messageID, const std::string& content)
+{
+    json replyData = { { "replied_message_id", messageID }, { "content", content } };
+    SendRequest(replyData.dump(), Utils::Action::MessageReply, chatId);
 }
