@@ -42,7 +42,7 @@ public:
     bool HasRequestToChat() const;
     void ReplyChatInvite(int chatId, int notificationID, bool isAccepted);
     void GetNotifications();
-    void ReplyToMessage(int chatId, int messageID, const std::string& content);
+    void ReplyToMessage(int chatId, size_t messageID, const std::string& content);
 
 private:
     void SendRequest(const std::string& messageStr, Utils::Action action, int chatIdInt);

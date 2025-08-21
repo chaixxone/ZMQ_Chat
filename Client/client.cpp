@@ -383,7 +383,7 @@ void Client::GetNotifications()
     SendRequest("", Utils::Action::Notifications, -1);
 }
 
-void Client::ReplyToMessage(int chatId, int messageID, const std::string& content)
+void Client::ReplyToMessage(int chatId, size_t messageID, const std::string& content)
 {
     json replyData = { { "replied_message_id", messageID }, { "content", content } };
     SendRequest(replyData.dump(), Utils::Action::MessageReply, chatId);
