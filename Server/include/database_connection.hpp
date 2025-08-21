@@ -26,7 +26,7 @@ public:
 	bool UserDeviceSession(const std::string& identity, const std::string& deviceID) const;
 	bool DoesSessionExist(const std::string& identity, const std::string& deviceID, const std::string& sessionId) const;
 	// returns message id 
-	size_t StoreMessage(int chatId, const std::string& messageContent);
+	size_t StoreMessage(int chatId, const std::string& messageContent, const std::string& author);
 	// returns deleted session count - useful for logging
 	int DeleteSession(const std::string& identity, const std::string& deviceID, const std::string& sessionID) const;
 	std::unordered_set<std::string> GetChatClients(int chatId);

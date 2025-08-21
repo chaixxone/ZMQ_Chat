@@ -236,7 +236,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
         return;
     }
 
-    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr);
+    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr, clientId);
     // Send message to active clients
     std::unordered_set<std::string> chatClients = _databaseConnection->GetChatClients(chatId);
     MessageDispatch(Utils::Action::IncomingMessage, dataStr, chatClients, std::to_string(messageID), clientId, chatId);

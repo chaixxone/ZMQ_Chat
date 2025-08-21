@@ -190,7 +190,7 @@ std::string DatabaseConnection::GetPasswordHash(const std::string& userLogin) co
 	return "";
 }
 
-size_t DatabaseConnection::StoreMessage(int chatId, const std::string& messageContent)
+size_t DatabaseConnection::StoreMessage(int chatId, const std::string& messageContent, const std::string& author)
 {
 	auto lastMessageQuery = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
@@ -204,12 +204,13 @@ size_t DatabaseConnection::StoreMessage(int chatId, const std::string& messageCo
 
 	auto insertMessageStatement = std::unique_ptr<sql::PreparedStatement>(
 		_connection->prepareStatement(
-			"INSERT INTO messages (id, chat_id, content) VALUES (?, ?, ?)"
+			"INSERT INTO messages (id, chat_id, content, author_identity) VALUES (?, ?, ?, ?)"
 		)
 	);
 	insertMessageStatement->setUInt64(1, lastMessageID);
 	insertMessageStatement->setInt(2, chatId);
 	insertMessageStatement->setString(3, messageContent);
+	insertMessageStatement->setString(4, author);
 	insertMessageStatement->execute();
 
 	return lastMessageID;
