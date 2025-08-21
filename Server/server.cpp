@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <utils/helpers.hpp>
 
 using json = nlohmann::json;
 
@@ -394,4 +395,46 @@ void Server::HandleClientNotifications(const std::string& clientId)
     clientInvitesData = clientNotifications;
 
     MessageDispatch(Utils::Action::Notifications, clientInvitesData.dump(), clientId);
+}
+
+void Server::HandleMessageReply(const std::string& clientId, const std::string& dataStr, int chatId)
+{
+    size_t repliedMessageID = 0;
+    std::string content;
+
+    try
+    {
+        json replyData = json::parse(dataStr);
+        repliedMessageID = replyData["replied_message_id"].get<size_t>();
+        content = replyData["content"].get<std::string>();
+    }
+    catch (const json::exception& e)
+    {
+        std::cerr << "Couldn't parse json at MessageReply\n";
+        return;
+    }
+        
+    std::string repliedMessageAuthor = _databaseConnection->GetMessageAuthor(chatId, repliedMessageID);
+    std::string notificationType = Utils::actionToString(Utils::Action::MessageReply);
+
+    int notificationID = _databaseConnection->AddNotification(clientId, repliedMessageAuthor, notificationType, content, chatId);
+
+    json replyNotification = { 
+        { "notification_id", notificationID }, 
+        { "chat_id", chatId }, 
+        { "replied_message_id", repliedMessageID },
+        { "author", clientId }
+    };
+
+    MessageDispatch(Utils::Action::MessageReply, replyNotification.dump(), repliedMessageAuthor);
+
+    if (chatId == -1)
+    {
+        std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
+        return;
+    }
+
+    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr, clientId);
+    std::unordered_set<std::string> chatClients = _databaseConnection->GetChatClients(chatId);
+    MessageDispatch(Utils::Action::IncomingMessage, dataStr, chatClients, std::to_string(messageID), clientId, chatId, Utils::Reply);
 }
