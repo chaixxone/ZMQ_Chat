@@ -438,3 +438,8 @@ void Server::HandleMessageReply(const std::string& clientId, const std::string& 
     std::unordered_set<std::string> chatClients = _databaseConnection->GetChatClients(chatId);
     MessageDispatch(Utils::Action::IncomingMessage, dataStr, chatClients, std::to_string(messageID), clientId, chatId, Utils::Reply);
 }
+
+void Server::NotificationChecked(int notificationId)
+{
+    _databaseConnection->SetNotificationChecked(notificationId);
+}
