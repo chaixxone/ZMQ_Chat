@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <utils/helpers.hpp>
 
 using json = nlohmann::json;
 
@@ -99,6 +100,25 @@ void Server::Run()
                 case Utils::Action::Notifications:
                     HandleClientNotifications(clientId);
                     break;
+                case Utils::Action::MessageReply:
+                    HandleMessageReply(clientId, dataStr, chatIdNumber);
+                    break;
+                case Utils::Action::NotificationChecked:
+                {
+                    int notificationID = -1;
+                    try
+                    {
+                        notificationID = std::stoi(dataStr);
+                    }
+                    catch (const std::invalid_argument& e)
+                    {
+                        std::cerr << "Couldn't parse notification ID at NotificationChecked\n";
+                        return;
+                    }
+
+                    NotificationChecked(notificationID);
+                    break;
+                }
                 case Utils::Action::ClientsByName:
                     HandleGetClientsByName(clientId, dataStr);
                     break;
@@ -236,7 +256,7 @@ void Server::HandleSendMessage(const std::string& clientId, const std::string& d
         return;
     }
 
-    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr);
+    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr, clientId);
     // Send message to active clients
     std::unordered_set<std::string> chatClients = _databaseConnection->GetChatClients(chatId);
     MessageDispatch(Utils::Action::IncomingMessage, dataStr, chatClients, std::to_string(messageID), clientId, chatId);
@@ -327,7 +347,7 @@ void Server::AskClients(int pendingInvitesChatId, const std::string& creator, co
     }
 }
 
-void Server::MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId)
+void Server::MessageDispatch(Utils::Action action, const std::string& message, const std::string& clientId, int messageFlagsInt)
 {
     const std::string defaultChatId = "-1";
     zmq::message_t clientIdFrame(clientId);
@@ -338,13 +358,15 @@ void Server::MessageDispatch(Utils::Action action, const std::string& message, c
     zmq::message_t author(0);
 
     zmq::message_t chatId(defaultChatId);
+    zmq::message_t messageFlags(std::to_string(messageFlagsInt));
 
     _socket.send(clientIdFrame, zmq::send_flags::sndmore);
     _socket.send(actionFrame, zmq::send_flags::sndmore);
     _socket.send(data, zmq::send_flags::sndmore);
     _socket.send(messageId, zmq::send_flags::sndmore);
     _socket.send(author, zmq::send_flags::sndmore);
-    _socket.send(chatId, zmq::send_flags::none);
+    _socket.send(chatId, zmq::send_flags::sndmore);
+    _socket.send(messageFlags, zmq::send_flags::none);
 }
 
 void Server::MessageDispatch(
@@ -353,7 +375,8 @@ void Server::MessageDispatch(
     const std::unordered_set<std::string>& clients,
     const std::string& messageIdStr,
     const std::string& authorStr,
-    int chatIdInt
+    int chatIdInt,
+    int messageFlagsInt
 )
 {
     for (const auto& client : clients)
@@ -364,13 +387,15 @@ void Server::MessageDispatch(
         zmq::message_t messageId(messageIdStr);
         zmq::message_t author(authorStr);
         zmq::message_t chatId(std::to_string(chatIdInt));
+        zmq::message_t messageFlags(std::to_string(messageFlagsInt));
 
         _socket.send(clientId, zmq::send_flags::sndmore);
         _socket.send(actionFrame, zmq::send_flags::sndmore);
         _socket.send(data, zmq::send_flags::sndmore);
         _socket.send(messageId, zmq::send_flags::sndmore);
         _socket.send(author, zmq::send_flags::sndmore);
-        _socket.send(chatId, zmq::send_flags::none);
+        _socket.send(chatId, zmq::send_flags::sndmore);
+        _socket.send(messageFlags, zmq::send_flags::none);
     }
 }
 
@@ -389,4 +414,51 @@ void Server::HandleClientNotifications(const std::string& clientId)
     clientInvitesData = clientNotifications;
 
     MessageDispatch(Utils::Action::Notifications, clientInvitesData.dump(), clientId);
+}
+
+void Server::HandleMessageReply(const std::string& clientId, const std::string& dataStr, int chatId)
+{
+    size_t repliedMessageID = 0;
+    std::string content;
+
+    try
+    {
+        json replyData = json::parse(dataStr);
+        repliedMessageID = replyData["replied_message_id"].get<size_t>();
+        content = replyData["content"].get<std::string>();
+    }
+    catch (const json::exception& e)
+    {
+        std::cerr << "Couldn't parse json at MessageReply\n";
+        return;
+    }
+        
+    std::string repliedMessageAuthor = _databaseConnection->GetMessageAuthor(chatId, repliedMessageID);
+    std::string notificationType = Utils::actionToString(Utils::Action::MessageReply);
+
+    int notificationID = _databaseConnection->AddNotification(clientId, repliedMessageAuthor, notificationType, content, chatId);
+
+    json replyNotification = { 
+        { "notification_id", notificationID }, 
+        { "chat_id", chatId }, 
+        { "replied_message_id", repliedMessageID },
+        { "author", clientId }
+    };
+
+    MessageDispatch(Utils::Action::MessageReply, replyNotification.dump(), repliedMessageAuthor);
+
+    if (chatId == -1)
+    {
+        std::cerr << "[Server] Refusing to take message from " << clientId << ": no correct chat id in dataFrame\n";
+        return;
+    }
+
+    size_t messageID = _databaseConnection->StoreMessage(chatId, dataStr, clientId);
+    std::unordered_set<std::string> chatClients = _databaseConnection->GetChatClients(chatId);
+    MessageDispatch(Utils::Action::IncomingMessage, dataStr, chatClients, std::to_string(messageID), clientId, chatId, Utils::Reply);
+}
+
+void Server::NotificationChecked(int notificationId)
+{
+    _databaseConnection->SetNotificationChecked(notificationId);
 }

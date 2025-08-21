@@ -12,8 +12,6 @@
 #include <utils/helpers.hpp>
 #include <style_from_file.hpp>
 
-#define UI_TESTING_NO_CLIENT 1
-
 namespace
 {
     bool alive = true;
@@ -128,16 +126,6 @@ int main(int argc, char** argv)
     UI::setStyleFromFile(&chat, ":/styles/chat_ui.qss");
     chat.resize(1280, 720);
     chat.show();
-
-    std::thread clientConsoleInputThread(processClientConsoleInput, client);
-    QObject::connect(QApplication::instance(), &QApplication::aboutToQuit, [&clientConsoleInputThread, threadAlivePtr = &alive]() {
-        *threadAlivePtr = false;
-
-        if (clientConsoleInputThread.joinable())
-        {
-            clientConsoleInputThread.join();
-        }
-    });
 
     return app.exec();
 }

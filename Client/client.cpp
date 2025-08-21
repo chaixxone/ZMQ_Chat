@@ -8,6 +8,7 @@
 
 #include <utils/client_actions.hpp>
 #include <utils/helpers.hpp>
+#include <logger.hpp>
 
 using json = nlohmann::json;
 
@@ -253,7 +254,8 @@ void Client::SendMessageToChat(const std::string& messageStr, int chatIdInt)
 
 void Client::RequestToCreateChat(const std::string& clients)
 {
-    std::cout << "I am requesting: " << clients << ", to create chat\n";
+    std::string loggedMessage = "I am requesting : " + clients + ", to create chat";
+    Logger::Log(loggedMessage);
     SendRequest(clients, Utils::Action::CreateChat, -1);
 }
 
@@ -276,11 +278,13 @@ void Client::ReceiveMessage()
         zmq::message_t messageId;
         zmq::message_t author;
         zmq::message_t chatId;
+        zmq::message_t chatMessageFlags;
         bool messageReceivedResult = _socket.recv(action, zmq::recv_flags::dontwait)
             && _socket.recv(data, zmq::recv_flags::dontwait)
             && _socket.recv(messageId, zmq::recv_flags::dontwait)
             && _socket.recv(author, zmq::recv_flags::dontwait)
-            && _socket.recv(chatId, zmq::recv_flags::dontwait);
+            && _socket.recv(chatId, zmq::recv_flags::dontwait)
+            && _socket.recv(chatMessageFlags, zmq::recv_flags::dontwait);
 
         if (messageReceivedResult)
         {
@@ -292,7 +296,8 @@ void Client::ReceiveMessage()
             Utils::Action actionEnum = Utils::stringToAction(actionStr);
             int chatIdInt = std::stoi(chatId.to_string());
             std::optional<size_t> messageId = messageIdStr.empty() ? std::nullopt : std::optional(std::stoull(messageIdStr));
-            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageId, chatIdInt, actionEnum });
+            Utils::ChatMessageFlags flags = static_cast<Utils::ChatMessageFlags>(std::stoi(chatMessageFlags.to_string()));
+            _messageQueue->Enqueue(MessageView{ authorStr, dataStr, messageId, chatIdInt, actionEnum, flags });
 
             if (_messageObserver)
             {
@@ -315,22 +320,30 @@ void Client::ReceiveMessage()
                 break;
             }
             case Utils::Action::CreateChat:
-                std::cout << "[" << _identity << "]" << " I am invited to chat " << chatIdInt << '\n';
+            {
+                std::string chatInviteMessage = std::format("[{}] I am invited to chat {}", _identity, chatIdInt);
+                Logger::Log(chatInviteMessage);
+
                 _hasRequestToChat = true;
                 _pendingChatId = chatIdInt;
-                std::cout << "[Server] Do you wish to create chat with " << dataStr << "? (y/n)\n";
+
+                std::string replyPrompt = std::format("[Server] Do you wish to create chat with {}? (y/n)", dataStr);
+                Logger::Log(replyPrompt);
+
                 break;
+            }
             case Utils::Action::NewChat:
+            {
                 _chatId = std::stoi(dataStr);
-                std::cout << "[Server] Now you are in chat with id=" << dataStr << '\n';
+                std::string inChatMessage = std::format("[Server] Now you are in chat with id={}", dataStr);
+                Logger::Log(inChatMessage);
                 break;
-            case Utils::Action::IncomingMessage:
-                break;
+            }
             case Utils::Action::NewClientName:
                 ChangeIdentity(dataStr);
                 break;
-            default:
-                std::cout << "Error: unknown action!\n";
+            case Utils::Action::Unknown:
+                Logger::LogError("Error: unknown action!", "client actions");
                 break;
             }
         }
@@ -368,4 +381,10 @@ void Client::GetClientsByName(const std::string& name)
 void Client::GetNotifications()
 {
     SendRequest("", Utils::Action::Notifications, -1);
+}
+
+void Client::ReplyToMessage(int chatId, size_t messageID, const std::string& content)
+{
+    json replyData = { { "replied_message_id", messageID }, { "content", content } };
+    SendRequest(replyData.dump(), Utils::Action::MessageReply, chatId);
 }

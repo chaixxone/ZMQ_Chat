@@ -21,6 +21,7 @@ namespace Utils
         {"all_chats", Action::AllChats},
         {"client_chats", Action::ClientChats},
         {"notifications", Action::Notifications},
+        {"notification_checked", Action::NotificationChecked},
         {"clients_by_name", Action::ClientsByName},
         {"message_reply", Action::MessageReply}
     };
