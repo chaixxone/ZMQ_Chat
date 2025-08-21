@@ -383,3 +383,20 @@ std::vector<nlohmann::json> DatabaseConnection::GetClientNotifications(const std
 
 	return clientNotifications;
 }
+
+std::string DatabaseConnection::GetMessageAuthor(int chatID, size_t messageID)
+{
+	auto authorQuery = std::unique_ptr<sql::PreparedStatement>(
+		_connection->prepareStatement("SELECT author_identity FROM messages WHERE id=? AND chat_id=?")
+	);
+	authorQuery->setUInt64(1, messageID);
+	authorQuery->setInt(2, chatID);
+	std::unique_ptr<sql::ResultSet> authorResult{ authorQuery->executeQuery() };
+
+	if (authorResult->next())
+	{
+		return authorResult->getString("author_identity");
+	}
+
+	return "";
+}

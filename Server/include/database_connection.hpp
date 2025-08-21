@@ -34,6 +34,8 @@ public:
 	std::vector<std::string> GetClientsRegexp(const std::string& identity, const std::string& clientExpression);
 	std::vector<nlohmann::json> GetClientNotifications(const std::string& identity);
 
+	std::string GetMessageAuthor(int chatID, size_t messageID);
+
 	int CreateChat();
 	void AddClientToChat(const std::string& identity, int chatId) const;
 	// returns notification id
