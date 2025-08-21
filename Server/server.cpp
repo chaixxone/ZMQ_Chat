@@ -100,6 +100,9 @@ void Server::Run()
                 case Utils::Action::Notifications:
                     HandleClientNotifications(clientId);
                     break;
+                case Utils::Action::MessageReply:
+                    HandleMessageReply(clientId, dataStr, chatIdNumber);
+                    break;
                 case Utils::Action::ClientsByName:
                     HandleGetClientsByName(clientId, dataStr);
                     break;
