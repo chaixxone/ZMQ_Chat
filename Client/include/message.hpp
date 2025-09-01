@@ -18,6 +18,8 @@ namespace UI
 
 		QSize sizeHint() const override;
 
+		void SetRepliedState(Message* repliedMessage);
+
 	public slots:
 		void EditText() {}
 

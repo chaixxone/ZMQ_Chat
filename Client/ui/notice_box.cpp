@@ -1,5 +1,6 @@
 #include "notice_box.hpp"
 #include <chat_invite.hpp>
+#include <message_reply.hpp>
 
 #include <QPropertyAnimation>
 #include <QVBoxLayout>
@@ -99,6 +100,13 @@ INotifiable* NoticeBox::CreateNotification(Utils::Action notificationType, const
 		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
 			auto inviteData = qvariant_cast<ChatInviteData>(data);
 			emit InvitationProcessed(inviteData.NotificationID, inviteData.ChatId, inviteData.IsAccepted);
+		});
+		break;
+	case Utils::Action::MessageReply:
+		notice = new MessageReply(notificationPayload);
+		connect(notice, &INotifiable::NotificationProcessed, this, [this, notice](Notifications, QVariant data) {
+			auto replyData = qvariant_cast<MessageReplyData>(data);
+			emit ReplyChecked(replyData.NotificationID, replyData.ChatID, replyData.MessageID);
 		});
 		break;
 	}

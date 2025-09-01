@@ -57,6 +57,19 @@ QString Message::GetContent() const noexcept
 	return _content->toPlainText();
 }
 
+void Message::SetRepliedState(Message* repliedMessage)
+{
+	QLayout* aLayout = layout();
+	QVBoxLayout* mainLayout = qobject_cast<QVBoxLayout*>(aLayout);
+
+	QWidget* replyWrapper = new QWidget(this);
+	QVBoxLayout* wrapperLayout = new QVBoxLayout;
+	wrapperLayout->addWidget(repliedMessage);
+	replyWrapper->setLayout(wrapperLayout);	
+
+	mainLayout->insertWidget(0, nullptr, 0);
+}
+
 QSize Message::sizeHint() const
 {
 	QTextDocument* doc = _content->document();
