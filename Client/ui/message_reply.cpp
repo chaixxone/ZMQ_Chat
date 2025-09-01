@@ -12,7 +12,7 @@ MessageReply::MessageReply(const nlohmann::json& notificationPayload, QWidget* p
 	_messageID		= notificationPayload["replied_message_id"].get<size_t>();
 	_chatID			= notificationPayload["chat_id"].get<int>();
 	_notificationID = notificationPayload["notification_id"].get<int>();
-	auto noticeBoxContentLabel = new QLabel(_author + " replied on your message");
+	auto noticeBoxContentLabel = new QLabel(_author + " replied on your message", this);
 }
 
 void MessageReply::OnClick()
